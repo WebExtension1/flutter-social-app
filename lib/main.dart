@@ -1,64 +1,109 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const CalculatorApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CalculatorApp extends StatefulWidget {
+  const CalculatorApp({super.key});
 
   // This widget is the root of your application.
+  @override
+  State<CalculatorApp> createState() => _CalculatorAppState();
+}
+
+class _CalculatorAppState extends State<CalculatorApp> {
+  double _loanAmount = 0;
+  double _duration = 0;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.greenAccent,
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("My profile page"),
+          title: Text("Car Loan and Mortgage Calculator"),
         ),
-        body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: AssetImage("images/myProfilePic.jpg"),
-              ),
-              Text(
-                "Super Cool Software Dev Man",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontFamily: "Times New Roman",
-                  fontWeight: FontWeight.bold,
+        body: Column(
+          children: [
+            Text("Select Car Loan or Mortgage"),
+            Row(
+              children: [
+                Expanded(
+                  child: Card(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.car_rental,
+                          size: 80
+                        ),
+                        Text("Car Loan")
+                      ],
+                    ),
+                  )
+                ),
+                Expanded(
+                  child: Card(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.house,
+                          size: 80,
+                        ),
+                        Text("Mortgage")
+                      ],
+                    ),
+                  )
                 )
-              ),
-              Text(
-                "Software Developer",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontFamily: "Times New Roman",
-                  fontWeight: FontWeight.bold,
-                )
-              ),
-              SizedBox(
-                height: 10,
-                width: 400,
-                child: Divider(
-                  color: Colors.black,
+              ],
+            ),
+            Expanded(
+              flex: 2,
+              child: Card(
+                child: Column(
+                  children: [
+                    Text("Select Loan or Mortgage Amount"),
+                    Slider(
+                      value: _loanAmount,
+                      max: 400000,
+                      divisions: 1000,
+                      thumbColor: Colors.blue,
+                      activeColor: Colors.lightBlue,
+                      onChanged: (value) {
+                        setState(() {
+                          _loanAmount = value;
+                        });
+                      }
+                    ),
+                    Text("You selected £ ${_loanAmount.toStringAsFixed(0)}"),
+                    Text("Select Duration"),
+                    Slider(
+                        value: _duration,
+                        max: 25,
+                        divisions: 25,
+                        thumbColor: Colors.blue,
+                        activeColor: Colors.lightBlue,
+                        onChanged: (value) {
+                          setState(() {
+                            _duration = value;
+                          });
+                        }
+                    ),
+                    Text("You selected ${_duration.toStringAsFixed(0)} years")
+                  ],
                 ),
               ),
-              Card(
-                margin: EdgeInsets.only(right:50, left:50),
-                child: ListTile(
-                  leading: Icon(Icons.phone),
-                  title: Text("01234 567 890"),
-                ),
-              )
-            ],
-          )
-        )
+            ),
+            Card(
+              child: Row(
+                children: [
+                  Text("Your monthly repayment will be £${(_loanAmount * _duration).toStringAsFixed(0)}")
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
 }
-
