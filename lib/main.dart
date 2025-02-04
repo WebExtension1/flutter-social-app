@@ -28,6 +28,7 @@ class HomeBuildState extends State<HomeBuild> {
 
   static final List<Widget> pages = [
     const Home(),
+    const Search(),
     const Messages(),
     const Profile(),
   ];
@@ -48,16 +49,24 @@ class HomeBuildState extends State<HomeBuild> {
         onTap: onItemTapped,
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: "Home"
+            backgroundColor: Colors.grey,
+            icon: Icon(Icons.home),
+            label: "Home"
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.message),
-              label: "Messages"
+            backgroundColor: Colors.grey,
+            icon: Icon(Icons.search),
+            label: "Search"
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
+            backgroundColor: Colors.grey,
+            icon: Icon(Icons.message),
+            label: "Messages"
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Colors.grey,
+            icon: Icon(Icons.person),
+            label: "Profile"
           ),
         ],
       ),
@@ -161,6 +170,30 @@ class HomeState extends State<Home> {
   }
 }
 
+class Search extends StatefulWidget {
+  const Search({super.key});
+
+  @override
+  State<Search> createState() => SearchState();
+}
+
+class SearchState extends State<Search> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text("Search"),
+        ),
+        body: Column(
+          children: [
+            Text("Search")
+          ],
+        )
+    );
+  }
+}
+
 class Messages extends StatefulWidget {
   const Messages({super.key});
 
@@ -202,7 +235,7 @@ class ProfileState extends State<Profile> {
       ),
         body: Column(
           children: [
-            Text("Messages")
+            Text("Profile")
           ],
         )
     );
