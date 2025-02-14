@@ -11,15 +11,15 @@ class SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text("Search"),
-        ),
-        body: Column(
-          children: [
-            Text("Search")
-          ],
-        )
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text("Search"),
+      ),
+      body: Column(
+        children: [
+          Text("Search")
+        ],
+      )
     );
   }
 }

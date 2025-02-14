@@ -11,15 +11,14 @@ class MessagesState extends State<Messages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text("Messages"),
-        ),
-        body: Column(
-          children: [
-            Text("Messages")
-          ],
-        )
+      appBar: AppBar(
+        title: Text("Messages"),
+      ),
+      body: Column(
+        children: [
+          Text("Messages")
+        ],
+      )
     );
   }
 }

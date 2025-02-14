@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/widgets/newPostForm.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -8,89 +9,81 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  double _loanAmount = 0;
-  double _duration = 1;
-  int selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Your feed"),
+        title: Text("Your Feed"),
       ),
-      body: Column(
-        children: [
-          const Text("Select Car Loan or Mortgage"),
-          Row(
-            children: [
-              Expanded(
-                child: Card(
-                  child: Column(
-                    children: const [
-                      Icon(Icons.car_rental, size: 80),
-                      Text("Car Loan"),
+      body: Padding(
+        padding: EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Card(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(15, 5, 5, 5),
+                  child: Row(
+                    children: [
+                      CircleAvatar(),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: displayNewPost,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15,
+                                horizontal: 10
+                            ),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(20)
+                            ),
+                            child: Text(
+                              "Share what's on your mind",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Card(
-                  child: Column(
-                    children: const [
-                      Icon(Icons.house, size: 80),
-                      Text("Mortgage"),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Card(
-            child: Column(
-              children: [
-                const Text("Select Loan or Mortgage Amount"),
-                Slider(
-                  value: _loanAmount,
-                  max: 400000,
-                  divisions: 1000,
-                  thumbColor: Colors.blue,
-                  activeColor: Colors.lightBlue,
-                  onChanged: (value) {
-                    setState(() {
-                      _loanAmount = value;
-                    });
-                  },
-                ),
-                Text("You selected £ ${_loanAmount.toStringAsFixed(0)}"),
-                const Text("Select Duration"),
-                Slider(
-                  value: _duration,
-                  max: 25,
-                  min: 1,
-                  divisions: 25,
-                  thumbColor: Colors.blue,
-                  activeColor: Colors.lightBlue,
-                  onChanged: (value) {
-                    setState(() {
-                      _duration = value;
-                    });
-                  },
-                ),
-                Text("You selected ${_duration.toStringAsFixed(0)} years"),
-              ],
+                  )
+              )
             ),
-          ),
-          Card(
-            child: Row(
-              children: [
-                Text(
-                  "Your monthly repayment will be £${(_loanAmount * _duration).toStringAsFixed(0)}",
-                ),
-              ],
-            ),
-          ),
-        ],
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(),
+                        SizedBox(width: 10),
+                        Text("Username"),
+                        Expanded(
+                          child: SizedBox()
+                        ),
+                        Text("Date"),
+                        SizedBox(width: 10)
+                      ],
+                    ),
+                    Text("Message")
+                  ],
+                )
+              )
+            )
+          ]
+        )
+      )
+    );
+  }
+
+  void displayNewPost() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true, // Enables a modal-style transition
+        builder: (ctx) => const NewPostForm(),
       ),
     );
   }
