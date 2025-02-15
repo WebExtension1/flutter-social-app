@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/models/post.dart';
 
 class CommentPreview extends StatefulWidget {
-  const CommentPreview({super.key});
+  const CommentPreview({super.key, required this.comment});
+  final Post comment;
 
   @override
   State<CommentPreview> createState() => _CommentPreviewState();
 }
 
 class _CommentPreviewState extends State<CommentPreview> {
+  int liked = 0;
+  int likes = 100;
+  int dislikes = 3;
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -19,15 +25,15 @@ class _CommentPreviewState extends State<CommentPreview> {
               children: [
                 CircleAvatar(),
                 SizedBox(width: 10),
-                Text("Username"),
+                Text(widget.comment.getAccount.getUsername),
                 Expanded(
                   child: SizedBox()
                 ),
-                Text("Date"),
+                Text(widget.comment.getPostDate),
                 SizedBox(width: 10)
               ],
             ),
-            Text("Message"),
+            Text(widget.comment.getContent),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -38,11 +44,21 @@ class _CommentPreviewState extends State<CommentPreview> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          print("Like Comment");
+                          if (liked == 1) {
+                            setState(() {
+                              liked = 0;
+                            });
+                          } else {
+                            setState(() {
+                              liked = 1;
+                            });
+                          }
                         },
-                        icon: Icon(Icons.thumb_up_outlined)
+                        icon: Icon(
+                          liked == 1 ? Icons.thumb_up : Icons.thumb_up_outlined,
+                        ),
                       ),
-                      Text("100")
+                      Text((likes + isLiked).toString())
                     ],
                   ),
                 ),
@@ -53,11 +69,21 @@ class _CommentPreviewState extends State<CommentPreview> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          print("Dislike Comment");
+                          if (liked == 2) {
+                            setState(() {
+                              liked = 0;
+                            });
+                          } else {
+                            setState(() {
+                              liked = 2;
+                            });
+                          }
                         },
-                        icon: Icon(Icons.thumb_down_outlined)
+                        icon: Icon(
+                          liked == 2 ? Icons.thumb_down : Icons.thumb_down_outlined,
+                        ),
                       ),
-                      Text("3")
+                      Text((dislikes + isDisliked).toString())
                     ],
                   ),
                 ),
@@ -67,5 +93,19 @@ class _CommentPreviewState extends State<CommentPreview> {
         ),
       ),
     );
+  }
+
+  int get isLiked {
+    if (liked == 1) {
+      return 1;
+    }
+    return 0;
+  }
+
+  int get isDisliked {
+    if (liked == 2) {
+      return 1;
+    }
+    return 0;
   }
 }

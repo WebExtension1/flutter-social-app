@@ -12,11 +12,15 @@ class PostPreview extends StatefulWidget {
 }
 
 class _PostState extends State<PostPreview> {
+  int liked = 0;
+  int likes = 100;
+  int dislikes = 3;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        displayPost();
+        displayPost(false);
       },
       child: Card(
         child: Padding(
@@ -35,23 +39,51 @@ class _PostState extends State<PostPreview> {
                   SizedBox(width: 10)
                 ],
               ),
-              Text(widget.post.getContent),
+              Padding(
+                padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                      widget.post.getContent
+                  ),
+                ),
+              ),
               Row(
                 children: [
                   IconButton(
                     onPressed: () {
-                      print("Like Post");
+                      if (liked == 1) {
+                        setState(() {
+                          liked = 0;
+                        });
+                      } else {
+                        setState(() {
+                          liked = 1;
+                        });
+                      }
                     },
-                    icon: Icon(Icons.thumb_up_outlined)
+                    icon: Icon(
+                      liked == 1 ? Icons.thumb_up : Icons.thumb_up_outlined,
+                    ),
                   ),
-                  Text("100"),
+                  Text((likes + isLiked).toString()),
                   IconButton(
                     onPressed: () {
-                      print("Dislike Post");
+                      if (liked == 2) {
+                        setState(() {
+                          liked = 0;
+                        });
+                      } else {
+                        setState(() {
+                          liked = 2;
+                        });
+                      }
                     },
-                    icon: Icon(Icons.thumb_down_outlined)
+                    icon: Icon(
+                      liked == 2 ? Icons.thumb_down : Icons.thumb_down_outlined,
+                    ),
                   ),
-                  Text("3"),
+                  Text((dislikes + isDisliked).toString()),
                   Expanded(
                     child: Card(
                       elevation: 0,
@@ -68,7 +100,7 @@ class _PostState extends State<PostPreview> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  print("Comment");
+                                  displayPost(true);
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
@@ -100,11 +132,25 @@ class _PostState extends State<PostPreview> {
     );
   }
 
-  void displayPost() {
+  void displayPost(bool commentToSend) {
     Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (ctx) => PostPage(post: widget.post)
+          builder: (ctx) => PostPage(post: widget.post, comment: commentToSend)
         )
     );
+  }
+
+  int get isLiked {
+    if (liked == 1) {
+      return 1;
+    }
+    return 0;
+  }
+
+  int get isDisliked {
+    if (liked == 2) {
+      return 1;
+    }
+    return 0;
   }
 }
