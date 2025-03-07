@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
 import 'package:untitled/models/post.dart';
 import 'package:untitled/pages/post.dart';
 

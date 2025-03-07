@@ -1,15 +1,15 @@
 import 'package:untitled/models/account.dart';
 import 'package:intl/intl.dart';
 
-class Post {
+class Message {
   final String content;
+  final DateTime sentDate;
   final Account account;
-  final DateTime postDate;
 
-  Post({
+  Message({
     required this.content,
+    required this.sentDate,
     required this.account,
-    required this.postDate,
   });
 
   String get getContent {
@@ -20,7 +20,7 @@ class Post {
     return account;
   }
 
-  String get getPostDate {
-    return "${DateFormat('yyyy-MM-dd').format(postDate)} at ${DateFormat('hh:mm').format(postDate)}";
+  String get getSentDate {
+    return "${DateFormat('yyyy-MM-dd').format(sentDate)} at ${DateFormat('hh:mm').format(sentDate)}";
   }
 }
