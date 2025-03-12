@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class NotificationTheme {
   static ThemeData myTheme = ThemeData(
-    scaffoldBackgroundColor: Colors.teal,
+    scaffoldBackgroundColor: Colors.white,
     cardTheme: CardTheme(
-      color: Colors.yellowAccent
+      color: Colors.white
     ),
     iconTheme: IconThemeData(
-      color: Colors.blueAccent
+      color: Colors.black
     )
   );
 }

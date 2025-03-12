@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 
@@ -9,22 +7,62 @@ class NotificationServices {
       null,
       [
         NotificationChannel(
-          channelKey: "sports_channel",
-          channelName: "Sports News Channel",
-          channelGroupKey: "sports_news_group",
-          channelDescription: "Latest sports news from around the world",
-          defaultColor: Color(0xFFED0099),
+          channelKey: "messages_channel",
+          channelName: "Messages",
+          channelGroupKey: "messages_group",
+          channelDescription: "Receive notifications when you receive a message",
+          defaultColor: Color(0xFF007788),
           importance: NotificationImportance.High,
-          channelShowBadge: true,
           onlyAlertOnce: true,
           playSound: true,
-          criticalAlerts: true,
+          criticalAlerts: false,
+        ),
+        NotificationChannel(
+          channelKey: "posts_channel",
+          channelName: "Posts",
+          channelGroupKey: "posts_group",
+          channelDescription: "Receive occasional notifications when someone posts",
+          defaultColor: Color(0xFF007788),
+          importance: NotificationImportance.Default,
+          onlyAlertOnce: true,
+          playSound: true,
+          criticalAlerts: false,
+        ),
+        NotificationChannel(
+          channelKey: "comments_channel",
+          channelName: "Comments",
+          channelGroupKey: "posts_group",
+          channelDescription: "Receive occasional notifications when someone comments on your post",
+          defaultColor: Color(0xFF007788),
+          importance: NotificationImportance.Default,
+          onlyAlertOnce: true,
+          playSound: true,
+          criticalAlerts: false,
+        ),
+        NotificationChannel(
+          channelKey: "memories_channel",
+          channelName: "Memories",
+          channelGroupKey: "memories_group",
+          channelDescription: "Receive daily notifications about your memories",
+          defaultColor: Color(0xFF007788),
+          importance: NotificationImportance.Default,
+          onlyAlertOnce: true,
+          playSound: true,
+          criticalAlerts: false,
         )
       ],
       channelGroups: [
         NotificationChannelGroup(
-          channelGroupKey: "sports_news_group",
-          channelGroupName: "Sports News Update"
+          channelGroupKey: "messages_group",
+          channelGroupName: "Messages"
+        ),
+        NotificationChannelGroup(
+            channelGroupKey: "posts_group",
+            channelGroupName: "Posts"
+        ),
+        NotificationChannelGroup(
+            channelGroupKey: "memories_group",
+            channelGroupName: "Memories"
         )
       ],
       debug: true,
@@ -70,7 +108,7 @@ class NotificationServices {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 1,
-        channelKey: "sports_channel",
+        channelKey: "memories_channel",
         title: notificationTitle,
         body: notificationBody,
         summary: notificationSummary,
