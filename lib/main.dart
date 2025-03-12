@@ -3,8 +3,10 @@ import 'package:untitled/pages/home.dart';
 import 'package:untitled/pages/search.dart';
 import 'package:untitled/pages/messages.dart';
 import 'package:untitled/pages/profile.dart';
+import 'package:untitled/services/notifications_services.dart';
 
-void main() {
+void main() async {
+  await NotificationServices.initialiseNotification();
   runApp(const HomeBuild());
 }
 
