@@ -4,10 +4,20 @@ import 'package:untitled/pages/search.dart';
 import 'package:untitled/pages/messages.dart';
 import 'package:untitled/pages/profile.dart';
 import 'package:untitled/services/notifications_services.dart';
+import 'package:untitled/pages/login.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_options.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   await NotificationServices.initialiseNotification();
-  runApp(const HomeBuild());
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await dotenv.load();
+  runApp(HomeBuild());
 }
 
 class HomeBuild extends StatefulWidget {
@@ -54,19 +64,35 @@ class HomeBuildState extends State<HomeBuild> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: pages[selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: selectedIndex,
-          onTap: (int index) {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-          items: items
-        ),
-      )
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          if (snapshot.hasData) {
+            // User is logged in, show main app UI
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: pages[selectedIndex],
+              bottomNavigationBar: BottomNavigationBar(
+                currentIndex: selectedIndex,
+                onTap: (int index) {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                },
+                items: items,
+              ),
+            );
+          } else {
+            // User is not logged in, show login page
+            return const LoginPage();
+          }
+        },
+      ),
     );
   }
 }

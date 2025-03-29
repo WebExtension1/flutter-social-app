@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/widgets/commentPreview.dart';
 import 'package:untitled/models/post.dart';
-import 'package:untitled/models/account.dart';
+import 'package:untitled/models/comment.dart';
 import 'package:untitled/widgets/commentForm.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key, required this.post, required this.comment});
@@ -14,9 +18,9 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostState extends State<PostPage> {
-  final List<Post> comments = [
-    Post(content: "Comment text", account: Account(username: "Third User", tag: "User3", dateJoined: DateTime.now()), postDate: DateTime.now())
-  ];
+  List<Comment> comments = [];
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   int liked = 0;
   int likes = 100;
@@ -25,6 +29,7 @@ class _PostState extends State<PostPage> {
   @override
   void initState() {
     super.initState();
+    _fetchComments();
     if (widget.comment) {
       // Delay the display of the new comment sheet until after the widget is initialised. Not doing this caused errors.
       // https://stackoverflow.com/questions/49466556/flutter-run-method-on-widget-build-complete
@@ -34,11 +39,34 @@ class _PostState extends State<PostPage> {
     }
   }
 
+  Future<void> _fetchComments() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/comment/get'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'postID': widget.post.getPostID}),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        var jsonResponse = json.decode(response.body);
+        comments = List<Comment>.from(
+            jsonResponse.map((comment) => Comment.fromJson(comment))
+        );
+      });
+    } else {
+      setState(() {
+        comments = [];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.post.getAccount.getUsername} Post"),
+        title: Text("${widget.post.getAccount.getUsername}'s Post"),
       ),
       body: Padding(
         padding: EdgeInsets.all(15),

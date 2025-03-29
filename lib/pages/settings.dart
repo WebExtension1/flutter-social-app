@@ -3,6 +3,8 @@ import 'package:untitled/pages/settings/account-settings.dart';
 import 'package:untitled/pages/settings/notification-settings.dart';
 import 'package:untitled/pages/settings/profile-settings.dart';
 import 'package:untitled/themes/notifications_theme.dart';
+import 'package:untitled/pages/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -48,7 +50,7 @@ class _SettingsState extends State<Settings> {
               "Log out",
               style: TextStyle(color: Colors.red),
             ),
-            onTap: () {},
+            onTap: signout,
           ),
         ],
       ),
@@ -86,6 +88,15 @@ class _SettingsState extends State<Settings> {
               child: const NotificationSettings()
           )
       ),
+    );
+  }
+
+  void signout() async {
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
 }

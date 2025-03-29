@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/post.dart';
+import 'package:untitled/models/comment.dart';
 
 class CommentPreview extends StatefulWidget {
   const CommentPreview({super.key, required this.comment});
-  final Post comment;
+  final Comment comment;
 
   @override
   State<CommentPreview> createState() => _CommentPreviewState();
@@ -29,7 +29,7 @@ class _CommentPreviewState extends State<CommentPreview> {
                 Expanded(
                   child: SizedBox()
                 ),
-                Text(widget.comment.getPostDate),
+                Text(widget.comment.getSentDate),
                 SizedBox(width: 10)
               ],
             ),

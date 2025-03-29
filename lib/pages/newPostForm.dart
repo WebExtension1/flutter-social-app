@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 
 class NewPostForm extends StatefulWidget {
   const NewPostForm({super.key});
@@ -8,6 +12,9 @@ class NewPostForm extends StatefulWidget {
 }
 
 class _NewPostFormState extends State<NewPostForm> {
+  final TextEditingController _contentController = TextEditingController();
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final List<String> visibilities = [
     "Public", "Friends", "Private"
   ];
@@ -48,6 +55,7 @@ class _NewPostFormState extends State<NewPostForm> {
                 maxLines: null,
                 maxLength: 2500,
                 keyboardType: TextInputType.multiline,
+                controller: _contentController,
                 decoration: InputDecoration(
                   hintText: "Write your post...",
                   border: OutlineInputBorder(
@@ -60,14 +68,12 @@ class _NewPostFormState extends State<NewPostForm> {
             Row(
               children: [
                 TextButton.icon(
-                  onPressed: () {
-
-                  },
+                  onPressed: () { },
                   icon: Icon(Icons.image),
                   label: Text("Upload"),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: createPost,
                   child: Text("Post"),
                 ),
               ],
@@ -76,5 +82,22 @@ class _NewPostFormState extends State<NewPostForm> {
         ),
       ),
     );
+  }
+
+  void createPost () async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/create'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'content': _contentController.text  }),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context, "popped");
+    } else {
+      setState(() {
+      });
+    }
   }
 }

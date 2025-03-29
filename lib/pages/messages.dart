@@ -11,10 +11,10 @@ class Messages extends StatefulWidget {
 
 class MessagesState extends State<Messages> {
   final List<Account> accounts = [
-    Account(username: "First User", tag: "firstuser", dateJoined: DateTime.now()),
-    Account(username: "Second User", tag: "seconduser", dateJoined: DateTime.now()),
-    Account(username: "Third User", tag: "thirduser", dateJoined: DateTime.now()),
-    Account(username: "Fourth User", tag: "fourthuser", dateJoined: DateTime.now()),
+    Account(accountID: 1, email: 'user1@email.com', username: "firstuser", fname: "first", lname: 'user', dateJoined: DateTime.now()),
+    Account(accountID: 2, email: 'user2@email.com', username: "firstuser", fname: "second", lname: 'user', dateJoined: DateTime.now()),
+    Account(accountID: 3, email: 'user3@email.com', username: "firstuser", fname: "third", lname: 'user', dateJoined: DateTime.now()),
+    Account(accountID: 4, email: 'user4@email.com', username: "firstuser", fname: "fourth", lname: 'user', dateJoined: DateTime.now()),
   ];
 
   @override
