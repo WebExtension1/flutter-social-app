@@ -5,7 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 
 class CommentForm extends StatefulWidget {
-  const CommentForm({super.key});
+  const CommentForm({super.key, required this.postID});
+  final int postID;
 
   @override
   State<CommentForm> createState() => _CommentFormState();
@@ -15,6 +16,7 @@ class _CommentFormState extends State<CommentForm> {
   final TextEditingController _contentController = TextEditingController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -65,7 +67,7 @@ class _CommentFormState extends State<CommentForm> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'content': _contentController.text  }),
+      body: json.encode({'email': _auth.currentUser?.email, 'content': _contentController.text, 'postID': widget.postID}),
     );
 
     if (response.statusCode == 200) {

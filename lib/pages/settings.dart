@@ -25,21 +25,48 @@ class _SettingsState extends State<Settings> {
           Divider(),
           ListTile(
             leading: Icon(Icons.person),
-            title: Text("Profile"),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Profile", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "Change Username & Name.",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            ),
             onTap: displayProfileSettings,
             trailing: Icon(Icons.arrow_forward_ios, size: 16),
           ),
           Divider(),
           ListTile(
             leading: Icon(Icons.lock),
-            title: Text("Account"),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Account", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "Change Email. Reset Password. Delete Account.",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            ),
             onTap: displayAccountSettings,
             trailing: Icon(Icons.arrow_forward_ios, size: 16),
           ),
           Divider(),
           ListTile(
             leading: Icon(Icons.notifications),
-            title: Text("Notifications"),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Notifications", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "Configure Notifications.",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            ),
             onTap: displayNotificationSettings,
             trailing: Icon(Icons.arrow_forward_ios, size: 16),
           ),

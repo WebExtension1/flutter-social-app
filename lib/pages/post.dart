@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/widgets/commentPreview.dart';
+import 'package:untitled/pages/profile.dart';
 import 'package:untitled/models/post.dart';
 import 'package:untitled/models/comment.dart';
 import 'package:untitled/widgets/commentForm.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key, required this.post, required this.comment});
@@ -20,7 +20,6 @@ class PostPage extends StatefulWidget {
 class _PostState extends State<PostPage> {
   List<Comment> comments = [];
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   int liked = 0;
   int likes = 100;
@@ -31,8 +30,6 @@ class _PostState extends State<PostPage> {
     super.initState();
     _fetchComments();
     if (widget.comment) {
-      // Delay the display of the new comment sheet until after the widget is initialised. Not doing this caused errors.
-      // https://stackoverflow.com/questions/49466556/flutter-run-method-on-widget-build-complete
       WidgetsBinding.instance.addPostFrameCallback((_) {
         displayNewComment();
       });
@@ -66,7 +63,7 @@ class _PostState extends State<PostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.post.getAccount.getUsername}'s Post"),
+        title: Text("Post"),
       ),
       body: Padding(
         padding: EdgeInsets.all(15),
@@ -75,9 +72,33 @@ class _PostState extends State<PostPage> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(),
-                  SizedBox(width: 10),
-                  Text(widget.post.getAccount.getUsername),
+                  GestureDetector(
+                    onTap: openProfile,
+                    child: Row(
+                      children: [
+                        CircleAvatar(),
+                        SizedBox(width: 10),
+                        Column(
+                          children: [
+                            Text(
+                              widget.post.getAccount.getName,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '@${widget.post.getAccount.getUsername}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                   Expanded(
                       child: SizedBox()
                   ),
@@ -85,6 +106,7 @@ class _PostState extends State<PostPage> {
                   SizedBox(width: 10)
                 ],
               ),
+              SizedBox(height: 10),
               Padding(
                 padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
                 child: Align(
@@ -212,10 +234,20 @@ class _PostState extends State<PostPage> {
     );
   }
 
-  void displayNewComment() {
-    showModalBottomSheet(
+  void displayNewComment() async {
+    final result = await showModalBottomSheet(
       context: context,
-      builder: (ctx) => CommentForm()
+      builder: (ctx) => CommentForm(postID: widget.post.getPostID)
+    );
+    if (result == 'popped') {
+      _fetchComments();
+    }
+  }
+
+  void openProfile() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Profile(account: widget.post.getAccount)),
     );
   }
 

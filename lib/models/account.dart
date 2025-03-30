@@ -19,6 +19,14 @@ class Account {
     return username;
   }
 
+  String get getName {
+    return fname + ' ' + lname;
+  }
+
+  String get getEmail {
+    return email;
+  }
+
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
       accountID: json['accountID'],

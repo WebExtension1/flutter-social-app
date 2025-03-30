@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:untitled/main.dart';
 import 'package:untitled/pages/login.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -13,6 +16,11 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _fnameController = TextEditingController();
+  final TextEditingController _lnameController = TextEditingController();
+  final TextEditingController _passwordConfirmController = TextEditingController();
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String? _errorMessage;
@@ -39,6 +47,27 @@ class _SignupPageState extends State<SignupPage> {
               controller: _passwordController,
               decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: _passwordConfirmController,
+              decoration: InputDecoration(labelText: 'Confirm Password'),
+              obscureText: true,
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(labelText: 'Username'),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: _fnameController,
+              decoration: InputDecoration(labelText: 'First Name'),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: _lnameController,
+              decoration: InputDecoration(labelText: 'Last Name'),
             ),
             if (_successMessage != null)
               Padding(
@@ -77,16 +106,45 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   void signup() async {
-    if (_emailController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty) {
+    if (_emailController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty && _passwordController.text.trim() == _passwordConfirmController.text.trim()) {
       try {
-        await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+        final exists = await http.post(
+          Uri.parse('$apiUrl/account/exists'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({'email': _emailController.text.trim(), 'username': _usernameController.text.trim(), 'fname': _fnameController.text.trim(), 'lname': _lnameController.text.trim()}),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeBuild()),
-        );
+        if (exists.statusCode != 200) {
+          setState(() {
+            _errorMessage = 'Account already exists';
+            _successMessage = null;
+          });
+        } else {
+          await _auth.createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+
+          final response = await http.post(
+            Uri.parse('$apiUrl/account/create'),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: json.encode({'email': _emailController.text.trim(), 'username': _usernameController.text.trim(), 'fname': _fnameController.text.trim(), 'lname': _lnameController.text.trim()}),
+          );
+          if (response.statusCode == 200) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeBuild()),
+            );
+          } else {
+            setState(() {
+              _errorMessage = 'Invalid credentials';
+              _successMessage = null;
+            });
+          }
+        }
       } catch (e) {
         setState(() {
           _errorMessage = 'Invalid credentials';
@@ -95,7 +153,7 @@ class _SignupPageState extends State<SignupPage> {
       }
     } else {
       setState(() {
-        _errorMessage = 'All fields are required';
+        _errorMessage = 'Invalid credentials';
         _successMessage = null;
       });
     }

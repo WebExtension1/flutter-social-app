@@ -32,7 +32,7 @@ class Comment {
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       commentID: json['commentID'],
-      content: json['content'],
+      content: json['commentContent'],
       sentDate: DateTime.parse(json['sentDate']),
       accountID: Account.fromJson(json),
       postID: Post.fromJson(json),
