@@ -15,11 +15,13 @@ class _NewPostFormState extends State<NewPostForm> {
   final TextEditingController _contentController = TextEditingController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final List<String> visibilities = [
-    "Public", "Friends", "Private"
-  ];
+  final Map<String, String> visibilityMap = {
+    "Public": "public",
+    "Friends": "friends",
+    "Private": "private",
+  };
 
-  String? visibility = "Public";
+  String? visibility = "public";
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +39,13 @@ class _NewPostFormState extends State<NewPostForm> {
                 SizedBox(width: 10),
                 DropdownButton(
                   value: visibility,
-                  items: visibilities.map((item) => DropdownMenuItem(
-                    value: item,
-                    child: Text(item.toString())
+                  items: visibilityMap.entries.map((entry) => DropdownMenuItem(
+                    value: entry.value, // Store lowercase value
+                    child: Text(entry.key), // Display capitalized text
                   )).toList(),
                   onChanged: (value) {
                     setState(() {
-                      visibility = value;
+                      visibility = value!;
                     });
                   },
                 )
@@ -90,7 +92,7 @@ class _NewPostFormState extends State<NewPostForm> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'content': _contentController.text  }),
+      body: json.encode({'email': _auth.currentUser?.email, 'content': _contentController.text, 'visibility': visibility}),
     );
 
     if (response.statusCode == 200) {

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/post.dart';
 import 'package:untitled/pages/post.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PostPreview extends StatefulWidget {
-  const PostPreview({super.key, required this.post});
+  final VoidCallback onDelete;
+  const PostPreview({required this.post, required this.onDelete, Key? key}) : super(key: key);
   final Post post;
 
   @override
@@ -11,6 +16,8 @@ class PostPreview extends StatefulWidget {
 }
 
 class _PostState extends State<PostPreview> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   int liked = 0;
   int likes = 100;
   int dislikes = 3;
@@ -35,7 +42,30 @@ class _PostState extends State<PostPreview> {
                     child: SizedBox()
                   ),
                   Text(widget.post.getPostDate),
-                  SizedBox(width: 10)
+                  SizedBox(width: 10),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'delete') {
+                        deletePost();
+                      } else if (value == 'follow') {
+                        followUser();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (widget.post.getAccount.getEmail == _auth.currentUser?.email)
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete Post'),
+                        )
+                      else
+                        PopupMenuItem(
+                          value: 'follow',
+                          child: Text('Follow User'),
+                        ),
+                    ],
+                    icon: Icon(Icons.more_vert),
+                  ),
+                  SizedBox(width: 10),
                 ],
               ),
               Padding(
@@ -131,12 +161,32 @@ class _PostState extends State<PostPreview> {
     );
   }
 
-  void displayPost(bool commentToSend) {
-    Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (ctx) => PostPage(post: widget.post, comment: commentToSend)
-        )
+  void deletePost() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/delete'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'postID': widget.post.getPostID}),
     );
+
+    if (response.statusCode == 200) {
+      widget.onDelete();
+    }
+  }
+
+  void followUser() {
+
+  }
+
+  void displayPost(bool commentToSend) async {
+    final result = await Navigator.push(
+      context,
+        MaterialPageRoute(builder: (ctx) => PostPage(post: widget.post, comment: commentToSend)),
+    );
+    if (result == 'popped') {
+      widget.onDelete();
+    }
   }
 
   int get isLiked {

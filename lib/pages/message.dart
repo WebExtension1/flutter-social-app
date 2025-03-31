@@ -27,18 +27,11 @@ class _MessagePageState extends State<MessagePage> {
       appBar: AppBar(
         title: Text(widget.account.getUsername),
       ),
-      body: ListView.builder(
-        itemCount: messages.length,
-        itemBuilder: (context, index) {
-          return (
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(15),
-                child: Text(messages[index].getContent),
-              ),
-            )
-          );
-        },
+      body: Center(
+        child: ElevatedButton(
+          onPressed: (){},
+          child: Text("Send SMS"),
+        ),
       ),
     );
   }

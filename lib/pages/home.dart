@@ -94,10 +94,17 @@ class HomeState extends State<Home> {
               child: ListView.builder(
                 itemCount: posts.length,
                 itemBuilder: (context, index) {
-                  return PostPreview(post: posts[index]);
-                },
+                  return PostPreview(
+                    post: posts[index],
+                    onDelete: () {
+                      setState(() {
+                        posts.removeAt(index);
+                      });
+                    },
+                  );
+                }
               ),
-            ),
+            )
           ]
         )
       )

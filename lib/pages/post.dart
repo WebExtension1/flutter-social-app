@@ -7,6 +7,7 @@ import 'package:untitled/widgets/commentForm.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key, required this.post, required this.comment});
@@ -20,10 +21,12 @@ class PostPage extends StatefulWidget {
 class _PostState extends State<PostPage> {
   List<Comment> comments = [];
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   int liked = 0;
   int likes = 100;
   int dislikes = 3;
+  int commentCount = 0;
 
   @override
   void initState() {
@@ -51,6 +54,7 @@ class _PostState extends State<PostPage> {
         comments = List<Comment>.from(
             jsonResponse.map((comment) => Comment.fromJson(comment))
         );
+        commentCount = comments.length;
       });
     } else {
       setState(() {
@@ -102,8 +106,31 @@ class _PostState extends State<PostPage> {
                   Expanded(
                       child: SizedBox()
                   ),
-                  Text(widget.post.getPostDate.toString()),
-                  SizedBox(width: 10)
+                  Text(widget.post.getPostDate),
+                  SizedBox(width: 10),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'delete') {
+                        deletePost();
+                      } else if (value == 'follow') {
+                        // Follow user logic
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (widget.post.getAccount.getEmail == _auth.currentUser?.email)
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete Post'),
+                        )
+                      else
+                        PopupMenuItem(
+                          value: 'follow',
+                          child: Text('Follow User'),
+                        ),
+                    ],
+                    icon: Icon(Icons.more_vert),
+                  ),
+                  SizedBox(width: 10),
                 ],
               ),
               SizedBox(height: 10),
@@ -174,7 +201,7 @@ class _PostState extends State<PostPage> {
                       children: [
                         Icon(Icons.comment),
                         SizedBox(width: 10),
-                        Text("32")
+                        Text(commentCount.toString())
                       ],
                     ),
                   ),
@@ -232,6 +259,20 @@ class _PostState extends State<PostPage> {
         )
       )
     );
+  }
+
+  void deletePost() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/delete'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'postID': widget.post.getPostID}),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context, 'popped');
+    }
   }
 
   void displayNewComment() async {

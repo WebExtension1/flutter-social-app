@@ -73,7 +73,7 @@ class ProfileState extends State<Profile> {
         ],
       ),
       body: loading ? Center(child: CircularProgressIndicator()) : Padding(
-        padding: EdgeInsets.all(25),
+        padding: EdgeInsets.all(15),
         child: Column(
           children: [
             Row(

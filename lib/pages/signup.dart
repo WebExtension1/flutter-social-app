@@ -15,6 +15,7 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _fnameController = TextEditingController();
@@ -41,6 +42,12 @@ class _SignupPageState extends State<SignupPage> {
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: _phoneNumberController,
+              decoration: InputDecoration(labelText: 'Phone Number'),
+              keyboardType: TextInputType.phone,
             ),
             SizedBox(height: 10),
             TextField(
@@ -113,7 +120,7 @@ class _SignupPageState extends State<SignupPage> {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: json.encode({'email': _emailController.text.trim(), 'username': _usernameController.text.trim(), 'fname': _fnameController.text.trim(), 'lname': _lnameController.text.trim()}),
+          body: json.encode({'email': _emailController.text.trim(), 'username': _usernameController.text.trim()}),
         );
         if (exists.statusCode != 200) {
           setState(() {
@@ -131,7 +138,7 @@ class _SignupPageState extends State<SignupPage> {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: json.encode({'email': _emailController.text.trim(), 'username': _usernameController.text.trim(), 'fname': _fnameController.text.trim(), 'lname': _lnameController.text.trim()}),
+            body: json.encode({'email': _emailController.text.trim(), 'phoneNumber': _phoneNumberController.text, 'username': _usernameController.text.trim(), 'fname': _fnameController.text.trim(), 'lname': _lnameController.text.trim()}),
           );
           if (response.statusCode == 200) {
             Navigator.pushReplacement(
