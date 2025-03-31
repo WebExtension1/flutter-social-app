@@ -6,7 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   firebase_auth
   firebase_core
-  url_launcher_windows
+  permission_handler_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
