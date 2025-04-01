@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart';
-import 'package:untitled/models/message.dart';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key, required this.account});
@@ -11,33 +10,24 @@ class MessagePage extends StatefulWidget {
 }
 
 class _MessagePageState extends State<MessagePage> {
-  late List<Message> messages;
-
   @override
   void initState() {
     super.initState();
-    messages = [
-      Message(content: "Hi!", sentDate: DateTime.now(), account: widget.account)
-    ];
   }
 
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.account.getUsername),
-      ),
-      body: ListView.builder(
-        itemCount: messages.length,
-        itemBuilder: (context, index) {
-          return (
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(15),
-                child: Text(messages[index].getContent),
-              ),
-            )
-          );
-        },
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text("SMS Advanced Example")),
+        body: Column(
+          children: [
+            ElevatedButton(
+              onPressed: (){},
+              child: Text("Send SMS"),
+            ),
+          ],
+        ),
       ),
     );
   }

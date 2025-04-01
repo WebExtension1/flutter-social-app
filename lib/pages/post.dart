@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/widgets/commentPreview.dart';
+import 'package:untitled/pages/profile.dart';
 import 'package:untitled/models/post.dart';
-import 'package:untitled/models/account.dart';
+import 'package:untitled/models/comment.dart';
 import 'package:untitled/widgets/commentForm.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key, required this.post, required this.comment});
@@ -14,22 +19,46 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostState extends State<PostPage> {
-  final List<Post> comments = [
-    Post(content: "Comment text", account: Account(username: "Third User", tag: "User3", dateJoined: DateTime.now()), postDate: DateTime.now())
-  ];
+  List<Comment> comments = [];
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   int liked = 0;
   int likes = 100;
   int dislikes = 3;
+  int commentCount = 0;
 
   @override
   void initState() {
     super.initState();
+    _fetchComments();
     if (widget.comment) {
-      // Delay the display of the new comment sheet until after the widget is initialised. Not doing this caused errors.
-      // https://stackoverflow.com/questions/49466556/flutter-run-method-on-widget-build-complete
       WidgetsBinding.instance.addPostFrameCallback((_) {
         displayNewComment();
+      });
+    }
+  }
+
+  Future<void> _fetchComments() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/comment/get'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'postID': widget.post.getPostID}),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        var jsonResponse = json.decode(response.body);
+        comments = List<Comment>.from(
+            jsonResponse.map((comment) => Comment.fromJson(comment))
+        );
+        commentCount = comments.length;
+      });
+    } else {
+      setState(() {
+        comments = [];
       });
     }
   }
@@ -38,7 +67,7 @@ class _PostState extends State<PostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.post.getAccount.getUsername} Post"),
+        title: Text("Post"),
       ),
       body: Padding(
         padding: EdgeInsets.all(15),
@@ -47,16 +76,64 @@ class _PostState extends State<PostPage> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(),
-                  SizedBox(width: 10),
-                  Text(widget.post.getAccount.getUsername),
+                  GestureDetector(
+                    onTap: openProfile,
+                    child: Row(
+                      children: [
+                        CircleAvatar(),
+                        SizedBox(width: 10),
+                        Column(
+                          children: [
+                            Text(
+                              widget.post.getAccount.getName,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '@${widget.post.getAccount.getUsername}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                   Expanded(
                       child: SizedBox()
                   ),
-                  Text(widget.post.getPostDate.toString()),
-                  SizedBox(width: 10)
+                  Text(widget.post.getPostDate),
+                  SizedBox(width: 10),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'delete') {
+                        deletePost();
+                      } else if (value == 'follow') {
+                        // Follow user logic
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (widget.post.getAccount.getEmail == _auth.currentUser?.email)
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete Post'),
+                        )
+                      else
+                        PopupMenuItem(
+                          value: 'follow',
+                          child: Text('Follow User'),
+                        ),
+                    ],
+                    icon: Icon(Icons.more_vert),
+                  ),
+                  SizedBox(width: 10),
                 ],
               ),
+              SizedBox(height: 10),
               Padding(
                 padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
                 child: Align(
@@ -124,7 +201,7 @@ class _PostState extends State<PostPage> {
                       children: [
                         Icon(Icons.comment),
                         SizedBox(width: 10),
-                        Text("32")
+                        Text(commentCount.toString())
                       ],
                     ),
                   ),
@@ -174,7 +251,14 @@ class _PostState extends State<PostPage> {
                 shrinkWrap: true,
                 itemCount: comments.length,
                 itemBuilder: (context, index) {
-                  return CommentPreview(comment: comments[index]);
+                  return CommentPreview(
+                    comment: comments[index],
+                    onDelete: () {
+                      setState(() {
+                        comments.removeAt(index);
+                      });
+                    },
+                  );
                 },
               )
             ],
@@ -184,10 +268,34 @@ class _PostState extends State<PostPage> {
     );
   }
 
-  void displayNewComment() {
-    showModalBottomSheet(
+  void deletePost() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/delete'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'postID': widget.post.getPostID}),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context, 'popped');
+    }
+  }
+
+  void displayNewComment() async {
+    final result = await showModalBottomSheet(
       context: context,
-      builder: (ctx) => CommentForm()
+      builder: (ctx) => CommentForm(postID: widget.post.getPostID)
+    );
+    if (result == 'popped') {
+      _fetchComments();
+    }
+  }
+
+  void openProfile() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Profile(account: widget.post.getAccount)),
     );
   }
 

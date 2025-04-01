@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 
 class CommentForm extends StatefulWidget {
-  const CommentForm({super.key});
+  const CommentForm({super.key, required this.postID});
+  final int postID;
 
   @override
   State<CommentForm> createState() => _CommentFormState();
 }
 
 class _CommentFormState extends State<CommentForm> {
+  final TextEditingController _contentController = TextEditingController();
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -29,6 +38,7 @@ class _CommentFormState extends State<CommentForm> {
               maxLines: null,
               maxLength: 750,
               keyboardType: TextInputType.multiline,
+              controller: _contentController,
               decoration: InputDecoration(
                 hintText: "Write your reply...",
                 border: OutlineInputBorder(
@@ -41,7 +51,7 @@ class _CommentFormState extends State<CommentForm> {
           Row(
             children: [
               ElevatedButton(
-                onPressed: () {},
+                onPressed: createMessage,
                 child: Text("Send"),
               ),
             ],
@@ -49,5 +59,22 @@ class _CommentFormState extends State<CommentForm> {
         ],
       ),
     );
+  }
+
+  void createMessage () async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/comment/create'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'content': _contentController.text, 'postID': widget.postID}),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context, "popped");
+    } else {
+      setState(() {
+      });
+    }
   }
 }

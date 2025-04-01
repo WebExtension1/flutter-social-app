@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
 import 'package:untitled/pages/newPostForm.dart';
 import 'package:untitled/widgets/postPreview.dart';
 import 'package:untitled/models/post.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -12,10 +15,38 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  final List<Post> posts = [
-    Post(content: "First post details", account: Account(username: "User 1", tag: "User1", dateJoined: DateTime.now()), postDate: DateTime.now()),
-    Post(content: "Other post to display", account: Account(username: "User 2", tag: "User2", dateJoined: DateTime.now()), postDate: DateTime.now())
-  ];
+  List<Post> posts = [];
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPosts();
+  }
+
+  Future<void> _fetchPosts() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/feed'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email}),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        var jsonResponse = json.decode(response.body);
+        posts = List<Post>.from(
+            jsonResponse.map((post) => Post.fromJson(post))
+        );
+      });
+    } else {
+      setState(() {
+        posts = [];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,21 +94,30 @@ class HomeState extends State<Home> {
               child: ListView.builder(
                 itemCount: posts.length,
                 itemBuilder: (context, index) {
-                  return PostPreview(post: posts[index]);
-                },
+                  return PostPreview(
+                    post: posts[index],
+                    onDelete: () {
+                      setState(() {
+                        posts.removeAt(index);
+                      });
+                    },
+                  );
+                }
               ),
-            ),
+            )
           ]
         )
       )
     );
   }
 
-  void displayNewPost() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (ctx) => const NewPostForm(),
-      ),
+  void displayNewPost() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const NewPostForm()),
     );
+    if (result == 'popped') {
+      _fetchPosts();
+    }
   }
 }
