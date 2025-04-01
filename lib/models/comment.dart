@@ -29,6 +29,10 @@ class Comment {
     return "${DateFormat('yyyy-MM-dd').format(sentDate)} at ${DateFormat('hh:mm').format(sentDate)}";
   }
 
+  int get getCommentID {
+    return commentID;
+  }
+
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       commentID: json['commentID'],

@@ -251,7 +251,14 @@ class _PostState extends State<PostPage> {
                 shrinkWrap: true,
                 itemCount: comments.length,
                 itemBuilder: (context, index) {
-                  return CommentPreview(comment: comments[index]);
+                  return CommentPreview(
+                    comment: comments[index],
+                    onDelete: () {
+                      setState(() {
+                        comments.removeAt(index);
+                      });
+                    },
+                  );
                 },
               )
             ],

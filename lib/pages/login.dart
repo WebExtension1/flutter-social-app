@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Please enter a valid email';
+        _errorMessage = 'Please enter a valid email.';
         _successMessage = null;
       });
     }

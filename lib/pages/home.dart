@@ -27,7 +27,7 @@ class HomeState extends State<Home> {
 
   Future<void> _fetchPosts() async {
     final response = await http.post(
-      Uri.parse('$apiUrl/post/get'),
+      Uri.parse('$apiUrl/post/feed'),
       headers: {
         'Content-Type': 'application/json',
       },
