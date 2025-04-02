@@ -18,9 +18,25 @@ class PostPreview extends StatefulWidget {
 class _PostState extends State<PostPreview> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  int liked = 0;
-  int likes = 100;
-  int dislikes = 3;
+
+  int? liked = 0;
+  int? likes = 0;
+  int? dislikes = 0;
+  int? comments = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    likes = widget.post.getLikes;
+    dislikes = widget.post.getDislikes;
+    comments = widget.post.getCommentCount;
+    liked = widget.post.getLiked;
+    if (liked == 1) {
+      likes = likes! - 1;
+    } else if (liked == 2) {
+      dislikes = dislikes! - 1;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,10 +98,12 @@ class _PostState extends State<PostPreview> {
                   IconButton(
                     onPressed: () {
                       if (liked == 1) {
+                        resetInteraction();
                         setState(() {
                           liked = 0;
                         });
                       } else {
+                        likePost();
                         setState(() {
                           liked = 1;
                         });
@@ -95,14 +113,16 @@ class _PostState extends State<PostPreview> {
                       liked == 1 ? Icons.thumb_up : Icons.thumb_up_outlined,
                     ),
                   ),
-                  Text((likes + isLiked).toString()),
+                  Text((likes! + isLiked).toString()),
                   IconButton(
                     onPressed: () {
                       if (liked == 2) {
+                        resetInteraction();
                         setState(() {
                           liked = 0;
                         });
                       } else {
+                        dislikePost();
                         setState(() {
                           liked = 2;
                         });
@@ -112,7 +132,7 @@ class _PostState extends State<PostPreview> {
                       liked == 2 ? Icons.thumb_down : Icons.thumb_down_outlined,
                     ),
                   ),
-                  Text((dislikes + isDisliked).toString()),
+                  Text((dislikes! + isDisliked).toString()),
                   Expanded(
                     child: Card(
                       elevation: 0,
@@ -124,7 +144,7 @@ class _PostState extends State<PostPreview> {
                           children: [
                             Icon(Icons.comment),
                             SizedBox(width: 8),
-                            Text("32"),
+                            Text(comments.toString()),
                             SizedBox(width: 8),
                             Expanded(
                               child: GestureDetector(
@@ -201,5 +221,35 @@ class _PostState extends State<PostPreview> {
       return 1;
     }
     return 0;
+  }
+
+  void likePost() async {
+    await http.post(
+      Uri.parse('$apiUrl/post/like'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'postID': widget.post.getPostID}),
+    );
+  }
+
+  void dislikePost() async {
+    await http.post(
+      Uri.parse('$apiUrl/post/dislike'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'postID': widget.post.getPostID}),
+    );
+  }
+
+  void resetInteraction() async {
+    await http.post(
+      Uri.parse('$apiUrl/post/resetInteraction'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'postID': widget.post.getPostID}),
+    );
   }
 }
