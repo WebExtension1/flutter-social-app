@@ -41,10 +41,9 @@ class _MessagePreviewState extends State<MessagePreview> {
   }
 
   void displayMessages(bool commentToSend) {
-    Navigator.of(context).push(
-        MaterialPageRoute(
-            builder: (ctx) => MessagePage(account: widget.account)
-        )
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MessagePage(account: widget.account)),
     );
   }
 }
