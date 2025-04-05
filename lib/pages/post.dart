@@ -53,7 +53,7 @@ class _PostState extends State<PostPage> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'postID': widget.post.getPostID}),
+      body: json.encode({'postID': widget.post.getPostID , 'email': _auth.currentUser?.email}),
     );
 
     if (response.statusCode == 200) {
@@ -163,6 +163,7 @@ class _PostState extends State<PostPage> {
                           onPressed: () {
                             resetInteraction();
                             if (liked == 1) {
+                              resetInteraction();
                               setState(() {
                                 liked = 0;
                               });
