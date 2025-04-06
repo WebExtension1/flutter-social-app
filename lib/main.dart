@@ -57,6 +57,7 @@ class HomeBuildState extends State<HomeBuild> {
           account = Account(
               accountID: data['accountID'],
               email: data['email'],
+              phoneNumber: data['phoneNumber'],
               username: data['username'],
               fname: data['fname'],
               lname: data['lname'],

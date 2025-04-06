@@ -5,6 +5,7 @@ class Account {
   final String fname;
   final String lname;
   final DateTime dateJoined;
+  final int phoneNumber;
 
   Account({
     required this.accountID,
@@ -12,7 +13,8 @@ class Account {
     required this.username,
     required this.fname,
     required this.lname,
-    required this.dateJoined
+    required this.dateJoined,
+    required this.phoneNumber
   });
 
   String get getUsername {
@@ -31,6 +33,7 @@ class Account {
     return Account(
       accountID: json['accountID'],
       email: json['email'],
+      phoneNumber: json['phoneNumber'],
       username: json['username'],
       fname: json['fname'],
       lname: json['lname'],
