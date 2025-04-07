@@ -10,6 +10,7 @@ class Post {
   final int? dislikes;
   final int? commentCount;
   final int? liked;
+  final String? imageUrl;
 
   Post({
     required this.postID,
@@ -19,7 +20,8 @@ class Post {
     this.likes,
     this.dislikes,
     this.commentCount,
-    this.liked
+    this.liked,
+    this.imageUrl
   });
 
   int get getPostID {
@@ -54,6 +56,10 @@ class Post {
     return liked;
   }
 
+  String? get getImageUrl {
+    return imageUrl;
+  }
+
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       postID: json['postID'],
@@ -64,6 +70,7 @@ class Post {
       dislikes: json.containsKey('dislikes') ? json['dislikes'] as int? : null,
       commentCount: json.containsKey('commentCount') ? json['commentCount'] as int? : null,
       liked: json.containsKey('liked') ? json['liked'] as int? : null,
+      imageUrl: json.containsKey('imageUrl') ? json['imageUrl'] as String? : null,
     );
   }
 }

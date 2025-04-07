@@ -93,6 +93,16 @@ class _PostState extends State<PostPreview> {
                   ),
                 ),
               ),
+              if (widget.post.getImageUrl != null) ...[
+                SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    "$apiUrl${widget.post.getImageUrl!}",
+                    fit: BoxFit.cover
+                  ),
+                ),
+              ],
               Row(
                 children: [
                   IconButton(
@@ -138,7 +148,6 @@ class _PostState extends State<PostPreview> {
                       elevation: 0,
                       child: GestureDetector(
                         onTap: () {
-                          print("Comment");
                         },
                         child: Row(
                           children: [

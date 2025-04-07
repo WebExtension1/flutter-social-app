@@ -43,6 +43,8 @@ dependencies:
   flutter_dotenv: ^5.2.1
   permission_handler: ^11.4.0
   flutter_contacts: ^1.1.6
+  image_picker: ^1.1.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

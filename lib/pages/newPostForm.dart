@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class NewPostForm extends StatefulWidget {
   const NewPostForm({super.key});
@@ -15,13 +16,15 @@ class _NewPostFormState extends State<NewPostForm> {
   final TextEditingController _contentController = TextEditingController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? visibility = "public";
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
   final Map<String, String> visibilityMap = {
     "Public": "public",
     "Friends": "friends",
     "Private": "private",
   };
-
-  String? visibility = "public";
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +73,12 @@ class _NewPostFormState extends State<NewPostForm> {
             Row(
               children: [
                 TextButton.icon(
-                  onPressed: () { },
+                  onPressed: _pickImage,
                   icon: Icon(Icons.image),
                   label: Text("Upload"),
                 ),
+                if (_imageFile != null)
+                  Text("Image uploaded", style: TextStyle(color: Colors.green)),
                 ElevatedButton(
                   onPressed: createPost,
                   child: Text("Post"),
@@ -86,14 +91,26 @@ class _NewPostFormState extends State<NewPostForm> {
     );
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   void createPost () async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/post/create'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'content': _contentController.text, 'visibility': visibility}),
-    );
+    final request = http.MultipartRequest('POST', Uri.parse('$apiUrl/post/create'));
+    request.fields['email'] = _auth.currentUser!.email!;
+    request.fields['content'] = _contentController.text;
+    request.fields['visibility'] = visibility!;
+
+    if (_imageFile != null) {
+      request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
+    }
+
+    final response = await request.send();
 
     if (response.statusCode == 200) {
       Navigator.pop(context, "popped");
