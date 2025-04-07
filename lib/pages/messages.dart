@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart';
 import 'package:untitled/widgets/messagePreview.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Messages extends StatefulWidget {
   const Messages({super.key});
@@ -10,12 +14,34 @@ class Messages extends StatefulWidget {
 }
 
 class MessagesState extends State<Messages> {
-  final List<Account> accounts = [
-    Account(accountID: 1, email: 'user1@email.com', phoneNumber: 12433352352, username: "firstuser", fname: "first", lname: 'user', dateJoined: DateTime.now()),
-    Account(accountID: 2, email: 'user2@email.com', phoneNumber: 12433352352, username: "seconduser", fname: "second", lname: 'user', dateJoined: DateTime.now()),
-    Account(accountID: 3, email: 'user3@email.com', phoneNumber: 12433352352, username: "thirduser", fname: "third", lname: 'user', dateJoined: DateTime.now()),
-    Account(accountID: 4, email: 'user4@email.com', phoneNumber: 12433352352, username: "fourthuser", fname: "fourth", lname: 'user', dateJoined: DateTime.now()),
-  ];
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  List<Account> friends = [];
+
+  void getFriends () async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/account/friends'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email}),
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        var jsonResponse = jsonDecode(response.body);
+        friends = List<Account>.from(
+            jsonResponse.map((account) => Account.fromJson(account))
+        );
+        print(jsonResponse);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getFriends();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +57,9 @@ class MessagesState extends State<Messages> {
       ),
       body: Expanded(
         child: ListView.builder(
-          itemCount: accounts.length,
+          itemCount: friends.length,
           itemBuilder: (context, index) {
-            return MessagePreview(account: accounts[index]);
+            return MessagePreview(account: friends[index]);
           },
         ),
       ),

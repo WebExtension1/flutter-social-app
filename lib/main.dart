@@ -33,7 +33,6 @@ class HomeBuild extends StatefulWidget {
 class HomeBuildState extends State<HomeBuild> {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  int selectedIndex = 0;
   Account? account;
 
   @override
@@ -72,38 +71,8 @@ class HomeBuildState extends State<HomeBuild> {
     }
   }
 
-  final items = [
-    BottomNavigationBarItem(
-      backgroundColor: Colors.grey,
-      icon: Icon(Icons.home),
-      label: "Home"
-    ),
-    BottomNavigationBarItem(
-      backgroundColor: Colors.grey,
-      icon: Icon(Icons.search),
-      label: "Search"
-    ),
-    BottomNavigationBarItem(
-      backgroundColor: Colors.grey,
-      icon: Icon(Icons.message),
-      label: "Messages"
-    ),
-    BottomNavigationBarItem(
-      backgroundColor: Colors.grey,
-      icon: Icon(Icons.person),
-      label: "Profile"
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    List<Widget> pages = [
-      const Home(),
-      const Search(),
-      const Messages(),
-      Profile(account: account,),
-    ];
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: StreamBuilder<User?>(
@@ -115,25 +84,75 @@ class HomeBuildState extends State<HomeBuild> {
             );
           }
           if (snapshot.hasData) {
-            // User is logged in, show main app UI
-            return Scaffold(
-              backgroundColor: Colors.white,
-              body: pages[selectedIndex],
-              bottomNavigationBar: BottomNavigationBar(
-                currentIndex: selectedIndex,
-                onTap: (int index) {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
-                items: items,
-              ),
-            );
+            return MainAppScaffold(account: account);
           } else {
-            // User is not logged in, show login page
             return const LoginPage();
           }
         },
+      ),
+    );
+  }
+}
+
+class MainAppScaffold extends StatefulWidget {
+  final Account? account;
+  const MainAppScaffold({super.key, this.account});
+
+  @override
+  State<MainAppScaffold> createState() => _MainAppScaffoldState();
+}
+
+class _MainAppScaffoldState extends State<MainAppScaffold> {
+  int selectedIndex = 0;
+
+  late final List<Widget> pages;
+  final items = [
+    BottomNavigationBarItem(
+        backgroundColor: Colors.grey,
+        icon: Icon(Icons.home),
+        label: "Home"
+    ),
+    BottomNavigationBarItem(
+        backgroundColor: Colors.grey,
+        icon: Icon(Icons.search),
+        label: "Search"
+    ),
+    BottomNavigationBarItem(
+        backgroundColor: Colors.grey,
+        icon: Icon(Icons.message),
+        label: "Messages"
+    ),
+    BottomNavigationBarItem(
+        backgroundColor: Colors.grey,
+        icon: Icon(Icons.person),
+        label: "Profile"
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    pages = [
+      Home(),
+      Search(),
+      Messages(),
+      Profile(account: widget.account),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: pages[selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        items: items,
       ),
     );
   }

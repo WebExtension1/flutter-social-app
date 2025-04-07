@@ -15,12 +15,15 @@ class AccountSettings extends StatefulWidget {
 class _AccountSettingsState extends State<AccountSettings> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _newEmailController = TextEditingController();
+  final TextEditingController _newPhoneNumberController = TextEditingController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
 
   String? _errorMessagePassword;
   String? _successMessagePassword;
   String? _errorMessageEmail;
   String? _successMessageEmail;
+  String? _errorMessagePhoneNumber;
+  String? _successMessagePhoneNumber;
   String? _errorMessageAccount;
 
   @override
@@ -94,6 +97,35 @@ class _AccountSettingsState extends State<AccountSettings> {
                   _errorMessageEmail != null  ? _errorMessageEmail! : _successMessageEmail!,
                   style: TextStyle(
                     color: _errorMessageEmail != null ? Colors.red : Colors.green,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+            Divider(),
+            Text(
+              "Update Phone Number",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            TextField(
+              controller: _newPhoneNumberController,
+              decoration: InputDecoration(labelText: 'New Phone Number'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: updatePhoneNumber,
+              child: Text('Update'),
+            ),
+            if (_errorMessagePhoneNumber != null || _successMessagePhoneNumber != null ) ...[
+              SizedBox(height: 10),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  _errorMessagePhoneNumber != null  ? _errorMessagePhoneNumber! : _successMessagePhoneNumber!,
+                  style: TextStyle(
+                    color: _errorMessagePhoneNumber != null ? Colors.red : Colors.green,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -180,7 +212,6 @@ class _AccountSettingsState extends State<AccountSettings> {
     }
   }
 
-
   void updateEmail() async {
     String newEmail = _newEmailController.text.trim();
     User? user = FirebaseAuth.instance.currentUser;
@@ -210,8 +241,8 @@ class _AccountSettingsState extends State<AccountSettings> {
           });
         } else {
           setState(() {
-            _successMessageEmail = "Unable to update account details, likely due to this email already being in use.";
-            _errorMessageEmail = "";
+            _errorMessageEmail = "Unable to update account details, likely due to this email already being in use.";
+            _successMessageEmail = "";
           });
         }
       }
@@ -223,6 +254,36 @@ class _AccountSettingsState extends State<AccountSettings> {
     }
   }
 
+  void updatePhoneNumber() async {
+    String newPhoneNumber = _newPhoneNumberController.text.trim();
+
+    if (newPhoneNumber.isEmpty) {
+      setState(() {
+        _errorMessagePhoneNumber = "Phone Number field cannot be empty.";
+        _successMessagePhoneNumber = "";
+      });
+      return;
+    }
+
+    final response = await http.post(
+      Uri.parse('$apiUrl/account/updatePhoneNumber'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'phoneNumber': newPhoneNumber}),
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        _successMessagePhoneNumber = "Phone number updated!";
+        _errorMessagePhoneNumber = "";
+      });
+    } else {
+      setState(() {
+        _errorMessagePhoneNumber = "Unable to update account details.";
+        _successMessagePhoneNumber = "";
+      });
+    }
+  }
 
   void resetPassword() async {
     try {

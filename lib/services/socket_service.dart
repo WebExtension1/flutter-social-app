@@ -28,6 +28,10 @@ class SocketService {
     });
   }
 
+  void openMessage(String sender, String recipient) {
+    socket.emit("open message", {"sender": sender, "recipient": recipient});
+  }
+
   void sendMessage(String sender, String recipient, String message) {
     socket.emit("chat message", {"sender": sender, "recipient": recipient, "message": message});
   }

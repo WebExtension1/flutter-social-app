@@ -14,7 +14,7 @@ class Account {
     required this.fname,
     required this.lname,
     required this.dateJoined,
-    required this.phoneNumber
+    required this.phoneNumber,
   });
 
   String get getUsername {

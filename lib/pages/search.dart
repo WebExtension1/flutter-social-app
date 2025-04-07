@@ -26,6 +26,7 @@ class SearchState extends State<Search> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final SocketService socketService = SocketService();
   List<Post> posts = [];
+  List<AccountModel.Account> accounts = [];
 
   @override
   void initState() {
@@ -33,10 +34,12 @@ class SearchState extends State<Search> {
     _fetchContacts();
     _searchController.addListener(_onSearchChanged);
     socketService.socket.on("search", (data) {
-      print(data);
       setState(() {
         posts = List<Post>.from(
-            data.map((post) => Post.fromJson(post))
+          data['posts'].map((post) => Post.fromJson(post))
+        );
+        accounts = List<AccountModel.Account>.from(
+          data['accounts'].map((account) => AccountModel.Account.fromJson(account))
         );
       });
     });
@@ -140,18 +143,67 @@ class SearchState extends State<Search> {
             )
           else
             Expanded(
-              child: ListView.builder(
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  return PostPreview(
-                    post: posts[index],
-                    onDelete: () {
-                      setState(() {
-                        posts.removeAt(index);
-                      });
-                    },
-                  );
-                }
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Card(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Accounts",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold
+                                  )
+                                ),
+                              ),
+                            ),
+                            accounts.isEmpty
+                                ? Text("No accounts found.")
+                                : SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: accounts.map((account) {
+                                  return Row(
+                                    children: [
+                                      AccountPreview(account: account),
+                                      Padding(padding: EdgeInsets.all(8))
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Posts'),
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: posts.length,
+                      itemBuilder: (context, index) {
+                        return PostPreview(
+                          post: posts[index],
+                          onDelete: () {
+                            setState(() {
+                              posts.removeAt(index);
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
         ],

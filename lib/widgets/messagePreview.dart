@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart';
-import 'package:intl/intl.dart';
 import 'package:untitled/pages/message.dart';
 
 class MessagePreview extends StatefulWidget {
@@ -18,7 +17,7 @@ class _MessagePreviewState extends State<MessagePreview> {
       onTap: () {
         displayMessages(false);
       },
-      child:  Card(
+      child: Card(
         child: Padding(
           padding: EdgeInsets.all(15),
           child: Row(
@@ -27,12 +26,9 @@ class _MessagePreviewState extends State<MessagePreview> {
               SizedBox(width: 10),
               Column(
                 children: [
-                  Text(widget.account.getUsername),
-                  Text("Last Message")
+                  Text(widget.account.getName),
                 ],
               ),
-              Spacer(),
-              Text("${DateFormat('yyyy-MM-dd').format(DateTime.now())} at ${DateFormat('hh:mm').format(DateTime.now())}")
             ],
           ),
         )
