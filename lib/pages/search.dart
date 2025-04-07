@@ -4,9 +4,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:untitled/models/post.dart';
 import 'package:untitled/widgets/accountPreview.dart';
 import 'package:untitled/models/account.dart' as AccountModel; // It wasn't letting me use Account for formattedContacts so I needed to do this :(
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:untitled/services/socket_service.dart';
+import 'package:untitled/widgets/postPreview.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -21,12 +24,22 @@ class SearchState extends State<Search> {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   late List<AccountModel.Account> formattedContacts = [];
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final SocketService socketService = SocketService();
+  List<Post> posts = [];
 
   @override
   void initState() {
     super.initState();
     _fetchContacts();
     _searchController.addListener(_onSearchChanged);
+    socketService.socket.on("search", (data) {
+      print(data);
+      setState(() {
+        posts = List<Post>.from(
+            data.map((post) => Post.fromJson(post))
+        );
+      });
+    });
   }
 
   Future<void> _fetchContacts() async {
@@ -66,9 +79,7 @@ class SearchState extends State<Search> {
   }
 
   void _onSearchChanged() {
-    setState(() {
-
-    });
+    socketService.search(_auth.currentUser!.email!, _searchController.text);
   }
 
   @override
@@ -128,7 +139,21 @@ class SearchState extends State<Search> {
               ),
             )
           else
-            const Text("Search Results"),
+            Expanded(
+              child: ListView.builder(
+                itemCount: posts.length,
+                itemBuilder: (context, index) {
+                  return PostPreview(
+                    post: posts[index],
+                    onDelete: () {
+                      setState(() {
+                        posts.removeAt(index);
+                      });
+                    },
+                  );
+                }
+              ),
+            ),
         ],
       ),
     );
@@ -137,6 +162,7 @@ class SearchState extends State<Search> {
   @override
   void dispose() {
     _searchController.dispose();
+    socketService.socket.off("search");
     super.dispose();
   }
 }

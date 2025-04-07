@@ -32,6 +32,10 @@ class SocketService {
     socket.emit("chat message", {"sender": sender, "recipient": recipient, "message": message});
   }
 
+  void search(String email, String query) {
+    socket.emit("search", {"email": email, 'query': query});
+  }
+
   void dispose() {
     socket.dispose();
   }
