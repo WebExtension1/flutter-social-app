@@ -49,7 +49,15 @@ class _CommentPreviewState extends State<CommentPreview> {
                   onTap: openProfile,
                   child: Row(
                     children: [
-                      CircleAvatar(),
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: widget.comment.getAccount.getImageUrl != null
+                            ? NetworkImage("$apiUrl${widget.comment.getAccount.getImageUrl!}")
+                            : null,
+                        child: widget.comment.getAccount.getImageUrl == null
+                            ? Icon(Icons.person)
+                            : null,
+                      ),
                       SizedBox(width: 10),
                       Column(
                         children: [

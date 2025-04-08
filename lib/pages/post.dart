@@ -88,7 +88,15 @@ class _PostState extends State<PostPage> {
                     onTap: openProfile,
                     child: Row(
                       children: [
-                        CircleAvatar(),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: widget.post.account.getImageUrl != null
+                              ? NetworkImage("$apiUrl${widget.post.account.getImageUrl!}")
+                              : null,
+                          child: widget.post.account.getImageUrl == null
+                              ? Icon(Icons.person)
+                              : null,
+                        ),
                         SizedBox(width: 10),
                         Column(
                           children: [
@@ -151,6 +159,16 @@ class _PostState extends State<PostPage> {
                   ),
                 ),
               ),
+              if (widget.post.getImageUrl != null) ...[
+                SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                      "$apiUrl${widget.post.getImageUrl!}",
+                      fit: BoxFit.cover
+                  ),
+                ),
+              ],
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

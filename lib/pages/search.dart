@@ -82,7 +82,9 @@ class SearchState extends State<Search> {
   }
 
   void _onSearchChanged() {
-    socketService.search(_auth.currentUser!.email!, _searchController.text);
+    setState(() {
+      socketService.search(_auth.currentUser!.email!, _searchController.text);
+    });
   }
 
   @override
@@ -104,7 +106,7 @@ class SearchState extends State<Search> {
               ),
             ),
           ),
-          if (_searchController.text.isEmpty)
+          if (_searchController.text.trim().isEmpty)
             Padding(
               padding: EdgeInsets.all(8),
               child: Card(

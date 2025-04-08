@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ProfileSettings extends StatefulWidget {
   const ProfileSettings({super.key});
@@ -17,11 +19,15 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   final TextEditingController _newFNameController = TextEditingController();
   final TextEditingController _newLNameController = TextEditingController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   String? _errorMessageUsername;
   String? _successMessageUsername;
   String? _errorMessageName;
   String? _successMessageName;
+  String? _errorMessagePFP;
+  String? _successMessagePFP;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +39,31 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         padding: EdgeInsets.all(5),
         child: Column(
           children: [
+            Divider(),
+            Text(
+              "Change Profile Picture",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            TextButton.icon(
+              onPressed: _pickImage,
+              icon: Icon(Icons.image),
+              label: Text("Upload"),
+            ),
+            if (_errorMessageUsername != null || _successMessageUsername != null ) ...[
+              SizedBox(height: 10),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  _errorMessageUsername != null  ? _errorMessageUsername! : _successMessageUsername!,
+                  style: TextStyle(
+                    color: _errorMessageUsername != null ? Colors.red : Colors.green,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
             Divider(),
             Text(
               "Update Username",
@@ -99,6 +130,35 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         )
       )
     );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      final request = http.MultipartRequest('POST', Uri.parse('$apiUrl/account/updateProfilePicture'));
+      request.fields['email'] = _auth.currentUser!.email!;
+
+      if (_imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _successMessagePFP = "Profile Picture updated";
+          _errorMessagePFP = "";
+        });
+      } else {
+        setState(() {
+          _errorMessagePFP = "Profile picture couldn't be updated";
+          _successMessagePFP = "";
+        });
+      }
+    }
   }
 
   void updateUsername() async {

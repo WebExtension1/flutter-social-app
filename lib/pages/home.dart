@@ -6,9 +6,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:untitled/models/account.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  const Home({super.key, required this.account});
+  final Account? account;
 
   @override
   State<Home> createState() => HomeState();
@@ -18,11 +20,14 @@ class HomeState extends State<Home> {
   List<Post> posts = [];
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  Account? account;
+  bool loading = true;
 
   @override
   void initState() {
     super.initState();
     _fetchPosts();
+    loading = false;
   }
 
   Future<void> _fetchPosts() async {
@@ -54,7 +59,7 @@ class HomeState extends State<Home> {
       appBar: AppBar(
         title: Text("Your Feed"),
       ),
-      body: Padding(
+      body: loading ? Center(child: CircularProgressIndicator()) :  Padding(
         padding: EdgeInsets.all(5),
         child: Column(
           children: [
@@ -63,7 +68,15 @@ class HomeState extends State<Home> {
                 padding: EdgeInsets.fromLTRB(15, 5, 5, 5),
                 child: Row(
                   children: [
-                    CircleAvatar(),
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundImage: widget.account!.getImageUrl != null
+                          ? NetworkImage("$apiUrl${widget.account!.getImageUrl!}")
+                          : null,
+                      child: widget.account!.getImageUrl == null
+                          ? Icon(Icons.person)
+                          : null,
+                    ),
                     SizedBox(
                       width: 10,
                     ),

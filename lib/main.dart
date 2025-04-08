@@ -60,7 +60,8 @@ class HomeBuildState extends State<HomeBuild> {
               username: data['username'],
               fname: data['fname'],
               lname: data['lname'],
-              dateJoined: DateTime.parse(data['dateJoined'])
+              dateJoined: DateTime.parse(data['dateJoined']),
+              imageUrl: data['imageUrl']
           );
         });
       } else {
@@ -133,7 +134,7 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
   void initState() {
     super.initState();
     pages = [
-      Home(),
+      Home(account: widget.account),
       Search(),
       Messages(),
       Profile(account: widget.account),

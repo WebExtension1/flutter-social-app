@@ -71,7 +71,15 @@ class ProfileState extends State<Profile> {
           children: [
             Row(
               children: [
-                CircleAvatar(),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: widget.account!.getImageUrl != null
+                    ? NetworkImage("$apiUrl${widget.account!.getImageUrl!}")
+                    : null,
+                  child: widget.account!.getImageUrl == null
+                    ? Icon(Icons.person)
+                    : null,
+                ),
                 SizedBox(width: 10),
                 Column(
                   children: [

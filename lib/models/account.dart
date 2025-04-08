@@ -6,6 +6,7 @@ class Account {
   final String lname;
   final DateTime dateJoined;
   final int phoneNumber;
+  final String? imageUrl;
 
   Account({
     required this.accountID,
@@ -15,6 +16,7 @@ class Account {
     required this.lname,
     required this.dateJoined,
     required this.phoneNumber,
+    this.imageUrl
   });
 
   String get getUsername {
@@ -29,6 +31,10 @@ class Account {
     return email;
   }
 
+  String? get getImageUrl {
+    return imageUrl;
+  }
+
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
       accountID: json['accountID'],
@@ -38,6 +44,7 @@ class Account {
       fname: json['fname'],
       lname: json['lname'],
       dateJoined: DateTime.parse(json['dateJoined']),
+      imageUrl: json.containsKey('accountImageUrl') ? json['accountImageUrl'] as String? : json.containsKey('imageUrl') ? json['imageUrl'] as String? : null,
     );
   }
 }

@@ -51,7 +51,15 @@ class _PostState extends State<PostPreview> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(),
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: widget.post.account.getImageUrl != null
+                        ? NetworkImage("$apiUrl${widget.post.account.getImageUrl!}")
+                        : null,
+                    child: widget.post.account.getImageUrl == null
+                        ? Icon(Icons.person)
+                        : null,
+                  ),
                   SizedBox(width: 10),
                   Text(widget.post.getAccount.getUsername),
                   Expanded(
