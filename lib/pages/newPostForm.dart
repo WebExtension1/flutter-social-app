@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'dart:io';
 
 class NewPostForm extends StatefulWidget {
@@ -19,6 +21,7 @@ class _NewPostFormState extends State<NewPostForm> {
   String? visibility = "public";
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  String? _locationName;
 
   final Map<String, String> visibilityMap = {
     "Public": "public",
@@ -30,7 +33,7 @@ class _NewPostFormState extends State<NewPostForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text("Create a new post")
+        title: Text("Create a new post")
       ),
       body: Padding(
         padding: EdgeInsets.all(15),
@@ -43,8 +46,8 @@ class _NewPostFormState extends State<NewPostForm> {
                 DropdownButton(
                   value: visibility,
                   items: visibilityMap.entries.map((entry) => DropdownMenuItem(
-                    value: entry.value, // Store lowercase value
-                    child: Text(entry.key), // Display capitalized text
+                    value: entry.value,
+                    child: Text(entry.key),
                   )).toList(),
                   onChanged: (value) {
                     setState(() {
@@ -52,6 +55,18 @@ class _NewPostFormState extends State<NewPostForm> {
                     });
                   },
                 )
+              ],
+            ),
+            SizedBox(height: 10),
+            if (_locationName != null)
+              Text("📍 $_locationName", style: TextStyle(color: Colors.blue)),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: _getLocation,
+                  icon: Icon(Icons.location_on),
+                  label: Text("Check in"),
+                ),
               ],
             ),
             SizedBox(height: 10),
@@ -100,11 +115,51 @@ class _NewPostFormState extends State<NewPostForm> {
     }
   }
 
+  Future<void> _getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location services are disabled.")));
+      return;
+    }
+
+    // Check location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied.")));
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission permanently denied.")));
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition();
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks.first;
+      setState(() {
+        _locationName = "${place.name}, ${place.locality}";
+      });
+    }
+  }
+
   void createPost () async {
     final request = http.MultipartRequest('POST', Uri.parse('$apiUrl/post/create'));
     request.fields['email'] = _auth.currentUser!.email!;
     request.fields['content'] = _contentController.text;
     request.fields['visibility'] = visibility!;
+    if (_locationName != null) {
+      request.fields['location'] = _locationName!;
+    }
 
     if (_imageFile != null) {
       request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
@@ -115,8 +170,7 @@ class _NewPostFormState extends State<NewPostForm> {
     if (response.statusCode == 200) {
       Navigator.pop(context, "popped");
     } else {
-      setState(() {
-      });
+      setState(() {});
     }
   }
 }

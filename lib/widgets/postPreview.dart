@@ -92,6 +92,17 @@ class _PostState extends State<PostPreview> {
                   SizedBox(width: 10),
                 ],
               ),
+              if (widget.post.getLocation != null)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "📍 ${widget.post.getLocation!}",
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ),
               Padding(
                 padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
                 child: Align(
