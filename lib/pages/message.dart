@@ -3,7 +3,6 @@ import 'package:untitled/models/account.dart';
 import 'package:untitled/models/message.dart';
 import 'package:untitled/services/socket_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:convert';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key, required this.account});

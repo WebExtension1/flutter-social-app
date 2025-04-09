@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Account {
   final int accountID;
   final String email;
@@ -24,7 +26,7 @@ class Account {
   }
 
   String get getName {
-    return fname + ' ' + lname;
+    return "${fname} ${lname}";
   }
 
   String get getEmail {
@@ -33,6 +35,10 @@ class Account {
 
   String? get getImageUrl {
     return imageUrl;
+  }
+
+  String get getJoinDate {
+    return "${DateFormat('yyyy-MM-dd').format(dateJoined)} at ${DateFormat('hh:mm').format(dateJoined)}";
   }
 
   factory Account.fromJson(Map<String, dynamic> json) {

@@ -32,7 +32,6 @@ class MessagesState extends State<Messages> {
         friends = List<Account>.from(
             jsonResponse.map((account) => Account.fromJson(account))
         );
-        print(jsonResponse);
       });
     }
   }

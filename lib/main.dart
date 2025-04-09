@@ -68,7 +68,6 @@ class HomeBuildState extends State<HomeBuild> {
         throw Exception('Failed to load account details');
       }
     } catch (e) {
-      print(e);
     }
   }
 

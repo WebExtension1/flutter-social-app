@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart';
+import 'package:untitled/models/comment.dart';
+import 'package:untitled/widgets/commentPreview.dart';
 import 'package:untitled/widgets/postPreview.dart';
 import 'package:untitled/pages/settings.dart';
 import 'package:untitled/models/post.dart';
@@ -18,8 +20,10 @@ class Profile extends StatefulWidget {
 
 class ProfileState extends State<Profile> {
   List<Post> posts = [];
+  List<Comment> comments = [];
   Account? account;
   bool loading = true;
+  int displayType = 1;
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -44,12 +48,16 @@ class ProfileState extends State<Profile> {
       setState(() {
         var jsonResponse = json.decode(response.body);
         posts = List<Post>.from(
-          jsonResponse.map((post) => Post.fromJson(post))
+          jsonResponse['posts'].map((post) => Post.fromJson(post))
+        );
+        comments = List<Comment>.from(
+          jsonResponse['comments'].map((comment) => Comment.fromJson(comment))
         );
       });
     } else {
       setState(() {
         posts = [];
+        comments = [];
       });
     }
   }
@@ -101,21 +109,63 @@ class ProfileState extends State<Profile> {
                 ),
               ],
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  return PostPreview(
-                    post: posts[index],
-                    onDelete: () {
-                      setState(() {
-                        posts.removeAt(index);
-                      });
-                    },
-                  );
-                  }
+            SizedBox(height: 10),
+            Text("Member since ${widget.account!.getJoinDate}"),
+            SizedBox(height: 10),
+            Text("${posts.length} Post${posts.length != 1 ? 's' : ''}"),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      displayType = 1;
+                    });
+                  },
+                  child: Text("Posts"),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      displayType = 2;
+                    });
+                  },
+                  child: Text("Comments"),
+                )
+              ],
+            ),
+            if (displayType == 1)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    return PostPreview(
+                      post: posts[index],
+                      onDelete: () {
+                        setState(() {
+                          posts.removeAt(index);
+                        });
+                      },
+                    );
+                    }
+                ),
               ),
-            )
+            if (displayType == 2)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: comments.length,
+                  itemBuilder: (context, index) {
+                    return CommentPreview(
+                      comment: comments[index],
+                      onDelete: () {
+                        setState(() {
+                          comments.removeAt(index);
+                        });
+                      },
+                    );
+                  }
+                ),
+              )
           ],
         ),
       )

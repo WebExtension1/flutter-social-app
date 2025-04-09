@@ -32,7 +32,6 @@ class Message {
   }
 
   factory Message.fromJson(Map<String, dynamic> data) {
-    print(data);
     return Message(
       messageID: int.tryParse(data['messageID'].toString()) ?? 0,
       content: data['content'],
