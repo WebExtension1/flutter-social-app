@@ -12,15 +12,27 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import 'themes/light_theme.dart';
+import 'package:untitled/providers/ThemeNotifier.dart';
 
 void main() async {
-  await NotificationServices.initialiseNotification();
   WidgetsFlutterBinding.ensureInitialized();
+  final themeNotifier = ThemeNotifier(lightTheme);
+  await themeNotifier.loadTheme();
+
+  await NotificationServices.initialiseNotification();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await dotenv.load();
-  runApp(HomeBuild());
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => themeNotifier,
+      child: const HomeBuild(),
+    ),
+  );
 }
 
 class HomeBuild extends StatefulWidget {
@@ -73,23 +85,28 @@ class HomeBuildState extends State<HomeBuild> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (snapshot.hasData) {
-            return MainAppScaffold(account: account);
-          } else {
-            return const LoginPage();
-          }
-        },
-      ),
+    return Consumer<ThemeNotifier>(
+      builder: (context, themeNotifier, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: themeNotifier.getTheme(),
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snapshot.hasData) {
+                return MainAppScaffold(account: account);
+              } else {
+                return const LoginPage();
+              }
+            },
+          ),
+        );
+      }
     );
   }
 }
@@ -142,8 +159,9 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return
+      Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,

@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:untitled/widgets/profileTab.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key, this.account});
@@ -21,11 +22,13 @@ class Profile extends StatefulWidget {
 class ProfileState extends State<Profile> {
   List<Post> posts = [];
   List<Comment> comments = [];
+  List<Post> liked = [];
   Account? account;
   bool loading = true;
   int displayType = 1;
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final List<String> labels = ['Posts', 'Comments', 'Liked'];
 
   @override
   void initState() {
@@ -52,6 +55,9 @@ class ProfileState extends State<Profile> {
         );
         comments = List<Comment>.from(
           jsonResponse['comments'].map((comment) => Comment.fromJson(comment))
+        );
+        liked = List<Post>.from(
+            jsonResponse['liked'].map((post) => Post.fromJson(post))
         );
       });
     } else {
@@ -102,7 +108,6 @@ class ProfileState extends State<Profile> {
                       '@${account!.getUsername}',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
                       ),
                     ),
                   ],
@@ -115,25 +120,45 @@ class ProfileState extends State<Profile> {
             Text("${posts.length} Post${posts.length != 1 ? 's' : ''}"),
             SizedBox(height: 10),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      displayType = 1;
-                    });
-                  },
-                  child: Text("Posts"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(labels.length, (index) {
+                    final int type = index + 1;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            displayType = type;
+                          });
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              labels[index],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            AnimatedContainer(
+                              duration: Duration(milliseconds: 250),
+                              height: 2,
+                              width: displayType == type ? 24 : 0,
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      displayType = 2;
-                    });
-                  },
-                  child: Text("Comments"),
-                )
+                SizedBox(height: 10),
               ],
             ),
+            SizedBox(height: 10),
             if (displayType == 1)
               Expanded(
                 child: ListView.builder(
@@ -160,6 +185,22 @@ class ProfileState extends State<Profile> {
                       onDelete: () {
                         setState(() {
                           comments.removeAt(index);
+                        });
+                      },
+                    );
+                  }
+                ),
+              ),
+            if (displayType == 3)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: liked.length,
+                  itemBuilder: (context, index) {
+                    return PostPreview(
+                      post: liked[index],
+                      onDelete: () {
+                        setState(() {
+                          liked.removeAt(index);
                         });
                       },
                     );

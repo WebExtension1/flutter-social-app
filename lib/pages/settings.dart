@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled/pages/settings/account-settings.dart';
 import 'package:untitled/pages/settings/notification-settings.dart';
 import 'package:untitled/pages/settings/profile-settings.dart';
-import 'package:untitled/themes/notifications_theme.dart';
+import 'package:untitled/pages/settings/theme-settings.dart';
 import 'package:untitled/pages/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -30,12 +30,12 @@ class _SettingsState extends State<Settings> {
               children: [
                 Text("Profile", style: TextStyle(fontWeight: FontWeight.bold)),
                 Text(
-                  "Change Username & Name.",
+                  "Change your profile.",
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ],
             ),
-            onTap: displayProfileSettings,
+            onTap: () => displayPage(ProfileSettings()),
             trailing: Icon(Icons.arrow_forward_ios, size: 16),
           ),
           Divider(),
@@ -46,12 +46,12 @@ class _SettingsState extends State<Settings> {
               children: [
                 Text("Account", style: TextStyle(fontWeight: FontWeight.bold)),
                 Text(
-                  "Change Email. Reset Password. Delete Account.",
+                  "Update your details.",
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ],
             ),
-            onTap: displayAccountSettings,
+            onTap: () => displayPage(AccountSettings()),
             trailing: Icon(Icons.arrow_forward_ios, size: 16),
           ),
           Divider(),
@@ -67,7 +67,23 @@ class _SettingsState extends State<Settings> {
                 ),
               ],
             ),
-            onTap: displayNotificationSettings,
+            onTap: () => displayPage(NotificationSettings()),
+            trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.notifications),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("App Theme", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "Change your theme.",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            ),
+            onTap: () => displayPage(ThemeSettings()),
             trailing: Icon(Icons.arrow_forward_ios, size: 16),
           ),
           Divider(),
@@ -82,38 +98,12 @@ class _SettingsState extends State<Settings> {
         ],
       ),
     );
-
   }
 
-  void displayProfileSettings() {
+  void displayPage(Widget page) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (ctx) => Theme(
-            data: NotificationTheme.myTheme,
-            child: const ProfileSettings()
-        )
-      ),
-    );
-  }
-
-  void displayAccountSettings() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-          builder: (ctx) => Theme(
-              data: NotificationTheme.myTheme,
-              child: const AccountSettings()
-          )
-      ),
-    );
-  }
-
-  void displayNotificationSettings() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-          builder: (ctx) => Theme(
-              data: NotificationTheme.myTheme,
-              child: const NotificationSettings()
-          )
+        builder: (ctx) => page
       ),
     );
   }

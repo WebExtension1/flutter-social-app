@@ -55,15 +55,19 @@ class HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Your Feed"),
+        backgroundColor: theme.appBarTheme.backgroundColor,
       ),
-      body: loading ? Center(child: CircularProgressIndicator()) :  Padding(
+      body: loading ? Center(child: CircularProgressIndicator()) : Padding(
         padding: EdgeInsets.all(5),
         child: Column(
           children: [
             Card(
+              color: theme.cardColor,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(15, 5, 5, 5),
                 child: Row(
@@ -85,12 +89,13 @@ class HomeState extends State<Home> {
                         onTap: displayNewPost,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                              vertical: 15,
-                              horizontal: 10
+                            vertical: 15,
+                            horizontal: 10
                           ),
                           decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(20)
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(20),
+                            color: theme.dividerColor,
                           ),
                           child: Text(
                             "Share what's on your mind",
