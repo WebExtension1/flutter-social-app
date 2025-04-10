@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart';
+import 'package:untitled/pages/friends.dart';
 import 'package:untitled/pages/home.dart';
 import 'package:untitled/pages/search.dart';
 import 'package:untitled/pages/messages.dart';
@@ -141,6 +142,11 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
     ),
     BottomNavigationBarItem(
         backgroundColor: Colors.grey,
+        icon: Icon(Icons.people),
+        label: "Friends"
+    ),
+    BottomNavigationBarItem(
+        backgroundColor: Colors.grey,
         icon: Icon(Icons.person),
         label: "Profile"
     ),
@@ -153,6 +159,7 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
       Home(account: widget.account),
       Search(),
       Messages(),
+      Friends(),
       Profile(account: widget.account),
     ];
   }

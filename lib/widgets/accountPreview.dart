@@ -16,7 +16,7 @@ class _AccountPreviewState extends State<AccountPreview> {
 
   @override
   Widget build(BuildContext context) {
-  return GestureDetector(
+    return GestureDetector(
       onTap: openProfile,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
