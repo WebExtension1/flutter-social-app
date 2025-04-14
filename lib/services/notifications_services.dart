@@ -108,7 +108,7 @@ class NotificationServices {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 1,
-        channelKey: "memories_channel",
+        channelKey: "messages_channel",
         title: notificationTitle,
         body: notificationBody,
         summary: notificationSummary,

@@ -9,7 +9,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:untitled/widgets/profileTab.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key, this.account});
@@ -23,6 +22,7 @@ class ProfileState extends State<Profile> {
   List<Post> posts = [];
   List<Comment> comments = [];
   List<Post> liked = [];
+  int friends = 0;
   Account? account;
   bool loading = true;
   int displayType = 1;
@@ -59,6 +59,7 @@ class ProfileState extends State<Profile> {
         liked = List<Post>.from(
             jsonResponse['liked'].map((post) => Post.fromJson(post))
         );
+        friends = jsonResponse['friends'];
       });
     } else {
       setState(() {
@@ -118,6 +119,8 @@ class ProfileState extends State<Profile> {
             Text("Member since ${widget.account!.getJoinDate}"),
             SizedBox(height: 10),
             Text("${posts.length} Post${posts.length != 1 ? 's' : ''}"),
+            SizedBox(height: 10),
+            Text("${friends} Friend${friends != 1 ? 's' : ''}"),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

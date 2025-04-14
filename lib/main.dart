@@ -19,6 +19,7 @@ import 'package:untitled/providers/ThemeNotifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   final themeNotifier = ThemeNotifier(lightTheme);
   await themeNotifier.loadTheme();
 
