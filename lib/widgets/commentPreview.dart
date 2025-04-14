@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/comment.dart';
+import 'package:untitled/pages/post.dart';
 import 'package:untitled/pages/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -8,8 +9,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CommentPreview extends StatefulWidget {
   final VoidCallback onDelete;
-  const CommentPreview({super.key, required this.onDelete, required this.comment});
+  const CommentPreview({super.key, required this.onDelete, required this.comment, this.displayTop});
   final Comment comment;
+  final bool? displayTop;
 
   @override
   State<CommentPreview> createState() => _CommentPreviewState();
@@ -43,6 +45,16 @@ class _CommentPreviewState extends State<CommentPreview> {
         padding: EdgeInsets.all(15),
         child: Column(
           children: [
+            if (widget.displayTop == true) ...[
+              if (widget.comment.postID!.getPostID == 1)
+                Text("Post has been deleted")
+              else
+                GestureDetector(
+                  onTap: displayPost,
+                  child: Text("Go to Post"),
+                ),
+              Divider(),
+            ],
             Row(
               children: [
                 GestureDetector(
@@ -243,5 +255,15 @@ class _CommentPreviewState extends State<CommentPreview> {
       },
       body: json.encode({'email': _auth.currentUser?.email, 'commentID': widget.comment.getCommentID}),
     );
+  }
+
+  void displayPost() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.comment.postID!, comment: false)),
+    );
+    if (result == 'popped') {
+      widget.onDelete();
+    }
   }
 }

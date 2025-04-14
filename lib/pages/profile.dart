@@ -187,6 +187,7 @@ class ProfileState extends State<Profile> {
                           comments.removeAt(index);
                         });
                       },
+                      displayTop: true
                     );
                   }
                 ),

@@ -44,26 +44,36 @@ class _MessagePageState extends State<MessagePage> {
     socketService.openMessage(_auth.currentUser!.email!, widget.account.getEmail);
     socketService.socket.on("chat message", (data) {
       if (!_isMounted) return;
-      if((data['senderEmail'] == _auth.currentUser?.email && data['receiverEmail'] == widget.account.getEmail) || (data['receiverEmail'] == _auth.currentUser?.email && data['senderEmail'] == widget.account.getEmail)) {
-        setState(() {
-          messages.add(Message(
-            messageID: int.tryParse(data['messageID'].toString()) ?? 0,
-            content: data['content'],
-            sentDate: DateTime.parse(data['sentDate']),
-            senderEmail: data['senderEmail'],
-            receiverEmail: data['receiverEmail'],
-          ));
-        });
 
-        Future.delayed(Duration(milliseconds: 100), () {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-          }
-        });
+      if (data is List) {
+        var item = data[0];
+
+        final sender = item['senderEmail'];
+        final receiver = item['receiverEmail'];
+        final myEmail = _auth.currentUser?.email;
+        final otherEmail = widget.account.getEmail;
+
+        if ((sender == myEmail && receiver == otherEmail) || (receiver == myEmail && sender == otherEmail)) {
+          setState(() {
+            messages.add(Message(
+              messageID: int.tryParse(item['messageID'].toString()) ?? 0,
+              content: item['content'],
+              sentDate: DateTime.parse(item['sentDate']),
+              senderEmail: sender,
+              receiverEmail: receiver,
+            ));
+          });
+
+          Future.delayed(Duration(milliseconds: 100), () {
+            if (_scrollController.hasClients) {
+              _scrollController.animateTo(
+                _scrollController.position.maxScrollExtent,
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            }
+          });
+        }
       }
     });
   }

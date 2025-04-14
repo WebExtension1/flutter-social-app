@@ -41,48 +41,55 @@ class _FriendsState extends State<Friends> {
     }
 
     if (await FlutterContacts.requestPermission()) {
-      final contacts = await FlutterContacts.getContacts(withProperties: true);
+      final phoneContacts = await FlutterContacts.getContacts(withProperties: true);
       setState(() {
-        _allContacts = contacts;
+        _allContacts = phoneContacts;
       });
-    }
 
-    List<String> allPhoneNumbers = _allContacts
+      List<String> allPhoneNumbers = _allContacts
         .expand((contact) => contact.phones)
         .map((phone) => phone.number.replaceAll(RegExp(r'\s+'), ''))
         .toList();
 
-    final response = await http.post(
-      Uri.parse('$apiUrl/account/friendsPage'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'phoneNumbers': allPhoneNumbers}),
-    );
-    if (response.statusCode == 200) {
-      setState(() {
-        var jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['friends'] != null)
-          friends = List<AccountModel.Account>.from(
-              jsonResponse['friends'].map((account) => AccountModel.Account.fromJson(account))
-          );
-        if (jsonResponse['contacts'] != null)
-          contacts = List<AccountModel.Account>.from(
-              jsonResponse['contacts'].map((account) => AccountModel.Account.fromJson(account))
-          );
-        if (jsonResponse['mutual'] != null)
-          mutual = List<AccountModel.Account>.from(
-              jsonResponse['mutual'].map((account) => AccountModel.Account.fromJson(account))
-          );
-        if (jsonResponse['incoming'] != null)
-          incoming = List<AccountModel.Account>.from(
-              jsonResponse['incoming'].map((account) => AccountModel.Account.fromJson(account))
-          );
-        if (jsonResponse['outgoing'] != null)
-          outgoing = List<AccountModel.Account>.from(
-              jsonResponse['outgoing'].map((account) => AccountModel.Account.fromJson(account))
-          );
-      });
+      final response = await http.post(
+        Uri.parse('$apiUrl/account/friendsPage'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'email': _auth.currentUser?.email, 'phoneNumbers': allPhoneNumbers}),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          var jsonResponse = jsonDecode(response.body);
+          if (jsonResponse['friends'] != null) {
+            friends = List<AccountModel.Account>.from(
+                jsonResponse['friends'].map((account) =>
+                    AccountModel.Account.fromJson(account))
+            );
+          }
+          if (jsonResponse['contacts'] != null) {
+            contacts = List<AccountModel.Account>.from(
+                jsonResponse['contacts'].map((account) =>
+                    AccountModel.Account.fromJson(account))
+            );
+          }
+          if (jsonResponse['mutual'] != null) {
+            mutual = List<AccountModel.Account>.from(
+                jsonResponse['mutual'].map((account) => AccountModel.Account.fromJson(account))
+            );
+          }
+          if (jsonResponse['incoming'] != null) {
+            incoming = List<AccountModel.Account>.from(
+                jsonResponse['incoming'].map((account) => AccountModel.Account.fromJson(account))
+            );
+          }
+          if (jsonResponse['outgoing'] != null) {
+            outgoing = List<AccountModel.Account>.from(
+                jsonResponse['outgoing'].map((account) => AccountModel.Account.fromJson(account))
+            );
+          }
+        });
+      }
     }
   }
 
