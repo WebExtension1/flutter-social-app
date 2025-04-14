@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/models/account.dart';
 import 'package:untitled/models/post.dart';
 import 'package:untitled/pages/post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,8 +9,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PostPreview extends StatefulWidget {
   final VoidCallback onDelete;
-  const PostPreview({required this.post, required this.onDelete, Key? key}) : super(key: key);
+  const PostPreview({required this.post, required this.onDelete, required this.account, super.key});
   final Post post;
+  final Account account;
 
   @override
   State<PostPreview> createState() => _PostState();
@@ -53,10 +55,10 @@ class _PostState extends State<PostPreview> {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundImage: widget.post.account.getImageUrl != null
-                        ? NetworkImage("$apiUrl${widget.post.account.getImageUrl!}")
+                    backgroundImage: widget.post.getAccount.getImageUrl != null
+                        ? NetworkImage("$apiUrl${widget.post.getAccount.getImageUrl!}")
                         : null,
-                    child: widget.post.account.getImageUrl == null
+                    child: widget.post.getAccount.getImageUrl == null
                         ? Icon(Icons.person)
                         : null,
                   ),
@@ -67,28 +69,19 @@ class _PostState extends State<PostPreview> {
                   ),
                   Text(widget.post.getPostDate),
                   SizedBox(width: 10),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'delete') {
+                  if (_auth.currentUser?.email == widget.post.getAccount.getEmail)
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
                         deletePost();
-                      } else if (value == 'follow') {
-                        followUser();
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      if (widget.post.getAccount.getEmail == _auth.currentUser?.email)
+                      },
+                      itemBuilder: (context) => [
                         PopupMenuItem(
                           value: 'delete',
                           child: Text('Delete Post'),
                         )
-                      else
-                        PopupMenuItem(
-                          value: 'follow',
-                          child: Text('Follow User'),
-                        ),
-                    ],
-                    icon: Icon(Icons.more_vert),
-                  ),
+                      ],
+                      icon: Icon(Icons.more_vert),
+                    ),
                   SizedBox(width: 10),
                 ],
               ),
@@ -223,14 +216,10 @@ class _PostState extends State<PostPreview> {
     }
   }
 
-  void followUser() {
-
-  }
-
   void displayPost(bool commentToSend) async {
     final result = await Navigator.push(
       context,
-        MaterialPageRoute(builder: (ctx) => PostPage(post: widget.post, comment: commentToSend)),
+      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.post, comment: commentToSend, account: widget.account))
     );
     if (result == 'popped') {
       widget.onDelete();

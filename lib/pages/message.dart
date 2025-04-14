@@ -97,7 +97,7 @@ class _MessagePageState extends State<MessagePage> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final msg = messages[index];
-                final isMe = msg.senderEmail == _auth.currentUser?.email;
+                final isMe = msg.getSenderEmail == _auth.currentUser?.email;
                 return Align(
                   alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
@@ -116,7 +116,7 @@ class _MessagePageState extends State<MessagePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          msg.content,
+                          msg.getContent,
                           style: TextStyle(
                             color: isMe ? Colors.white : Colors.black87,
                             fontSize: 16,

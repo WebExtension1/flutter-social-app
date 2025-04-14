@@ -2,80 +2,89 @@ import 'package:untitled/models/account.dart';
 import 'package:intl/intl.dart';
 
 class Post {
-  final int postID;
-  final String content;
-  final Account account;
-  final DateTime postDate;
-  final int? likes;
-  final int? dislikes;
-  final int? commentCount;
-  final int? liked;
-  final String? imageUrl;
-  final String? location;
+  final int _postID;
+  final String _content;
+  final Account _account;
+  final DateTime _postDate;
+  final int _likes;
+  final int _dislikes;
+  final int _commentCount;
+  final int _liked;
+  final String? _imageUrl;
+  final String? _location;
 
   Post({
-    required this.postID,
-    required this.content,
-    required this.account,
-    required this.postDate,
-    this.likes,
-    this.dislikes,
-    this.commentCount,
-    this.liked,
-    this.imageUrl,
-    this.location
-  });
+    required int postID,
+    required String content,
+    required Account account,
+    required DateTime postDate,
+    required int likes,
+    required int dislikes,
+    required int commentCount,
+    required int liked,
+    String? imageUrl,
+    String? location,
+  })  : _postID = postID,
+        _content = content,
+        _account = account,
+        _postDate = postDate,
+        _likes = likes,
+        _dislikes = dislikes,
+        _commentCount = commentCount,
+        _liked = liked,
+        _imageUrl = imageUrl,
+        _location = location;
 
   int get getPostID {
-    return postID;
+    return _postID;
   }
 
   String get getContent {
-    return content;
+    return _content;
   }
 
   Account get getAccount {
-    return account;
+    return _account;
   }
 
   String get getPostDate {
-    return "${DateFormat('yyyy-MM-dd').format(postDate)} at ${DateFormat('hh:mm').format(postDate)}";
+    return "${DateFormat('yyyy-MM-dd').format(_postDate)} at ${DateFormat('hh:mm').format(_postDate)}";
   }
 
-  int? get getLikes {
-    return likes;
+  int get getLikes {
+    return _likes;
   }
 
-  int? get getDislikes {
-    return dislikes;
+  int get getDislikes {
+    return _dislikes;
   }
 
-  int? get getCommentCount {
-    return commentCount;
+  int get getCommentCount {
+    return _commentCount;
   }
 
-  int? get getLiked {
-    return liked;
+  int get getLiked {
+    return _liked;
   }
 
   String? get getImageUrl {
-    return imageUrl;
+    return _imageUrl;
   }
 
   String? get getLocation {
-    return location;
+    return _location;
   }
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       postID: json['postID'],
-      content: json['content'],
+      content: json.containsKey('postContent') ? json['postContent'] : json['content'],
       account: Account.fromJson(json),
       postDate: DateTime.parse(json['postDate']),
-      likes: json.containsKey('likes') ? json['likes'] as int? : null,
-      dislikes: json.containsKey('dislikes') ? json['dislikes'] as int? : null,
-      commentCount: json.containsKey('commentCount') ? json['commentCount'] as int? : null,
-      liked: json.containsKey('liked') ? json['liked'] as int? : null,
+      likes: json['likes'],
+      dislikes: json['dislikes'],
+      commentCount: json['commentCount'],
+      liked: json['liked'],
       imageUrl: json.containsKey('imageUrl') ? json['imageUrl'] as String? : null,
       location: json.containsKey('location') ? json['location'] as String? : null,
     );

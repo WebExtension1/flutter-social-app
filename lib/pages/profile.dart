@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart';
 import 'package:untitled/models/comment.dart';
-import 'package:untitled/widgets/commentPreview.dart';
-import 'package:untitled/widgets/postPreview.dart';
+import 'package:untitled/widgets/comment_preview.dart';
+import 'package:untitled/widgets/post_preview.dart';
 import 'package:untitled/pages/settings.dart';
 import 'package:untitled/models/post.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -75,9 +75,8 @@ class ProfileState extends State<Profile> {
       appBar: AppBar(
         title: Text("Profile"),
         actions: [
-          account != null && account!.getEmail == _auth.currentUser?.email
-            ? IconButton(onPressed: displaySettings, icon: Icon(Icons.settings))
-            : IconButton(onPressed: displayOptions, icon: Icon(Icons.more_vert)),
+          if (account != null && account!.getEmail == _auth.currentUser?.email)
+            IconButton(onPressed: displaySettings, icon: Icon(Icons.settings))
         ],
       ),
       body: loading ? Center(child: CircularProgressIndicator()) : Padding(
@@ -106,13 +105,44 @@ class ProfileState extends State<Profile> {
                       ),
                     ),
                     Text(
-                      '@${account!.getUsername}',
+                      account!.getUsername,
                       style: TextStyle(
                         fontSize: 14,
                       ),
                     ),
                   ],
                 ),
+                Expanded(
+                  child: SizedBox()
+                ),
+                if (widget.account!.getRelationship == 'friend')
+                  ElevatedButton(
+                    onPressed: removeFriend,
+                    child: const Text("Remove"),
+                  ),
+                if (widget.account!.getRelationship == 'incoming')
+                  Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: acceptFriendRequest,
+                          child: const Text("Accept"),
+                        ),
+                        ElevatedButton(
+                          onPressed: rejectFriendRequest,
+                          child: const Text("Reject"),
+                        ),
+                      ]
+                  ),
+                if (widget.account!.getRelationship == 'outgoing')
+                  ElevatedButton(
+                    onPressed: cancelFriendRequest,
+                    child: const Text("Cancel"),
+                  ),
+                if (widget.account!.getRelationship == 'other')
+                  ElevatedButton(
+                    onPressed: sendFriendRequest,
+                    child: const Text("Send Request"),
+                  )
               ],
             ),
             SizedBox(height: 10),
@@ -120,7 +150,7 @@ class ProfileState extends State<Profile> {
             SizedBox(height: 10),
             Text("${posts.length} Post${posts.length != 1 ? 's' : ''}"),
             SizedBox(height: 10),
-            Text("${friends} Friend${friends != 1 ? 's' : ''}"),
+            Text("$friends Friend${friends != 1 ? 's' : ''}"),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -174,8 +204,9 @@ class ProfileState extends State<Profile> {
                           posts.removeAt(index);
                         });
                       },
+                      account: widget.account!
                     );
-                    }
+                  }
                 ),
               ),
             if (displayType == 2)
@@ -190,7 +221,8 @@ class ProfileState extends State<Profile> {
                           comments.removeAt(index);
                         });
                       },
-                      displayTop: true
+                      displayTop: true,
+                      account: widget.account!
                     );
                   }
                 ),
@@ -207,6 +239,7 @@ class ProfileState extends State<Profile> {
                           liked.removeAt(index);
                         });
                       },
+                      account: widget.account!
                     );
                   }
                 ),
@@ -225,7 +258,53 @@ class ProfileState extends State<Profile> {
     );
   }
 
-  void displayOptions() {
+  void removeFriend() async {
+    await http.post(
+      Uri.parse('$apiUrl/account/removeFriend'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+    );
+  }
 
+  void acceptFriendRequest() async {
+    await http.post(
+      Uri.parse('$apiUrl/account/acceptFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+    );
+  }
+
+  void rejectFriendRequest() async {
+    await http.post(
+      Uri.parse('$apiUrl/account/rejectFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+    );
+  }
+
+  void cancelFriendRequest() async {
+    await http.post(
+      Uri.parse('$apiUrl/account/cancelFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+    );
+  }
+
+  void sendFriendRequest() async {
+    await http.post(
+      Uri.parse('$apiUrl/account/sendFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+    );
   }
 }

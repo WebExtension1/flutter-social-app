@@ -11,6 +11,7 @@ void main() {
       fname: 'test',
       lname: 'user',
       dateJoined: DateTime.parse('2025-04-09 09:26:12'),
+      relationship: 'other',
       phoneNumber: 01234567890
     );
     final String expectedDate = '2025-04-09 at 09:26';
@@ -31,6 +32,7 @@ void main() {
         fname: 'test',
         lname: 'user',
         dateJoined: DateTime.parse('2025-04-09 09:26:12'),
+        relationship: 'other',
         phoneNumber: 01234567890
     );
     final String expectedName = 'test user';

@@ -41,7 +41,7 @@ class _FriendPreviewState extends State<FriendPreview> {
               Column(
                 children: [
                   Text(widget.account.getName),
-                  Text("@${widget.account.getUsername}"),
+                  Text(widget.account.getUsername),
                 ],
               ),
               Expanded(

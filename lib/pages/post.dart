@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/widgets/commentPreview.dart';
+import 'package:untitled/models/account.dart';
+import 'package:untitled/widgets/comment_preview.dart';
 import 'package:untitled/pages/profile.dart';
 import 'package:untitled/models/post.dart';
 import 'package:untitled/models/comment.dart';
-import 'package:untitled/widgets/commentForm.dart';
+import 'package:untitled/widgets/comment_form.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class PostPage extends StatefulWidget {
-  const PostPage({super.key, required this.post, required this.comment});
+  const PostPage({super.key, required this.post, required this.comment, required this.account});
   final Post post;
   final bool comment;
+  final Account account;
 
   @override
   State<PostPage> createState() => _PostState();
@@ -90,10 +92,10 @@ class _PostState extends State<PostPage> {
                       children: [
                         CircleAvatar(
                           radius: 30,
-                          backgroundImage: widget.post.account.getImageUrl != null
-                              ? NetworkImage("$apiUrl${widget.post.account.getImageUrl!}")
+                          backgroundImage: widget.post.getAccount.getImageUrl != null
+                              ? NetworkImage("$apiUrl${widget.post.getAccount.getImageUrl!}")
                               : null,
-                          child: widget.post.account.getImageUrl == null
+                          child: widget.post.getAccount.getImageUrl == null
                               ? Icon(Icons.person)
                               : null,
                         ),
@@ -108,7 +110,7 @@ class _PostState extends State<PostPage> {
                               ),
                             ),
                             Text(
-                              '@${widget.post.getAccount.getUsername}',
+                              widget.post.getAccount.getUsername,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
@@ -120,32 +122,23 @@ class _PostState extends State<PostPage> {
                     ),
                   ),
                   Expanded(
-                      child: SizedBox()
+                    child: SizedBox()
                   ),
                   Text(widget.post.getPostDate),
                   SizedBox(width: 10),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'delete') {
+                  if (_auth.currentUser?.email == widget.post.getAccount.getEmail)
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
                         deletePost();
-                      } else if (value == 'follow') {
-                        // Follow user logic
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      if (widget.post.getAccount.getEmail == _auth.currentUser?.email)
+                      },
+                      itemBuilder: (context) => [
                         PopupMenuItem(
                           value: 'delete',
                           child: Text('Delete Post'),
                         )
-                      else
-                        PopupMenuItem(
-                          value: 'follow',
-                          child: Text('Follow User'),
-                        ),
-                    ],
-                    icon: Icon(Icons.more_vert),
-                  ),
+                      ],
+                      icon: Icon(Icons.more_vert),
+                    ),
                   SizedBox(width: 10),
                 ],
               ),
@@ -251,7 +244,15 @@ class _PostState extends State<PostPage> {
                 padding: EdgeInsets.fromLTRB(19, 5, 19, 5),
                 child: Row(
                   children: [
-                    CircleAvatar(),
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundImage: widget.account.getImageUrl != null
+                          ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
+                          : null,
+                      child: widget.account.getImageUrl == null
+                          ? Icon(Icons.person)
+                          : null,
+                    ),
                     SizedBox(
                       width: 10,
                     ),
@@ -277,7 +278,6 @@ class _PostState extends State<PostPage> {
                   ],
                 )
               ),
-
               ListView.builder(
                 shrinkWrap: true,
                 itemCount: comments.length,
@@ -289,6 +289,7 @@ class _PostState extends State<PostPage> {
                         comments.removeAt(index);
                       });
                     },
+                    account: widget.account
                   );
                 },
               )

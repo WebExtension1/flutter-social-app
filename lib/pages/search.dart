@@ -5,14 +5,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:untitled/models/post.dart';
-import 'package:untitled/widgets/accountPreview.dart';
-import 'package:untitled/models/account.dart' as AccountModel; // It wasn't letting me use Account for formattedContacts so I needed to do this :(
+import 'package:untitled/widgets/account_preview.dart';
+import 'package:untitled/models/account.dart' as account_model; // It wasn't letting me use Account for formattedContacts so I needed to do this :(
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:untitled/services/socket_service.dart';
-import 'package:untitled/widgets/postPreview.dart';
+import 'package:untitled/widgets/post_preview.dart';
 
 class Search extends StatefulWidget {
-  const Search({super.key});
+  const Search({super.key, required this.account});
+  final account_model.Account? account;
 
   @override
   State<Search> createState() => SearchState();
@@ -22,11 +23,11 @@ class SearchState extends State<Search> {
   final TextEditingController _searchController = TextEditingController();
   List<Contact> _allContacts = [];
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  late List<AccountModel.Account> formattedContacts = [];
+  late List<account_model.Account> formattedContacts = [];
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final SocketService socketService = SocketService();
   List<Post> posts = [];
-  List<AccountModel.Account> accounts = [];
+  List<account_model.Account> accounts = [];
 
   @override
   void initState() {
@@ -38,8 +39,8 @@ class SearchState extends State<Search> {
         posts = List<Post>.from(
           data['posts'].map((post) => Post.fromJson(post))
         );
-        accounts = List<AccountModel.Account>.from(
-          data['accounts'].map((account) => AccountModel.Account.fromJson(account))
+        accounts = List<account_model.Account>.from(
+          data['accounts'].map((account) => account_model.Account.fromJson(account))
         );
       });
     });
@@ -73,8 +74,8 @@ class SearchState extends State<Search> {
       if (response.statusCode == 200) {
         setState(() {
           var jsonResponse = jsonDecode(response.body);
-          formattedContacts = List<AccountModel.Account>.from(
-            jsonResponse.map((account) => AccountModel.Account.fromJson(account))
+          formattedContacts = List<account_model.Account>.from(
+            jsonResponse.map((account) => account_model.Account.fromJson(account))
           );
         });
       }
@@ -201,6 +202,7 @@ class SearchState extends State<Search> {
                               posts.removeAt(index);
                             });
                           },
+                          account: widget.account!
                         );
                       },
                     ),

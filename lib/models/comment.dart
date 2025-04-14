@@ -3,52 +3,63 @@ import 'package:untitled/models/post.dart';
 import 'package:intl/intl.dart';
 
 class Comment {
-  final int commentID;
-  final String content;
-  final DateTime sentDate;
-  final Account accountID;
-  final Post? postID;
-  final int? likes;
-  final int? dislikes;
-  final int? liked;
+  final int _commentID;
+  final String _content;
+  final DateTime _sentDate;
+  final Account _account;
+  final Post? _post;
+  final int _likes;
+  final int _dislikes;
+  final int _liked;
 
   Comment({
-    required this.commentID,
-    required this.content,
-    required this.sentDate,
-    required this.accountID,
-    this.postID,
-    this.likes,
-    this.dislikes,
-    this.liked
-  });
+    required int commentID,
+    required String content,
+    required DateTime sentDate,
+    required Account account,
+    Post? post,
+    required int likes,
+    required int dislikes,
+    required int liked,
+  })  : _commentID = commentID,
+        _content = content,
+        _sentDate = sentDate,
+        _account = account,
+        _post = post,
+        _likes = likes,
+        _dislikes = dislikes,
+        _liked = liked;
 
-  String get getContent {
-    return content;
+  int get getCommentID {
+    return _commentID;
   }
 
-  Account get getAccount {
-    return accountID;
+  String get getContent {
+    return _content;
   }
 
   String get getSentDate {
-    return "${DateFormat('yyyy-MM-dd').format(sentDate)} at ${DateFormat('hh:mm').format(sentDate)}";
+    return "${DateFormat('yyyy-MM-dd').format(_sentDate)} at ${DateFormat('hh:mm').format(_sentDate)}";
   }
 
-  int get getCommentID {
-    return commentID;
+  Account get getAccount {
+    return _account;
   }
 
-  int? get getLikes {
-    return likes;
+  Post? get getPost {
+    return _post;
   }
 
-  int? get getDislikes {
-    return dislikes;
+  int get getLikes {
+    return _likes;
   }
 
-  int? get getLiked {
-    return liked;
+  int get getDislikes {
+    return _dislikes;
+  }
+
+  int get getLiked {
+    return _liked;
   }
 
   factory Comment.fromJson(Map<String, dynamic> json) {
@@ -56,11 +67,11 @@ class Comment {
       commentID: json['commentID'],
       content: json['commentContent'],
       sentDate: DateTime.parse(json['sentDate']),
-      accountID: Account.fromJson(json),
-      postID: json.containsKey('postID') ? Post.fromJson(json) : null,
-      likes: json.containsKey('likes') ? json['likes'] as int? : null,
-      dislikes: json.containsKey('dislikes') ? json['dislikes'] as int? : null,
-      liked: json.containsKey('liked') ? json['liked'] as int? : null,
+      account: Account.fromJson(json),
+      post: json['postID'] != null ? Post.fromJson(json) : null,
+      likes: json['likes'],
+      dislikes: json['dislikes'],
+      liked: json['liked'],
     );
   }
 }

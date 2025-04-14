@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/pages/settings/account-settings.dart';
-import 'package:untitled/pages/settings/notification-settings.dart';
-import 'package:untitled/pages/settings/profile-settings.dart';
-import 'package:untitled/pages/settings/theme-settings.dart';
+import 'package:untitled/pages/settings/account_settings.dart';
+import 'package:untitled/pages/settings/notification_settings.dart';
+import 'package:untitled/pages/settings/profile_settings.dart';
+import 'package:untitled/pages/settings/theme_settings.dart';
 import 'package:untitled/pages/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

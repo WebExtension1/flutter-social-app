@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/models/account.dart';
 import 'package:untitled/models/comment.dart';
 import 'package:untitled/pages/post.dart';
 import 'package:untitled/pages/profile.dart';
@@ -9,9 +10,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CommentPreview extends StatefulWidget {
   final VoidCallback onDelete;
-  const CommentPreview({super.key, required this.onDelete, required this.comment, this.displayTop});
+  const CommentPreview({super.key, required this.onDelete, required this.comment, this.displayTop, required this.account});
   final Comment comment;
   final bool? displayTop;
+  final Account account;
 
   @override
   State<CommentPreview> createState() => _CommentPreviewState();
@@ -46,7 +48,7 @@ class _CommentPreviewState extends State<CommentPreview> {
         child: Column(
           children: [
             if (widget.displayTop == true) ...[
-              if (widget.comment.postID!.getPostID == 1)
+              if (widget.comment.getPost!.getPostID == 1)
                 Text("Post has been deleted")
               else
                 GestureDetector(
@@ -81,7 +83,7 @@ class _CommentPreviewState extends State<CommentPreview> {
                             ),
                           ),
                           Text(
-                            '@${widget.comment.getAccount.getUsername}',
+                            widget.comment.getAccount.getUsername,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -93,32 +95,23 @@ class _CommentPreviewState extends State<CommentPreview> {
                   ),
                 ),
                 Expanded(
-                    child: SizedBox()
+                  child: SizedBox()
                 ),
                 Text(widget.comment.getSentDate),
                 SizedBox(width: 10),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'delete') {
+                if (_auth.currentUser?.email == widget.comment.getAccount.getEmail)
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
                       deleteComment();
-                    } else if (value == 'follow') {
-                      followUser();
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    if (widget.comment.getAccount.getEmail == _auth.currentUser?.email)
+                    },
+                    itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 'delete',
                         child: Text('Delete Comment'),
                       )
-                    else
-                      PopupMenuItem(
-                        value: 'follow',
-                        child: Text('Follow User'),
-                      ),
-                  ],
-                  icon: Icon(Icons.more_vert),
-                ),
+                    ],
+                    icon: Icon(Icons.more_vert),
+                  ),
                 SizedBox(width: 10),
               ],
             ),
@@ -260,7 +253,7 @@ class _CommentPreviewState extends State<CommentPreview> {
   void displayPost() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.comment.postID!, comment: false)),
+      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.comment.getPost!, comment: false, account: widget.account)),
     );
     if (result == 'popped') {
       widget.onDelete();

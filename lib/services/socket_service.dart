@@ -1,9 +1,9 @@
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
-  late IO.Socket socket;
+  late io.Socket socket;
 
   factory SocketService() {
     return _instance;
@@ -12,20 +12,12 @@ class SocketService {
   SocketService._internal() {
     String socketUrl = dotenv.env['SOCKET_URL'] ?? 'http://localhost:3006';
 
-    socket = IO.io(socketUrl, IO.OptionBuilder()
+    socket = io.io(socketUrl, io.OptionBuilder()
         .setTransports(['websocket'])
         .disableAutoConnect()
         .build());
 
     socket.connect();
-
-    socket.onConnect((_) {
-      print("Connected to server");
-    });
-
-    socket.onDisconnect((_) {
-      print("Disconnected from server");
-    });
   }
 
   void openMessage(String sender, String recipient) {

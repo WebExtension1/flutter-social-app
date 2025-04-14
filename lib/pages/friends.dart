@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart' as AccountModel;
+import 'package:untitled/models/account.dart' as account_model;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:untitled/widgets/friendPreview.dart';
+import 'package:untitled/widgets/friend_preview.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -18,11 +18,11 @@ class Friends extends StatefulWidget {
 class _FriendsState extends State<Friends> {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  List<AccountModel.Account> friends = [];
-  List<AccountModel.Account> contacts = [];
-  List<AccountModel.Account> mutual = [];
-  List<AccountModel.Account> incoming = [];
-  List<AccountModel.Account> outgoing = [];
+  List<account_model.Account> friends = [];
+  List<account_model.Account> contacts = [];
+  List<account_model.Account> mutual = [];
+  List<account_model.Account> incoming = [];
+  List<account_model.Account> outgoing = [];
   int displayType = 1;
   final List<String> labels = ['Friends', 'Contacts', 'Mutual', 'Incoming', 'Outgoing'];
   List<Contact> _allContacts = [];
@@ -62,30 +62,30 @@ class _FriendsState extends State<Friends> {
         setState(() {
           var jsonResponse = jsonDecode(response.body);
           if (jsonResponse['friends'] != null) {
-            friends = List<AccountModel.Account>.from(
+            friends = List<account_model.Account>.from(
                 jsonResponse['friends'].map((account) =>
-                    AccountModel.Account.fromJson(account))
+                    account_model.Account.fromJson(account))
             );
           }
           if (jsonResponse['contacts'] != null) {
-            contacts = List<AccountModel.Account>.from(
+            contacts = List<account_model.Account>.from(
                 jsonResponse['contacts'].map((account) =>
-                    AccountModel.Account.fromJson(account))
+                    account_model.Account.fromJson(account))
             );
           }
           if (jsonResponse['mutual'] != null) {
-            mutual = List<AccountModel.Account>.from(
-                jsonResponse['mutual'].map((account) => AccountModel.Account.fromJson(account))
+            mutual = List<account_model.Account>.from(
+                jsonResponse['mutual'].map((account) => account_model.Account.fromJson(account))
             );
           }
           if (jsonResponse['incoming'] != null) {
-            incoming = List<AccountModel.Account>.from(
-                jsonResponse['incoming'].map((account) => AccountModel.Account.fromJson(account))
+            incoming = List<account_model.Account>.from(
+                jsonResponse['incoming'].map((account) => account_model.Account.fromJson(account))
             );
           }
           if (jsonResponse['outgoing'] != null) {
-            outgoing = List<AccountModel.Account>.from(
-                jsonResponse['outgoing'].map((account) => AccountModel.Account.fromJson(account))
+            outgoing = List<account_model.Account>.from(
+                jsonResponse['outgoing'].map((account) => account_model.Account.fromJson(account))
             );
           }
         });

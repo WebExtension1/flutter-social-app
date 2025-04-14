@@ -1,34 +1,42 @@
 import 'package:intl/intl.dart';
 
 class Message {
-  final int messageID;
-  final String content;
-  final DateTime sentDate;
-  final String senderEmail;
-  final String receiverEmail;
+  final int _messageID;
+  final String _content;
+  final DateTime _sentDate;
+  final String _senderEmail;
+  final String _receiverEmail;
 
   Message({
-    required this.messageID,
-    required this.content,
-    required this.sentDate,
-    required this.senderEmail,
-    required this.receiverEmail,
-  });
+    required int messageID,
+    required String content,
+    required DateTime sentDate,
+    required String senderEmail,
+    required String receiverEmail,
+  })  : _messageID = messageID,
+        _content = content,
+        _sentDate = sentDate,
+        _senderEmail = senderEmail,
+        _receiverEmail = receiverEmail;
+
+  int get getMessageID {
+    return _messageID;
+  }
 
   String get getContent {
-    return content;
-  }
-
-  String get getSender {
-    return senderEmail;
-  }
-
-  String get getRecipient {
-    return receiverEmail;
+    return _content;
   }
 
   String get getSentDate {
-    return "${DateFormat('yyyy-MM-dd').format(sentDate)} at ${DateFormat('hh:mm').format(sentDate)}";
+    return "${DateFormat('yyyy-MM-dd').format(_sentDate)} at ${DateFormat('hh:mm').format(_sentDate)}";
+  }
+
+  String get getSenderEmail {
+    return _senderEmail;
+  }
+
+  String get getRecipientEmail {
+    return _receiverEmail;
   }
 
   factory Message.fromJson(Map<String, dynamic> data) {

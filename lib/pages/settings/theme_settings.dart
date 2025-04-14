@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/ThemeNotifier.dart';
+import 'package:untitled/providers/theme_notifier.dart';
 
 class ThemeSettings extends StatefulWidget {
   const ThemeSettings({super.key});

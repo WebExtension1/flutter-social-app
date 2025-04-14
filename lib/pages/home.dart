@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/pages/newPostForm.dart';
-import 'package:untitled/widgets/postPreview.dart';
+import 'package:untitled/pages/new_post_form.dart';
+import 'package:untitled/widgets/post_preview.dart';
 import 'package:untitled/models/post.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -95,11 +95,9 @@ class HomeState extends State<Home> {
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(20),
-                            color: theme.dividerColor,
                           ),
                           child: Text(
-                            "Share what's on your mind",
-                            style: TextStyle(color: Colors.grey),
+                            "Share what's on your mind"
                           ),
                         ),
                       ),
@@ -119,6 +117,7 @@ class HomeState extends State<Home> {
                         posts.removeAt(index);
                       });
                     },
+                    account: widget.account!
                   );
                 }
               ),

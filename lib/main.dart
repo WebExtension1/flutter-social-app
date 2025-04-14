@@ -15,7 +15,8 @@ import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'themes/light_theme.dart';
-import 'package:untitled/providers/ThemeNotifier.dart';
+import 'package:untitled/providers/theme_notifier.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,24 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await dotenv.load();
+
+  try {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    String? token = await FirebaseMessaging.instance.getToken();
+
+    if (auth.currentUser != null && token != null) {
+      String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+
+      await http.post(
+        Uri.parse('$apiUrl/account/registerFCMToken'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'email': auth.currentUser!.email, 'token': token}),
+      );
+    }
+  } catch (e) {
+  }
 
   runApp(
     ChangeNotifierProvider(
@@ -75,6 +94,7 @@ class HomeBuildState extends State<HomeBuild> {
               fname: data['fname'],
               lname: data['lname'],
               dateJoined: DateTime.parse(data['dateJoined']),
+              relationship: data['relationship'],
               imageUrl: data['imageUrl']
           );
         });
@@ -158,7 +178,7 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
     super.initState();
     pages = [
       Home(account: widget.account),
-      Search(),
+      Search(account: widget.account!),
       Messages(),
       Friends(),
       Profile(account: widget.account),

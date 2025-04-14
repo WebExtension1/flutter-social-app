@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart';
-import 'package:untitled/widgets/messagePreview.dart';
+import 'package:untitled/widgets/message_preview.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
