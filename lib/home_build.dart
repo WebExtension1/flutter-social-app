@@ -12,9 +12,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// Themes
-import 'package:untitled/providers/theme_notifier.dart';
+// Providers
 import 'package:provider/provider.dart';
+import 'package:untitled/providers/theme_notifier.dart';
 
 // Firebase
 import 'package:firebase_auth/firebase_auth.dart';

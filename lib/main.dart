@@ -9,10 +9,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 // Services
 import 'package:untitled/services/notifications_services.dart';
 
-// Themes
-import 'package:untitled/providers/theme_notifier.dart';
+// Providers
 import 'package:provider/provider.dart';
-import 'themes/light_theme.dart';
+import 'package:untitled/providers/theme_notifier.dart';
+import 'package:untitled/providers/shared_data.dart';
+
+// Themes
+import 'package:untitled/themes/light_theme.dart';
 
 // Firebase
 import 'package:firebase_core/firebase_core.dart';
@@ -33,6 +36,9 @@ void main() async {
 
   // Get env variables
   await dotenv.load();
+
+  // Load data from local store and update it from network while the rest of the app loads
+  DataService().loadFriends();
 
   // Start app wrapped in a provider to dynamically update the theme
   runApp(

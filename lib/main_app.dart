@@ -10,6 +10,10 @@ import 'package:untitled/pages/profile.dart';
 // Models
 import 'package:untitled/models/account.dart';
 
+// Providers
+import 'package:provider/provider.dart';
+import 'package:untitled/providers/shared_data.dart';
+
 class MainAppScaffold extends StatefulWidget {
   final Account? account;
   const MainAppScaffold({super.key, this.account});
@@ -21,7 +25,6 @@ class MainAppScaffold extends StatefulWidget {
 class _MainAppScaffoldState extends State<MainAppScaffold> {
   int selectedIndex = 0;
 
-  late final List<Widget> pages;
   late final List<BottomNavigationBarItem> items;
 
   static BottomNavigationBarItem navItem(IconData icon, String label) {
@@ -36,14 +39,6 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
   void initState() {
     super.initState();
 
-    // Set the pages that the user can switch between on the navbar
-    pages = [
-      Home(account: widget.account),
-      Search(account: widget.account),
-      Messages(),
-      Friends(),
-      Profile(account: widget.account),
-    ];
     items = [
       navItem(Icons.home, "Home"),
       navItem(Icons.search, "Search"),
@@ -53,21 +48,33 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
     ];
   }
 
+  List<Widget> get pages => [
+    Home(account: widget.account),
+    Search(account: widget.account),
+    Messages(),
+    ChangeNotifierProvider.value(
+      value: DataService(),
+      child: const Friends(),
+    ),
+    Profile(account: widget.account),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return
-      Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: pages[selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: selectedIndex,
-          onTap: (int index) {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-          items: items,
-        ),
-      );
+    return Scaffold(
+      body: IndexedStack(
+        index: selectedIndex,
+        children: pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        items: items,
+      ),
+    );
   }
 }
