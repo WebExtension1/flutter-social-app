@@ -33,6 +33,7 @@ class Account {
   String get getEmail => _email;
   String get getUsername => "@$_username";
   String get getName => "$_fname $_lname";
+  List<String> get getRawName => [_fname, _lname];
   int get getPhoneNumber => _phoneNumber;
 
   String get getTimeSinceJoined {
@@ -58,6 +59,7 @@ class Account {
       return '$years year${years == 1 ? '' : 's'} ago';
     }
   }
+  DateTime get getRawDateJoined => _dateJoined;
 
   String? get getImageUrl => _imageUrl;
   String get getRelationship => _relationship;

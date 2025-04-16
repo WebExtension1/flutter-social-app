@@ -8,6 +8,7 @@ import 'package:untitled/widgets/friend_preview.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:untitled/widgets/tab_bar.dart';
+import 'package:untitled/services/database_service.dart';
 
 class Friends extends StatefulWidget {
   const Friends({super.key});
@@ -31,10 +32,43 @@ class _FriendsState extends State<Friends> {
   @override
   void initState() {
     super.initState();
-    getFriends();
+    _getAccounts();
   }
 
-  void getFriends() async {
+  void _getAccounts() async {
+    await _loadCachedFriends();
+    await _getFriends();
+  }
+
+  void _updateStateFromJson(Map<String, dynamic> jsonResponse) {
+    final groupsMap = <String, List<account_model.Account>>{};
+
+    for (var label in labels) {
+      final key = label.toLowerCase();
+      if (jsonResponse[key] != null) {
+        groupsMap[key] = List<account_model.Account>.from(
+          jsonResponse[key].map((account) => account_model.Account.fromJson(account)),
+        );
+      }
+    }
+
+    setState(() {
+      friends = groupsMap['friends'] ?? [];
+      contacts = groupsMap['contacts'] ?? [];
+      mutual = groupsMap['mutual'] ?? [];
+      incoming = groupsMap['incoming'] ?? [];
+      outgoing = groupsMap['outgoing'] ?? [];
+    });
+  }
+
+  Future<void> _loadCachedFriends() async {
+    final accounts = await FriendsDatabase.getAccounts();
+    setState(() {
+      friends = accounts.toList();
+    });
+  }
+
+  Future<void> _getFriends() async {
     var status = await Permission.contacts.status;
     if (!status.isGranted) {
       status = await Permission.contacts.request();
@@ -69,24 +103,21 @@ class _FriendsState extends State<Friends> {
         if (response.statusCode == 200) {
           var jsonResponse = jsonDecode(response.body);
 
-          final groupsMap = <String, List<account_model.Account>>{};
+          List<account_model.Account> cachedAccounts = [];
 
-          for (var label in labels) {
-            final key = label.toLowerCase();
-            if (jsonResponse[key] != null) {
-              groupsMap[key] = List<account_model.Account>.from(
-                jsonResponse[key].map((account) => account_model.Account.fromJson(account)),
-              );
-            }
+          // Cache up to 15 friends
+          if (jsonResponse['friends'] != null) {
+            List<account_model.Account> allFriends = List<account_model.Account>.from(
+              jsonResponse['friends'].map((a) => account_model.Account.fromJson(a)),
+            );
+            cachedAccounts.addAll(allFriends.take(15));
           }
+
+          await FriendsDatabase.insertAccounts(cachedAccounts);
+          _updateStateFromJson(jsonResponse);
 
           setState(() {
             _allContacts = phoneContacts;
-            friends = groupsMap['friends'] ?? [];
-            contacts = groupsMap['contacts'] ?? [];
-            mutual = groupsMap['mutual'] ?? [];
-            incoming = groupsMap['incoming'] ?? [];
-            outgoing = groupsMap['outgoing'] ?? [];
           });
         }
       }
