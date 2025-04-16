@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:untitled/main.dart';
+import 'package:untitled/home_build.dart';
 import 'package:untitled/pages/signup.dart';
+import 'package:untitled/services/fcm_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -88,6 +89,7 @@ class _LoginPageState extends State<LoginPage> {
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
+        await FCMService.registerTokenWithServer();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeBuild()),

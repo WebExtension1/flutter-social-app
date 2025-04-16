@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:untitled/main.dart';
+import 'package:untitled/home_build.dart';
 import 'package:untitled/pages/login.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:untitled/services/fcm_service.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -141,6 +142,7 @@ class _SignupPageState extends State<SignupPage> {
             body: json.encode({'email': _emailController.text.trim(), 'phoneNumber': _phoneNumberController.text, 'username': _usernameController.text.trim(), 'fname': _fnameController.text.trim(), 'lname': _lnameController.text.trim()}),
           );
           if (response.statusCode == 200) {
+            await FCMService.registerTokenWithServer();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const HomeBuild()),

@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class Account {
   final int _accountID;
   final String _email;
@@ -31,37 +29,38 @@ class Account {
         _relationship = relationship,
         _imageUrl = imageUrl;
 
-  int get getAccountID {
-    return _accountID;
+  int get getAccountID => _accountID;
+  String get getEmail => _email;
+  String get getUsername => "@$_username";
+  String get getName => "$_fname $_lname";
+  int get getPhoneNumber => _phoneNumber;
+
+  String get getTimeSinceJoined {
+    final now = DateTime.now();
+    final difference = now.difference(_dateJoined);
+
+    if (difference.inSeconds < 60) {
+      return 'just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else if (difference.inDays < 30) {
+      final weeks = (difference.inDays / 7).floor();
+      return '$weeks week${weeks == 1 ? '' : 's'} ago';
+    } else if (difference.inDays < 365) {
+      final months = (difference.inDays / 30).floor();
+      return '$months month${months == 1 ? '' : 's'} ago';
+    } else {
+      final years = (difference.inDays / 365).floor();
+      return '$years year${years == 1 ? '' : 's'} ago';
+    }
   }
 
-  String get getEmail {
-    return _email;
-  }
-
-  String get getUsername {
-    return "@$_username";
-  }
-
-  String get getName {
-    return "$_fname $_lname";
-  }
-
-  int get getPhoneNumber {
-    return _phoneNumber;
-  }
-
-  String get getJoinDate {
-    return "${DateFormat('yyyy-MM-dd').format(_dateJoined)} at ${DateFormat('hh:mm').format(_dateJoined)}";
-  }
-
-  String? get getImageUrl {
-    return _imageUrl;
-  }
-
-  String get getRelationship {
-    return _relationship;
-  }
+  String? get getImageUrl => _imageUrl;
+  String get getRelationship => _relationship;
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(

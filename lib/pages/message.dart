@@ -124,7 +124,7 @@ class _MessagePageState extends State<MessagePage> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          msg.getSentDate,
+                          msg.getTimeSinceSent,
                           style: TextStyle(
                             color: isMe ? Colors.white70 : Colors.black54,
                             fontSize: 12,

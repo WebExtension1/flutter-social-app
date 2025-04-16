@@ -124,7 +124,7 @@ class _PostState extends State<PostPage> {
                   Expanded(
                     child: SizedBox()
                   ),
-                  Text(widget.post.getPostDate),
+                  Text(widget.post.getTimeSinceSent),
                   SizedBox(width: 10),
                   if (_auth.currentUser?.email == widget.post.getAccount.getEmail)
                     PopupMenuButton<String>(
@@ -143,6 +143,17 @@ class _PostState extends State<PostPage> {
                 ],
               ),
               SizedBox(height: 10),
+              if (widget.post.getLocation != null)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "📍 ${widget.post.getLocation!}",
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ),
               Padding(
                 padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
                 child: Align(

@@ -1,205 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
-import 'package:untitled/pages/friends.dart';
-import 'package:untitled/pages/home.dart';
-import 'package:untitled/pages/search.dart';
-import 'package:untitled/pages/messages.dart';
-import 'package:untitled/pages/profile.dart';
-import 'package:untitled/services/notifications_services.dart';
-import 'package:untitled/pages/login.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'firebase_options.dart';
+
+// Pages
+import 'package:untitled/home_build.dart';
+
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Services
+import 'package:untitled/services/notifications_services.dart';
+
+// Themes
+import 'package:untitled/providers/theme_notifier.dart';
 import 'package:provider/provider.dart';
 import 'themes/light_theme.dart';
-import 'package:untitled/providers/theme_notifier.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
+// Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialise Themes
   final themeNotifier = ThemeNotifier(lightTheme);
   await themeNotifier.loadTheme();
 
+  // Initialise Notifications
   await NotificationServices.initialiseNotification();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // Initialise Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Get env variables
   await dotenv.load();
 
-  try {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    String? token = await FirebaseMessaging.instance.getToken();
-
-    if (auth.currentUser != null && token != null) {
-      String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-
-      await http.post(
-        Uri.parse('$apiUrl/account/registerFCMToken'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'email': auth.currentUser!.email, 'token': token}),
-      );
-    }
-  } catch (e) {
-  }
-
+  // Start app wrapped in a provider to dynamically update the theme
   runApp(
     ChangeNotifierProvider(
       create: (_) => themeNotifier,
       child: const HomeBuild(),
     ),
   );
-}
-
-class HomeBuild extends StatefulWidget {
-  const HomeBuild({super.key});
-
-  @override
-  State<HomeBuild> createState() => HomeBuildState();
-}
-
-class HomeBuildState extends State<HomeBuild> {
-  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  Account? account;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchAccountDetails();
-  }
-
-  Future<void> fetchAccountDetails() async {
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl/account/details'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'email': _auth.currentUser?.email}),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          account = Account(
-              accountID: data['accountID'],
-              email: data['email'],
-              phoneNumber: data['phoneNumber'],
-              username: data['username'],
-              fname: data['fname'],
-              lname: data['lname'],
-              dateJoined: DateTime.parse(data['dateJoined']),
-              relationship: data['relationship'],
-              imageUrl: data['imageUrl']
-          );
-        });
-      } else {
-        throw Exception('Failed to load account details');
-      }
-    } catch (e) {
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeNotifier>(
-      builder: (context, themeNotifier, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: themeNotifier.getTheme(),
-          home: StreamBuilder<User?>(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
-              }
-              if (snapshot.hasData) {
-                return MainAppScaffold(account: account);
-              } else {
-                return const LoginPage();
-              }
-            },
-          ),
-        );
-      }
-    );
-  }
-}
-
-class MainAppScaffold extends StatefulWidget {
-  final Account? account;
-  const MainAppScaffold({super.key, this.account});
-
-  @override
-  State<MainAppScaffold> createState() => _MainAppScaffoldState();
-}
-
-class _MainAppScaffoldState extends State<MainAppScaffold> {
-  int selectedIndex = 0;
-
-  late final List<Widget> pages;
-  final items = [
-    BottomNavigationBarItem(
-        backgroundColor: Colors.grey,
-        icon: Icon(Icons.home),
-        label: "Home"
-    ),
-    BottomNavigationBarItem(
-        backgroundColor: Colors.grey,
-        icon: Icon(Icons.search),
-        label: "Search"
-    ),
-    BottomNavigationBarItem(
-        backgroundColor: Colors.grey,
-        icon: Icon(Icons.message),
-        label: "Messages"
-    ),
-    BottomNavigationBarItem(
-        backgroundColor: Colors.grey,
-        icon: Icon(Icons.people),
-        label: "Friends"
-    ),
-    BottomNavigationBarItem(
-        backgroundColor: Colors.grey,
-        icon: Icon(Icons.person),
-        label: "Profile"
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    pages = [
-      Home(account: widget.account),
-      Search(account: widget.account!),
-      Messages(),
-      Friends(),
-      Profile(account: widget.account),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return
-      Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: pages[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: (int index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
-        items: items,
-      ),
-    );
-  }
 }

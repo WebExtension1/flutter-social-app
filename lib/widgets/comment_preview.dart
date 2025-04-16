@@ -97,7 +97,7 @@ class _CommentPreviewState extends State<CommentPreview> {
                 Expanded(
                   child: SizedBox()
                 ),
-                Text(widget.comment.getSentDate),
+                Text(widget.comment.getTimeSinceSent),
                 SizedBox(width: 10),
                 if (_auth.currentUser?.email == widget.comment.getAccount.getEmail)
                   PopupMenuButton<String>(

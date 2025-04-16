@@ -35,45 +35,40 @@ class Post {
         _imageUrl = imageUrl,
         _location = location;
 
-  int get getPostID {
-    return _postID;
+  int get getPostID => _postID;
+  String get getContent => _content;
+  Account get getAccount => _account;
+
+  String get getTimeSinceSent {
+    final now = DateTime.now();
+    final difference = now.difference(_postDate);
+
+    if (difference.inSeconds < 60) {
+      return 'just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else if (difference.inDays < 30) {
+      final weeks = (difference.inDays / 7).floor();
+      return '$weeks week${weeks == 1 ? '' : 's'} ago';
+    } else if (difference.inDays < 365) {
+      final months = (difference.inDays / 30).floor();
+      return '$months month${months == 1 ? '' : 's'} ago';
+    } else {
+      final years = (difference.inDays / 365).floor();
+      return '$years year${years == 1 ? '' : 's'} ago';
+    }
   }
 
-  String get getContent {
-    return _content;
-  }
-
-  Account get getAccount {
-    return _account;
-  }
-
-  String get getPostDate {
-    return "${DateFormat('yyyy-MM-dd').format(_postDate)} at ${DateFormat('hh:mm').format(_postDate)}";
-  }
-
-  int get getLikes {
-    return _likes;
-  }
-
-  int get getDislikes {
-    return _dislikes;
-  }
-
-  int get getCommentCount {
-    return _commentCount;
-  }
-
-  int get getLiked {
-    return _liked;
-  }
-
-  String? get getImageUrl {
-    return _imageUrl;
-  }
-
-  String? get getLocation {
-    return _location;
-  }
+  int get getLikes => _likes;
+  int get getDislikes => _dislikes;
+  int get getCommentCount => _commentCount;
+  int get getLiked => _liked;
+  String? get getImageUrl => _imageUrl;
+  String? get getLocation => _location;
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(

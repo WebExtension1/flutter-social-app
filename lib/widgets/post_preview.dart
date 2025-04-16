@@ -67,7 +67,7 @@ class _PostState extends State<PostPreview> {
                   Expanded(
                     child: SizedBox()
                   ),
-                  Text(widget.post.getPostDate),
+                  Text(widget.post.getTimeSinceSent),
                   SizedBox(width: 10),
                   if (_auth.currentUser?.email == widget.post.getAccount.getEmail)
                     PopupMenuButton<String>(

@@ -146,7 +146,7 @@ class ProfileState extends State<Profile> {
               ],
             ),
             SizedBox(height: 10),
-            Text("Member since ${widget.account!.getJoinDate}"),
+            Text("Joined ${widget.account!.getTimeSinceJoined}"),
             SizedBox(height: 10),
             Text("${posts.length} Post${posts.length != 1 ? 's' : ''}"),
             SizedBox(height: 10),
