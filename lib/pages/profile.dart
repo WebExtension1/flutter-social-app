@@ -10,6 +10,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+// Providers
+import 'package:provider/provider.dart';
+import 'package:untitled/providers/shared_data.dart';
+
 class Profile extends StatefulWidget {
   const Profile({super.key, this.account});
   final Account? account;
@@ -32,8 +36,15 @@ class ProfileState extends State<Profile> {
 
   @override
   void initState() {
+    final dataService = Provider.of<DataService>(context);
     super.initState();
-    account = widget.account!;
+
+    if (widget.account != null) {
+      account = widget.account!;
+    } else {
+      account = dataService.user;
+    }
+
     _fetchPosts();
     loading = false;
   }

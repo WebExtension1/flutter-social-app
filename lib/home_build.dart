@@ -7,13 +7,9 @@ import 'package:untitled/main_app.dart';
 // Models
 import 'package:untitled/models/account.dart';
 
-// APIs
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 // Providers
 import 'package:provider/provider.dart';
+import 'package:untitled/providers/shared_data.dart';
 import 'package:untitled/providers/theme_notifier.dart';
 
 // Firebase
@@ -27,42 +23,11 @@ class HomeBuild extends StatefulWidget {
 }
 
 class HomeBuildState extends State<HomeBuild> {
-  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  Account? account;
+  Account? account = DataService().user;
 
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null && account == null) {
-        fetchAccountDetails();
-      }
-    });
-  }
-
-  Future<void> fetchAccountDetails() async {
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl/account/details'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'email': _auth.currentUser?.email
-        }),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          account = Account.fromJson(data);
-        });
-      } else {
-        throw Exception('Failed to load account details');
-      }
-    } catch (e) {
-      throw Exception('Failed to load account details');
-    }
   }
 
   // Ensures the user is logged in when using the app, displays the login page if they aren't

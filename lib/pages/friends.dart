@@ -27,27 +27,40 @@ class _FriendsState extends State<Friends> {
     super.initState();
   }
 
-  static Expanded ListViewGroup(List<account_model.Account> group, String type) {
+  static Expanded ListViewGroup(List<account_model.Account> group, String type, Future<void> Function() onRefresh) {
     return Expanded(
-      child: ListView.builder(
-        itemCount: group.length,
-        itemBuilder: (context, index) {
-          return FriendPreview(account: group[index], type: type);
-        },
-      ),
+      child: RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView.builder(
+          itemCount: group.length,
+          itemBuilder: (context, index) {
+            return FriendPreview(account: group[index], type: type);
+          },
+        ),
+      )
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final dataService = Provider.of<DataService>(context);
-    final Map<int, Widget> tabContentMap = {
-      1: ListViewGroup(dataService.friends, 'Friends'),
-      2: ListViewGroup(dataService.contacts, 'Other'),
-      3: ListViewGroup(dataService.mutual, 'Other'),
-      4: ListViewGroup(dataService.incoming, 'Incoming'),
-      5: ListViewGroup(dataService.outgoing, 'Outgoing'),
-    };
+
+    Widget buildTabContent(int type) {
+      switch (type) {
+        case 1:
+          return ListViewGroup(dataService.friends, 'Friends', dataService.getFriends);
+        case 2:
+          return ListViewGroup(dataService.contacts, 'Other', dataService.getFriends);
+        case 3:
+          return ListViewGroup(dataService.mutual, 'Other', dataService.getFriends);
+        case 4:
+          return ListViewGroup(dataService.incoming, 'Incoming', dataService.getFriends);
+        case 5:
+          return ListViewGroup(dataService.outgoing, 'Outgoing', dataService.getFriends);
+        default:
+          return const SizedBox.shrink();
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +79,7 @@ class _FriendsState extends State<Friends> {
             },
           ),
           SizedBox(height: 10),
-        tabContentMap[displayType] ?? SizedBox.shrink()
+          buildTabContent(displayType),
         ],
       )
     );

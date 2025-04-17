@@ -49,14 +49,26 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
   }
 
   List<Widget> get pages => [
-    Home(account: widget.account),
-    Search(account: widget.account),
-    Messages(),
+    ChangeNotifierProvider.value(
+      value: DataService(),
+      child: Home()
+    ),
+    ChangeNotifierProvider.value(
+      value: DataService(),
+      child: Search(account: widget.account),
+    ),
+    ChangeNotifierProvider.value(
+      value: DataService(),
+      child: Messages(),
+    ),
     ChangeNotifierProvider.value(
       value: DataService(),
       child: const Friends(),
     ),
-    Profile(account: widget.account),
+    ChangeNotifierProvider.value(
+      value: DataService(),
+      child: Profile(),
+    ),
   ];
 
   @override

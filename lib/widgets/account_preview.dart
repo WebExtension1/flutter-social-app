@@ -32,7 +32,7 @@ class _AccountPreviewState extends State<AccountPreview> {
               : null,
           ),
           SizedBox(height: 8),
-          Text('@${widget.account.getUsername}'),
+          Text(widget.account.getUsername),
         ],
       )
     );

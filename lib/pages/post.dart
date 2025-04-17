@@ -338,7 +338,7 @@ class _PostState extends State<PostPage> {
   void openProfile() async {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Profile(account: widget.post.getAccount)),
+      MaterialPageRoute(builder: (context) => Profile()),
     );
   }
 

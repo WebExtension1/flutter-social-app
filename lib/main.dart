@@ -39,6 +39,8 @@ void main() async {
 
   // Load data from local store and update it from network while the rest of the app loads
   DataService().loadFriends();
+  DataService().loadFeed();
+  DataService().loadUser();
 
   // Start app wrapped in a provider to dynamically update the theme
   runApp(
