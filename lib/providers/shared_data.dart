@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/models/account.dart' as account_model;
+import 'package:untitled/models/message.dart';
 import 'package:untitled/models/post.dart';
 import 'package:untitled/services/databases/friend_database.dart';
 import 'package:untitled/services/databases/post_database.dart';
@@ -28,10 +29,46 @@ class DataService extends ChangeNotifier {
   List<account_model.Account> outgoing = [];
   List<Post> feed = [];
   account_model.Account? user;
+  Map<String, List<Message>> messages = Map<String, List<Message>>();
 
   Future<void> loadUser() async {
     _getUser();
     notifyListeners;
+  }
+
+  Future<List<Message>> getMessageHistory(String email) async {
+    if (messages[email] == null) {
+      final response = await http.post(
+        Uri.parse('$apiUrl/account/getMessageHistory'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'sender': _auth.currentUser?.email,
+          'recipient': email
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        _updateMessagesFromJson(email, jsonResponse);
+        notifyListeners();
+      }
+      return messages[email]!;
+    } else {
+      return messages[email]!;
+    }
+  }
+
+  void _updateMessagesFromJson(String email, List<dynamic> jsonResponse) {
+    messages[email] = _parseMessages(jsonResponse);
+  }
+
+  List<Message> _parseMessages(dynamic list) {
+    if (list == null) return [];
+    return List<Message>.from(
+      list.map((message) => Message.fromJson(message)),
+    );
   }
 
   void _getUser() async {
@@ -60,16 +97,14 @@ class DataService extends ChangeNotifier {
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
-      print("Json Response");
-      print(jsonResponse);
       await UserDatabase.insertAccount(account_model.Account.fromJson(jsonResponse));
       _updateUserFromJson(jsonResponse);
       notifyListeners();
     }
   }
 
-  void _updateUserFromJson(List<dynamic> jsonResponse) {
-    user = _parseAccounts(jsonResponse)[0];
+  void _updateUserFromJson(Map<String, dynamic> jsonResponse) {
+    user = account_model.Account.fromJson(jsonResponse);
   }
 
   Future<void> loadFeed() async {

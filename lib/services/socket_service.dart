@@ -1,9 +1,13 @@
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
+
 class SocketService {
   static final SocketService _instance = SocketService._internal();
   late io.Socket socket;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   factory SocketService() {
     return _instance;
@@ -20,16 +24,12 @@ class SocketService {
     socket.connect();
   }
 
-  void openMessage(String sender, String recipient) {
-    socket.emit("open message", {"sender": sender, "recipient": recipient});
+  void sendMessage(String recipient, String message) {
+    socket.emit("chat message", {"sender": _auth.currentUser!.email!, "recipient": recipient, "message": message});
   }
 
-  void sendMessage(String sender, String recipient, String message) {
-    socket.emit("chat message", {"sender": sender, "recipient": recipient, "message": message});
-  }
-
-  void search(String email, String query) {
-    socket.emit("search", {"email": email, 'query': query});
+  void search(String query) {
+    socket.emit("search", {"email": _auth.currentUser!.email!, 'query': query});
   }
 
   void dispose() {

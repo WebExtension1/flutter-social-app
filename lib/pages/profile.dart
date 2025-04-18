@@ -27,7 +27,7 @@ class ProfileState extends State<Profile> {
   List<Comment> comments = [];
   List<Post> liked = [];
   int friends = 0;
-  Account? account;
+  late Account account;
   bool loading = true;
   int displayType = 1;
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
@@ -36,26 +36,26 @@ class ProfileState extends State<Profile> {
 
   @override
   void initState() {
-    final dataService = Provider.of<DataService>(context);
     super.initState();
+    final dataService = Provider.of<DataService>(context, listen: false);
 
     if (widget.account != null) {
       account = widget.account!;
     } else {
-      account = dataService.user;
+      account = dataService.user!;
     }
 
-    _fetchPosts();
+    _fetchPosts(account);
     loading = false;
   }
 
-  Future<void> _fetchPosts() async {
+  Future<void> _fetchPosts(Account account) async {
     final response = await http.post(
       Uri.parse('$apiUrl/post/get'),
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'account': widget.account?.getEmail}),
+      body: json.encode({'email': _auth.currentUser?.email, 'account': account.getEmail}),
     );
 
     if (response.statusCode == 200) {
@@ -86,7 +86,7 @@ class ProfileState extends State<Profile> {
       appBar: AppBar(
         title: Text("Profile"),
         actions: [
-          if (account != null && account!.getEmail == _auth.currentUser?.email)
+          if (account.getEmail == _auth.currentUser?.email)
             IconButton(onPressed: displaySettings, icon: Icon(Icons.settings))
         ],
       ),
@@ -98,10 +98,10 @@ class ProfileState extends State<Profile> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: widget.account!.getImageUrl != null
-                    ? NetworkImage("$apiUrl${widget.account!.getImageUrl!}")
+                  backgroundImage: account.getImageUrl != null
+                    ? NetworkImage("$apiUrl${account.getImageUrl!}")
                     : null,
-                  child: widget.account!.getImageUrl == null
+                  child: account.getImageUrl == null
                     ? Icon(Icons.person)
                     : null,
                 ),
@@ -109,14 +109,14 @@ class ProfileState extends State<Profile> {
                 Column(
                   children: [
                     Text(
-                      account!.getName,
+                      account.getName,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      account!.getUsername,
+                      account.getUsername,
                       style: TextStyle(
                         fontSize: 14,
                       ),
@@ -126,12 +126,12 @@ class ProfileState extends State<Profile> {
                 Expanded(
                   child: SizedBox()
                 ),
-                if (widget.account!.getRelationship == 'friend')
+                if (account.getRelationship == 'friend')
                   ElevatedButton(
                     onPressed: removeFriend,
                     child: const Text("Remove"),
                   ),
-                if (widget.account!.getRelationship == 'incoming')
+                if (account.getRelationship == 'incoming')
                   Row(
                       children: [
                         ElevatedButton(
@@ -144,12 +144,12 @@ class ProfileState extends State<Profile> {
                         ),
                       ]
                   ),
-                if (widget.account!.getRelationship == 'outgoing')
+                if (account.getRelationship == 'outgoing')
                   ElevatedButton(
                     onPressed: cancelFriendRequest,
                     child: const Text("Cancel"),
                   ),
-                if (widget.account!.getRelationship == 'other')
+                if (account.getRelationship == 'other')
                   ElevatedButton(
                     onPressed: sendFriendRequest,
                     child: const Text("Send Request"),
@@ -157,7 +157,7 @@ class ProfileState extends State<Profile> {
               ],
             ),
             SizedBox(height: 10),
-            Text("Joined ${widget.account!.getTimeSinceJoined}"),
+            Text("Joined ${account.getTimeSinceJoined}"),
             SizedBox(height: 10),
             Text("${posts.length} Post${posts.length != 1 ? 's' : ''}"),
             SizedBox(height: 10),
@@ -215,7 +215,7 @@ class ProfileState extends State<Profile> {
                           posts.removeAt(index);
                         });
                       },
-                      account: widget.account!
+                      account: account
                     );
                   }
                 ),
@@ -233,7 +233,7 @@ class ProfileState extends State<Profile> {
                         });
                       },
                       displayTop: true,
-                      account: widget.account!
+                      account: account
                     );
                   }
                 ),
@@ -250,7 +250,7 @@ class ProfileState extends State<Profile> {
                           liked.removeAt(index);
                         });
                       },
-                      account: widget.account!
+                      account: account
                     );
                   }
                 ),
@@ -275,7 +275,7 @@ class ProfileState extends State<Profile> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': account.getEmail}),
     );
   }
 
@@ -285,7 +285,7 @@ class ProfileState extends State<Profile> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': account.getEmail}),
     );
   }
 
@@ -295,7 +295,7 @@ class ProfileState extends State<Profile> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': account.getEmail}),
     );
   }
 
@@ -305,7 +305,7 @@ class ProfileState extends State<Profile> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': account.getEmail}),
     );
   }
 
@@ -315,7 +315,7 @@ class ProfileState extends State<Profile> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account!.getEmail}),
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': account.getEmail}),
     );
   }
 }

@@ -45,7 +45,7 @@ class SearchState extends State<Search> {
 
   void _onSearchChanged() {
     setState(() {
-      socketService.search(_auth.currentUser!.email!, _searchController.text);
+      socketService.search(_auth.currentUser!.email!);
     });
   }
 

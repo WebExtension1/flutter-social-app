@@ -44,8 +44,11 @@ void main() async {
 
   // Start app wrapped in a provider to dynamically update the theme
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => themeNotifier,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => themeNotifier),
+        ChangeNotifierProvider(create: (_) => DataService()),
+      ],
       child: const HomeBuild(),
     ),
   );

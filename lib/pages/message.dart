@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
+
+// Profile
+import 'package:untitled/pages/profile.dart';
+
+// Models
 import 'package:untitled/models/account.dart';
 import 'package:untitled/models/message.dart';
+
+// Widgets
+import 'package:untitled/widgets/message.dart';
+
+// APIs
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Services
 import 'package:untitled/services/socket_service.dart';
+
+// Providers
+import 'package:provider/provider.dart';
+import 'package:untitled/providers/shared_data.dart';
+
+// Firebase
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MessagePage extends StatefulWidget {
@@ -15,33 +34,34 @@ class MessagePage extends StatefulWidget {
 class _MessagePageState extends State<MessagePage> {
   final SocketService socketService = SocketService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  List<Message> messages = [];
   bool _isMounted = true;
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+
+  Future<void> loadMessages() async {
+    final dataService = Provider.of<DataService>(context, listen: false);
+    await dataService.getMessageHistory(widget.account.getEmail);
+    scrollToBottom();
+  }
+
+  void scrollToBottom() {
+    Future.delayed(Duration(milliseconds: 100), () {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    socketService.socket.on("open message", (data) {
-      if (!_isMounted) return;
-      setState(() {
-        messages = List<Message>.from(
-          data.map((post) => Message.fromJson(post))
-        );
-      });
+    loadMessages();
 
-      Future.delayed(Duration(milliseconds: 100), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
-    });
-    socketService.openMessage(_auth.currentUser!.email!, widget.account.getEmail);
+    final dataService = Provider.of<DataService>(context, listen: false);
+
     socketService.socket.on("chat message", (data) {
       if (!_isMounted) return;
 
@@ -54,8 +74,9 @@ class _MessagePageState extends State<MessagePage> {
         final otherEmail = widget.account.getEmail;
 
         if ((sender == myEmail && receiver == otherEmail) || (receiver == myEmail && sender == otherEmail)) {
+          if (!mounted) return; // extra safety
           setState(() {
-            messages.add(Message(
+            dataService.messages[widget.account.getEmail]!.add(Message(
               messageID: int.tryParse(item['messageID'].toString()) ?? 0,
               content: item['content'],
               sentDate: DateTime.parse(item['sentDate']),
@@ -63,16 +84,7 @@ class _MessagePageState extends State<MessagePage> {
               receiverEmail: receiver,
             ));
           });
-
-          Future.delayed(Duration(milliseconds: 100), () {
-            if (_scrollController.hasClients) {
-              _scrollController.animateTo(
-                _scrollController.position.maxScrollExtent,
-                duration: Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
-            }
-          });
+          scrollToBottom();
         }
       }
     });
@@ -87,86 +99,80 @@ class _MessagePageState extends State<MessagePage> {
 
   @override
   Widget build(BuildContext context) {
+    final dataService = Provider.of<DataService>(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text("Message")),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final msg = messages[index];
-                final isMe = msg.getSenderEmail == _auth.currentUser?.email;
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: isMe ? Colors.blueAccent : Colors.grey[300],
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                        bottomLeft: Radius.circular(isMe ? 12 : 0),
-                        bottomRight: Radius.circular(isMe ? 0 : 12),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          msg.getContent,
-                          style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black87,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          msg.getTimeSinceSent,
-                          style: TextStyle(
-                            color: isMe ? Colors.white70 : Colors.black54,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+      appBar: AppBar(
+        title: Text(widget.account.getName),
+        actions: [
+          GestureDetector(
+            onTap: openProfile,
+            child: CircleAvatar(
+              radius: 20,
+              backgroundImage: widget.account.getImageUrl != null
+                ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
+                : null,
+              child: widget.account.getImageUrl == null
+                ? Icon(Icons.person)
+                : null,
             )
           ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    labelText: 'Message',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                  if (_messageController.text.trim().isNotEmpty) {
-                    socketService.sendMessage(
-                      _auth.currentUser!.email!,
-                      widget.account.getEmail,
-                      _messageController.text.trim(),
-                    );
-                    _messageController.clear();
-                  }
-                },
-                child: Text("Send"),
-              ),
-            ],
-          ),
-
+          SizedBox(width: 8),
         ],
       ),
+      body: Column(
+        children: [
+          dataService.messages[widget.account.getEmail] != null ?
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: dataService.messages[widget.account.getEmail]!.length,
+                itemBuilder: (context, index) {
+                  final message = dataService.messages[widget.account.getEmail]![index];
+                  return MessageWidget(message: message);
+                },
+              )
+            ) : Center(child: CircularProgressIndicator()),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        labelText: 'Message',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_messageController.text.trim().isNotEmpty) {
+                        socketService.sendMessage(
+                          widget.account.getEmail,
+                          _messageController.text.trim(),
+                        );
+                        _messageController.clear();
+                      }
+                    },
+                    child: Text("Send"),
+                  ),
+                ],
+              ),
+            )
+          )
+        ],
+      ),
+    );
+  }
+
+  void openProfile() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Profile(account: widget.account)),
     );
   }
 }

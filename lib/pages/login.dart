@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:untitled/home_build.dart';
+
+// Pages
 import 'package:untitled/pages/signup.dart';
+import 'package:untitled/home_build.dart';
+
+// Models
+import 'package:untitled/models/feedback_message.dart';
+
+// Services
 import 'package:untitled/services/fcm_service.dart';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,8 +25,14 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String? _errorMessage;
-  String? _successMessage;
+  FeedbackMessage? message;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,20 +56,12 @@ class _LoginPageState extends State<LoginPage> {
               decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
-            if (_successMessage != null)
+            if (message != null)
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _successMessage!,
-                  style: TextStyle(color: Colors.green),
-                ),
-              ),
-            if (_errorMessage != null)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  _errorMessage!,
-                  style: TextStyle(color: Colors.red),
+                  message!.message,
+                  style: TextStyle(color: message!.getColour),
                 ),
               ),
             SizedBox(height: 10),
@@ -96,14 +103,12 @@ class _LoginPageState extends State<LoginPage> {
         );
       } catch (e) {
         setState(() {
-          _errorMessage = 'Invalid credentials';
-          _successMessage = null;
+          message = FeedbackMessage(message: 'Invalid credentials.', type: MessageType.error);
         });
       }
     } else {
       setState(() {
-        _errorMessage = 'All fields are required';
-        _successMessage = null;
+        message = FeedbackMessage(message: 'All fields are required.', type: MessageType.error);
       });
     }
   }
@@ -114,13 +119,11 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
       );
       setState(() {
-        _successMessage = 'Password reset email sent. Please check your inbox.';
-        _errorMessage = null;
+        message = FeedbackMessage(message: 'Password reset email sent. Please check your inbox.', type: MessageType.success);
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Please enter a valid email.';
-        _successMessage = null;
+        message = FeedbackMessage(message: 'Please enter a valid email.', type: MessageType.error);
       });
     }
   }

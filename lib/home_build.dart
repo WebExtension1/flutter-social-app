@@ -38,6 +38,7 @@ class HomeBuildState extends State<HomeBuild> {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: themeNotifier.getTheme(),
+          // https://api.flutter.dev/flutter/widgets/StreamBuilder-class.html
           home: StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {

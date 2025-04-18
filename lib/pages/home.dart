@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 // Pages
 import 'package:untitled/pages/new_post_form.dart';
 
-// Models
-import 'package:untitled/models/account.dart';
-
 // Widgets
 import 'package:untitled/widgets/post_preview.dart';
 
@@ -25,11 +22,30 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  Account? account;
+  final ScrollController _scrollController = ScrollController();
+  bool _showScrollToTopButton = false;
 
   @override
   void initState() {
     super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 100 && !_showScrollToTopButton) {
+        setState(() {
+          _showScrollToTopButton = true;
+        });
+      } else if (_scrollController.offset <= 100 && _showScrollToTopButton) {
+        setState(() {
+          _showScrollToTopButton = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,11 +68,11 @@ class HomeState extends State<Home> {
                     CircleAvatar(
                       radius: 30,
                       backgroundImage: dataService.user!.getImageUrl != null
-                          ? NetworkImage("$apiUrl${dataService.user!.getImageUrl!}")
-                          : null,
+                        ? NetworkImage("$apiUrl${dataService.user!.getImageUrl!}")
+                        : null,
                       child: dataService.user!.getImageUrl == null
-                          ? Icon(Icons.person)
-                          : null,
+                        ? Icon(Icons.person)
+                        : null,
                     ),
                     SizedBox(
                       width: 10,
@@ -87,6 +103,7 @@ class HomeState extends State<Home> {
               child: RefreshIndicator(
                 onRefresh: dataService.getFeed,
                 child: ListView.builder(
+                  controller: _scrollController,
                   itemCount: dataService.feed.length,
                   itemBuilder: (context, index) {
                     return PostPreview(
@@ -104,6 +121,16 @@ class HomeState extends State<Home> {
             )
           ]
         )
+      ),
+      floatingActionButton: _showScrollToTopButton == false ? null : FloatingActionButton(
+        onPressed: () {
+          _scrollController.animateTo(
+            0,
+            duration: Duration(milliseconds: 400),
+            curve: Curves.easeOut
+          );
+        },
+        child: Icon(Icons.arrow_upward)
       )
     );
   }

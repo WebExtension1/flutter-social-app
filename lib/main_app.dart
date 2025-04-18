@@ -10,10 +10,6 @@ import 'package:untitled/pages/profile.dart';
 // Models
 import 'package:untitled/models/account.dart';
 
-// Providers
-import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
-
 class MainAppScaffold extends StatefulWidget {
   final Account? account;
   const MainAppScaffold({super.key, this.account});
@@ -49,26 +45,11 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
   }
 
   List<Widget> get pages => [
-    ChangeNotifierProvider.value(
-      value: DataService(),
-      child: Home()
-    ),
-    ChangeNotifierProvider.value(
-      value: DataService(),
-      child: Search(account: widget.account),
-    ),
-    ChangeNotifierProvider.value(
-      value: DataService(),
-      child: Messages(),
-    ),
-    ChangeNotifierProvider.value(
-      value: DataService(),
-      child: const Friends(),
-    ),
-    ChangeNotifierProvider.value(
-      value: DataService(),
-      child: Profile(),
-    ),
+    Home(),
+    Search(account: widget.account),
+    Messages(),
+    Friends(),
+    Profile(),
   ];
 
   @override

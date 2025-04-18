@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
 import 'package:untitled/widgets/message_preview.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Providers
+import 'package:provider/provider.dart';
+import 'package:untitled/providers/shared_data.dart';
 
 class Messages extends StatefulWidget {
   const Messages({super.key});
@@ -14,54 +13,33 @@ class Messages extends StatefulWidget {
 }
 
 class MessagesState extends State<Messages> {
-  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  List<Account> friends = [];
-
-  void getFriends () async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/account/friends'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email}),
-    );
-    if (response.statusCode == 200) {
-      setState(() {
-        var jsonResponse = jsonDecode(response.body);
-        friends = List<Account>.from(
-            jsonResponse.map((account) => Account.fromJson(account))
-        );
-      });
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    getFriends();
   }
 
   @override
   Widget build(BuildContext context) {
+    final dataService = Provider.of<DataService>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Messages"),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.add)
+        title: Text("Messages")
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 10),
+          Expanded(
+            child: ListView.builder(
+              itemCount: dataService.friends.length,
+              itemBuilder: (context, index) {
+                return MessagePreview(account: dataService.friends[index]);
+              },
+            )
           )
         ],
-      ),
-      body: Expanded(
-        child: ListView.builder(
-          itemCount: friends.length,
-          itemBuilder: (context, index) {
-            return MessagePreview(account: friends[index]);
-          },
-        ),
-      ),
+      )
     );
   }
 }

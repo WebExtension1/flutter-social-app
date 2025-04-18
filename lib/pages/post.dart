@@ -10,6 +10,10 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// Providers
+import 'package:provider/provider.dart';
+import 'package:untitled/providers/shared_data.dart';
+
 class PostPage extends StatefulWidget {
   const PostPage({super.key, required this.post, required this.comment, required this.account});
   final Post post;
@@ -338,7 +342,12 @@ class _PostState extends State<PostPage> {
   void openProfile() async {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Profile()),
+      MaterialPageRoute(
+        builder: (context) => ChangeNotifierProvider.value(
+          value: DataService(),
+          child: Profile(account: widget.post.getAccount),
+        ),
+      ),
     );
   }
 
