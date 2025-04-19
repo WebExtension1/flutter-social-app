@@ -5,6 +5,7 @@
 import FlutterMacOS
 import Foundation
 
+import app_settings
 import awesome_notifications
 import file_selector_macos
 import firebase_auth
@@ -16,6 +17,7 @@ import shared_preferences_foundation
 import sqflite_darwin
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  AppSettingsPlugin.register(with: registry.registrar(forPlugin: "AppSettingsPlugin"))
   AwesomeNotificationsPlugin.register(with: registry.registrar(forPlugin: "AwesomeNotificationsPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   FLTFirebaseAuthPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseAuthPlugin"))

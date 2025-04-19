@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/pages/settings/account_settings.dart';
-import 'package:untitled/pages/settings/notification_settings.dart';
-import 'package:untitled/pages/settings/profile_settings.dart';
-import 'package:untitled/pages/settings/theme_settings.dart';
-import 'package:untitled/pages/login.dart';
+import 'package:badbook/pages/settings/account_settings.dart';
+import 'package:badbook/pages/settings/notification_settings.dart';
+import 'package:badbook/pages/settings/profile_settings.dart';
+import 'package:badbook/pages/settings/theme_settings.dart';
+import 'package:badbook/pages/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Settings extends StatefulWidget {
@@ -111,6 +111,7 @@ class _SettingsState extends State<Settings> {
   void signout() async {
     await FirebaseAuth.instance.signOut();
 
+    if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),

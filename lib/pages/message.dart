@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 
 // Profile
-import 'package:untitled/pages/profile.dart';
+import 'package:badbook/pages/profile.dart';
 
 // Models
-import 'package:untitled/models/account.dart';
-import 'package:untitled/models/message.dart';
+import 'package:badbook/models/account.dart';
+import 'package:badbook/models/message.dart';
 
 // Widgets
-import 'package:untitled/widgets/message.dart';
+import 'package:badbook/widgets/message.dart';
 
 // APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Services
-import 'package:untitled/services/socket_service.dart';
+import 'package:badbook/services/socket_service.dart';
 
 // Providers
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
+import 'package:badbook/providers/shared_data.dart';
 
 // Firebase
 import 'package:firebase_auth/firebase_auth.dart';
@@ -106,18 +106,18 @@ class _MessagePageState extends State<MessagePage> {
         title: Text(widget.account.getName),
         actions: [
           GestureDetector(
-            onTap: openProfile,
+            onTap: _openProfile,
             child: CircleAvatar(
               radius: 20,
               backgroundImage: widget.account.getImageUrl != null
                 ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
                 : null,
               child: widget.account.getImageUrl == null
-                ? Icon(Icons.person)
+                ? const Icon(Icons.person)
                 : null,
             )
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
@@ -132,7 +132,7 @@ class _MessagePageState extends State<MessagePage> {
                   return MessageWidget(message: message);
                 },
               )
-            ) : Center(child: CircularProgressIndicator()),
+            ) : const Center(child: CircularProgressIndicator()),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -141,13 +141,13 @@ class _MessagePageState extends State<MessagePage> {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Message',
                         border: OutlineInputBorder(),
                       ),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () {
                       if (_messageController.text.trim().isNotEmpty) {
@@ -158,7 +158,7 @@ class _MessagePageState extends State<MessagePage> {
                         _messageController.clear();
                       }
                     },
-                    child: Text("Send"),
+                    child: const Text("Send"),
                   ),
                 ],
               ),
@@ -169,7 +169,7 @@ class _MessagePageState extends State<MessagePage> {
     );
   }
 
-  void openProfile() async {
+  void _openProfile() async {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Profile(account: widget.account)),

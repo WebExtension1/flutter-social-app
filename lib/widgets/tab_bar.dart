@@ -5,12 +5,7 @@ class TabBarWidget extends StatelessWidget {
   final int displayType;
   final ValueChanged<int> onTabSelected;
 
-  const TabBarWidget({
-    Key? key,
-    required this.labels,
-    required this.displayType,
-    required this.onTabSelected,
-  }) : super(key: key);
+  const TabBarWidget({super.key, required this.labels, required this.displayType, required this.onTabSelected});
 
   @override
   Widget build(BuildContext context) {

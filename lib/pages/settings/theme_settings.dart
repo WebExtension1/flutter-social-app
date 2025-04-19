@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/theme_notifier.dart';
+import 'package:badbook/providers/theme_notifier.dart';
 
 class ThemeSettings extends StatefulWidget {
   const ThemeSettings({super.key});
@@ -33,6 +33,7 @@ class _ThemeSettingsState extends State<ThemeSettings> {
       _selectedTheme = theme;
     });
 
+    if (!mounted) return;
     Provider.of<ThemeNotifier>(context, listen: false).setTheme(theme);
   }
 

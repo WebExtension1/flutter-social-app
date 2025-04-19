@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 // Pages
-import 'package:untitled/pages/friends.dart';
-import 'package:untitled/pages/home.dart';
-import 'package:untitled/pages/search.dart';
-import 'package:untitled/pages/messages.dart';
-import 'package:untitled/pages/profile.dart';
+import 'package:badbook/pages/friends.dart';
+import 'package:badbook/pages/home.dart';
+import 'package:badbook/pages/search.dart';
+import 'package:badbook/pages/messages.dart';
+import 'package:badbook/pages/profile.dart';
 
 // Models
-import 'package:untitled/models/account.dart';
+import 'package:badbook/models/account.dart';
 
 class MainAppScaffold extends StatefulWidget {
   final Account? account;

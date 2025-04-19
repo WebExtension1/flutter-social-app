@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/pages/login.dart';
+import 'package:badbook/pages/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -194,6 +194,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         },
         body: json.encode({'email': email}),
       );
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),

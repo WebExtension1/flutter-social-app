@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/message.dart';
+import 'package:badbook/models/message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MessageWidget extends StatefulWidget {

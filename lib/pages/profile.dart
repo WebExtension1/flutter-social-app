@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
-import 'package:untitled/models/comment.dart';
-import 'package:untitled/widgets/comment_preview.dart';
-import 'package:untitled/widgets/post_preview.dart';
-import 'package:untitled/pages/settings.dart';
-import 'package:untitled/models/post.dart';
+import 'package:badbook/models/account.dart';
+import 'package:badbook/models/comment.dart';
+import 'package:badbook/widgets/comment_preview.dart';
+import 'package:badbook/widgets/post_preview.dart';
+import 'package:badbook/pages/settings.dart';
+import 'package:badbook/models/post.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -12,7 +12,7 @@ import 'dart:convert';
 
 // Providers
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
+import 'package:badbook/providers/shared_data.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key, this.account});

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:untitled/models/post.dart';
-import 'package:untitled/widgets/account_preview.dart';
-import 'package:untitled/models/account.dart' as account_model;
+import 'package:badbook/models/post.dart';
+import 'package:badbook/widgets/account_preview.dart';
+import 'package:badbook/models/account.dart' as account_model;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:untitled/services/socket_service.dart';
-import 'package:untitled/widgets/post_preview.dart';
+import 'package:badbook/services/socket_service.dart';
+import 'package:badbook/widgets/post_preview.dart';
 
 // Providers
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
+import 'package:badbook/providers/shared_data.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key, required this.account});

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:untitled/home_build.dart';
-import 'package:untitled/pages/login.dart';
+import 'package:badbook/home_build.dart';
+import 'package:badbook/pages/login.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:untitled/services/fcm_service.dart';
+import 'package:badbook/services/fcm_service.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -32,8 +32,8 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Sign Up'),
-          automaticallyImplyLeading: false
+        title: const Text('Sign Up'),
+        automaticallyImplyLeading: false
       ),
       body: Padding(
         padding: EdgeInsets.all(15),
@@ -143,6 +143,7 @@ class _SignupPageState extends State<SignupPage> {
           );
           if (response.statusCode == 200) {
             await FCMService.registerTokenWithServer();
+            if (!mounted) return;
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const HomeBuild()),

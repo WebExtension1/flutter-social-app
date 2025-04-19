@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 // Pages
-import 'package:untitled/pages/signup.dart';
-import 'package:untitled/home_build.dart';
+import 'package:badbook/pages/signup.dart';
+import 'package:badbook/home_build.dart';
 
 // Models
-import 'package:untitled/models/feedback_message.dart';
+import 'package:badbook/models/feedback_message.dart';
 
 // Services
-import 'package:untitled/services/fcm_service.dart';
+import 'package:badbook/services/fcm_service.dart';
 
 // Firebase
 import 'package:firebase_auth/firebase_auth.dart';
@@ -38,8 +38,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Login'),
-          automaticallyImplyLeading: false
+        title: const Text('Login'),
+        automaticallyImplyLeading: false
       ),
       body: Padding(
         padding: EdgeInsets.all(15),
@@ -47,13 +47,13 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
             if (message != null)
@@ -64,22 +64,22 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(color: message!.getColour),
                 ),
               ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: login,
-                  child: Text('Login'),
+                  onPressed: _login,
+                  child: const Text('Login'),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: forgotPassword,
-                  child: Text('Forgot Password'),
+                  onPressed: _forgotPassword,
+                  child: const Text('Forgot Password'),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 TextButton(
-                  onPressed: signup,
-                  child: Text('Not a member?'),
+                  onPressed: _signup,
+                  child: const Text('Not a member?'),
                 ),
               ],
             )
@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void login() async {
+  void _login() async {
     if (_emailController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty) {
       try {
         await _auth.signInWithEmailAndPassword(
@@ -97,6 +97,7 @@ class _LoginPageState extends State<LoginPage> {
           password: _passwordController.text.trim(),
         );
         await FCMService.registerTokenWithServer();
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeBuild()),
@@ -113,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void forgotPassword() async {
+  void _forgotPassword() async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(
         email: _emailController.text.trim(),
@@ -128,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void signup() {
+  void _signup() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const SignupPage()),

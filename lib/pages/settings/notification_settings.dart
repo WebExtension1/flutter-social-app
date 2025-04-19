@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/services/notifications_services.dart';
+import 'package:badbook/services/notifications_services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class NotificationSettings extends StatefulWidget {

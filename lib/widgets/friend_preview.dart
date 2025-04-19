@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
-import 'package:untitled/pages/profile.dart';
+import 'package:badbook/models/account.dart';
+import 'package:badbook/pages/profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

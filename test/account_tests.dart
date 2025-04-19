@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:untitled/models/account.dart';
+import 'package:badbook/models/account.dart';
 
 void main() {
   test('Account register date formatting', () {

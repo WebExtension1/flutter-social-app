@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 // Pages
-import 'package:untitled/pages/new_post_form.dart';
+import 'package:badbook/pages/new_post_form.dart';
 
 // Widgets
-import 'package:untitled/widgets/post_preview.dart';
+import 'package:badbook/widgets/post_preview.dart';
 
 //APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Providers
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
+import 'package:badbook/providers/shared_data.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -54,15 +54,15 @@ class HomeState extends State<Home> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Your Feed"),
+        title: const Text("Your Feed"),
       ),
-      body: dataService.user == null ? Center(child: CircularProgressIndicator()) : Padding(
-        padding: EdgeInsets.all(5),
+      body: dataService.user == null ? const Center(child: CircularProgressIndicator()) : Padding(
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             Card(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(15, 5, 5, 5),
+                padding: const EdgeInsets.fromLTRB(15, 5, 5, 5),
                 child: Row(
                   children: [
                     CircleAvatar(
@@ -71,17 +71,15 @@ class HomeState extends State<Home> {
                         ? NetworkImage("$apiUrl${dataService.user!.getImageUrl!}")
                         : null,
                       child: dataService.user!.getImageUrl == null
-                        ? Icon(Icons.person)
+                        ? const Icon(Icons.person)
                         : null,
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: GestureDetector(
-                        onTap: displayNewPost,
+                        onTap: _displayNewPost,
                         child: Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             vertical: 15,
                             horizontal: 10
                           ),
@@ -89,9 +87,7 @@ class HomeState extends State<Home> {
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text(
-                            "Share what's on your mind"
-                          ),
+                          child: Text("Share what's on your mind"),
                         ),
                       ),
                     ),
@@ -130,12 +126,12 @@ class HomeState extends State<Home> {
             curve: Curves.easeOut
           );
         },
-        child: Icon(Icons.arrow_upward)
+        child: const Icon(Icons.arrow_upward)
       )
     );
   }
 
-  void displayNewPost() async {
+  void _displayNewPost() async {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const NewPostForm()),

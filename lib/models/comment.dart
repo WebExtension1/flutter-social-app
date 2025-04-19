@@ -1,6 +1,5 @@
-import 'package:untitled/models/account.dart';
-import 'package:untitled/models/post.dart';
-import 'package:intl/intl.dart';
+import 'package:badbook/models/account.dart';
+import 'package:badbook/models/post.dart';
 
 class Comment {
   final int _commentID;

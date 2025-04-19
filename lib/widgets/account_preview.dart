@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
-import 'package:untitled/pages/profile.dart';
+import 'package:badbook/models/account.dart';
+import 'package:badbook/pages/profile.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AccountPreview extends StatefulWidget {

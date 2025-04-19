@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
-import 'package:untitled/models/post.dart';
-import 'package:untitled/pages/post.dart';
+import 'package:badbook/models/account.dart';
+import 'package:badbook/models/post.dart';
+import 'package:badbook/pages/post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

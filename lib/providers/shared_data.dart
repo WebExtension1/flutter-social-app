@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart' as account_model;
-import 'package:untitled/models/message.dart';
-import 'package:untitled/models/post.dart';
-import 'package:untitled/services/databases/friend_database.dart';
-import 'package:untitled/services/databases/post_database.dart';
+import 'package:badbook/models/account.dart' as account_model;
+import 'package:badbook/models/message.dart';
+import 'package:badbook/models/post.dart';
+import 'package:badbook/services/databases/friend_database.dart';
+import 'package:badbook/services/databases/post_database.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:untitled/services/databases/user_database.dart';
+import 'package:badbook/services/databases/user_database.dart';
 
 class DataService extends ChangeNotifier {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
@@ -29,7 +29,7 @@ class DataService extends ChangeNotifier {
   List<account_model.Account> outgoing = [];
   List<Post> feed = [];
   account_model.Account? user;
-  Map<String, List<Message>> messages = Map<String, List<Message>>();
+  Map<String, List<Message>> messages = <String, List<Message>>{};
 
   Future<void> loadUser() async {
     _getUser();
@@ -232,7 +232,7 @@ class DataService extends ChangeNotifier {
   }
 
   void _updateFriendsFromJson(Map<String, dynamic> jsonResponse) {
-    final key = (String label) => label.toLowerCase();
+    key(String label) => label.toLowerCase();
     friends = _parseAccounts(jsonResponse[key('Friends')]);
     contacts = _parseAccounts(jsonResponse[key('Contacts')]);
     mutual = _parseAccounts(jsonResponse[key('Mutual')]);

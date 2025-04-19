@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:untitled/themes/light_theme.dart';
-import 'package:untitled/themes/dark_theme.dart';
-import 'package:untitled/themes/light_red_theme.dart';
-import 'package:untitled/themes/dark_red_theme.dart';
+import 'package:badbook/themes/light_theme.dart';
+import 'package:badbook/themes/dark_theme.dart';
+import 'package:badbook/themes/light_red_theme.dart';
+import 'package:badbook/themes/dark_red_theme.dart';
 
 class ThemeNotifier extends ChangeNotifier {
   ThemeData _themeData;

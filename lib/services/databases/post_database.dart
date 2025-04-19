@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:untitled/models/post.dart';
-import 'package:untitled/models/account.dart';
+import 'package:badbook/models/post.dart';
+import 'package:badbook/models/account.dart';
 
 class PostDatabase {
   static Database? _database;

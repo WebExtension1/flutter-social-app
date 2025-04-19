@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/widgets/message_preview.dart';
+import 'package:badbook/widgets/message_preview.dart';
 
 // Providers
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
+import 'package:badbook/providers/shared_data.dart';
 
 class Messages extends StatefulWidget {
   const Messages({super.key});
@@ -25,11 +25,11 @@ class MessagesState extends State<Messages> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Messages")
+        title: const Text("Messages")
       ),
       body: Column(
         children: [
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
               itemCount: dataService.friends.length,

@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
-import 'package:untitled/widgets/comment_preview.dart';
-import 'package:untitled/pages/profile.dart';
-import 'package:untitled/models/post.dart';
-import 'package:untitled/models/comment.dart';
-import 'package:untitled/widgets/comment_form.dart';
+
+// Pages
+import 'package:badbook/pages/profile.dart';
+
+// Models
+import 'package:badbook/models/account.dart';
+import 'package:badbook/models/post.dart';
+import 'package:badbook/models/comment.dart';
+
+// Widgets
+import 'package:badbook/widgets/comment_preview.dart';
+import 'package:badbook/widgets/comment_form.dart';
+
+// To remove
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,7 +20,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Providers
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
+import 'package:badbook/providers/shared_data.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key, required this.post, required this.comment, required this.account});
@@ -325,6 +333,7 @@ class _PostState extends State<PostPage> {
     );
 
     if (response.statusCode == 200) {
+      if (!mounted) return;
       Navigator.pop(context, 'popped');
     }
   }

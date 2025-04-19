@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/models/account.dart';
-import 'package:untitled/pages/message.dart';
+import 'package:badbook/models/account.dart';
+import 'package:badbook/pages/message.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MessagePreview extends StatefulWidget {

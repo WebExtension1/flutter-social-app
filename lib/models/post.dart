@@ -1,5 +1,4 @@
-import 'package:untitled/models/account.dart';
-import 'package:intl/intl.dart';
+import 'package:badbook/models/account.dart';
 
 class Post {
   final int _postID;

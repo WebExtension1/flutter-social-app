@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
+
+// Models
+import 'package:badbook/models/feedback_message.dart';
+
+// APIs
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Providers
+import 'package:provider/provider.dart';
+import 'package:badbook/providers/shared_data.dart';
+
+// Images
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
+// Location
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'dart:io';
+import 'package:app_settings/app_settings.dart';
 
 class NewPostForm extends StatefulWidget {
   const NewPostForm({super.key});
@@ -17,11 +30,11 @@ class NewPostForm extends StatefulWidget {
 class _NewPostFormState extends State<NewPostForm> {
   final TextEditingController _contentController = TextEditingController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   String? visibility = "public";
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   String? _locationName;
+  FeedbackMessage? message;
 
   final Map<String, String> visibilityMap = {
     "Public": "public",
@@ -33,16 +46,16 @@ class _NewPostFormState extends State<NewPostForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create a new post")
+        title: const Text("Create a new post")
       ),
       body: Padding(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         child: Column(
           children: [
             Row(
               children: [
-                Text("Visibility"),
-                SizedBox(width: 10),
+                const Text("Visibility"),
+                const SizedBox(width: 10),
                 DropdownButton(
                   value: visibility,
                   items: visibilityMap.entries.map((entry) => DropdownMenuItem(
@@ -57,19 +70,24 @@ class _NewPostFormState extends State<NewPostForm> {
                 )
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             if (_locationName != null)
               Text("📍 $_locationName", style: TextStyle(color: Colors.blue)),
             Row(
               children: [
                 TextButton.icon(
                   onPressed: _getLocation,
-                  icon: Icon(Icons.location_on),
-                  label: Text("Check in"),
+                  icon: const Icon(Icons.location_on),
+                  label: const Text("Check in"),
                 ),
+                if (_locationName != null)
+                  TextButton(
+                    onPressed: _removeLocation,
+                    child: const Text("Remove"),
+                  ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Flexible(
               child: TextField(
                 maxLines: null,
@@ -84,30 +102,63 @@ class _NewPostFormState extends State<NewPostForm> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 TextButton.icon(
-                  onPressed: _pickImage,
-                  icon: Icon(Icons.image),
-                  label: Text("Upload"),
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library),
+                  label: const Text("Gallery"),
                 ),
-                if (_imageFile != null)
-                  Text("Image uploaded", style: TextStyle(color: Colors.green)),
-                ElevatedButton(
-                  onPressed: createPost,
-                  child: Text("Post"),
+                const SizedBox(width: 10),
+                TextButton.icon(
+                  onPressed: () => _pickImage(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Camera"),
                 ),
               ],
-            )
+            ),
+            if (_imageFile != null) ...[
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        const Text("Image attached", style: TextStyle(color: Colors.green)),
+                        const SizedBox(width: 10),
+                        Image.file(_imageFile!, width: 50, height: 50, fit: BoxFit.cover),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _removeImage,
+                    child: const Text("Remove"),
+                  ),
+                ]
+              )
+            ],
+            ElevatedButton(
+              onPressed: _createPost,
+              child: const Text("Post"),
+            ),
+            if (message != null)
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  message!.message,
+                  style: TextStyle(color: message!.getColour),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
@@ -115,29 +166,34 @@ class _NewPostFormState extends State<NewPostForm> {
     }
   }
 
+  Future<void> _removeImage() async {
+    setState(() {
+      _imageFile = null;
+    });
+  }
+
   Future<void> _getLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location services are disabled.")));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location services are disabled on your phone.")));
       return;
     }
 
-    // Check location permissions
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied.")));
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission permanently denied.")));
+      if (!mounted) return;
+      _showLocationPermissionDialog(context);
       return;
     }
 
@@ -145,32 +201,82 @@ class _NewPostFormState extends State<NewPostForm> {
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
     if (placemarks.isNotEmpty) {
-      Placemark place = placemarks.first;
+      Placemark place = placemarks[0];
       setState(() {
         _locationName = "${place.name}, ${place.locality}";
       });
     }
   }
 
-  void createPost () async {
-    final request = http.MultipartRequest('POST', Uri.parse('$apiUrl/post/create'));
-    request.fields['email'] = _auth.currentUser!.email!;
-    request.fields['content'] = _contentController.text;
-    request.fields['visibility'] = visibility!;
-    if (_locationName != null) {
-      request.fields['location'] = _locationName!;
+  // https://api.flutter.dev/flutter/material/showDialog.html
+  void _showLocationPermissionDialog(BuildContext context) {
+    showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Location Permission Denied"),
+          content: Text("Please enable location sharing in the app settings."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text("Go to Settings"),
+            ),
+          ],
+        );
+      },
+    ).then((goToSettings) {
+      if (goToSettings == true) {
+        AppSettings.openAppSettings();
+      }
+    });
+  }
+
+  Future<void> _removeLocation() async {
+    setState(() {
+      _locationName = null;
+    });
+  }
+
+  void _createPost() async {
+    final dataService = Provider.of<DataService>(context, listen: false);
+
+    if (_contentController.text.trim().isNotEmpty || _locationName != null || _imageFile != null) {
+      final request = http.MultipartRequest('POST', Uri.parse('$apiUrl/post/create'));
+      request.fields['email'] = dataService.user!.getEmail;
+      request.fields['content'] = _contentController.text;
+      request.fields['visibility'] = visibility!;
+      if (_locationName != null) {
+        request.fields['location'] = _locationName!;
+      }
+
+      if (_imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        dataService.getFeed();
+        if (!mounted) return;
+        Navigator.pop(context);
+      } else {
+        setState(() {
+          message = FeedbackMessage(message: 'Unable to create post.', type: MessageType.error);
+        });
+      }
     }
-
-    if (_imageFile != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
-    }
-
-    final response = await request.send();
-
-    if (response.statusCode == 200) {
-      Navigator.pop(context, "popped");
-    } else {
-      setState(() {});
+    else {
+      setState(() {
+        message = FeedbackMessage(message: 'Post must contain text, image, or location.', type: MessageType.error);
+      });
     }
   }
 }

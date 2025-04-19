@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 // Pages
-import 'package:untitled/pages/login.dart';
-import 'package:untitled/main_app.dart';
+import 'package:badbook/pages/login.dart';
+import 'package:badbook/main_app.dart';
 
 // Models
-import 'package:untitled/models/account.dart';
+import 'package:badbook/models/account.dart';
 
 // Providers
 import 'package:provider/provider.dart';
-import 'package:untitled/providers/shared_data.dart';
-import 'package:untitled/providers/theme_notifier.dart';
+import 'package:badbook/providers/shared_data.dart';
+import 'package:badbook/providers/theme_notifier.dart';
 
 // Firebase
 import 'package:firebase_auth/firebase_auth.dart';
