@@ -72,7 +72,8 @@ class _CommentFormState extends State<CommentForm> {
 
     if (response.statusCode == 200) {
       if (!mounted) return;
-      Navigator.pop(context, "popped");
+      // TODO Refresh comments
+      Navigator.pop(context);
     } else {
       setState(() {
       });

@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
+
+// Pages
+import 'package:badbook/pages/settings.dart';
+
+// Models
 import 'package:badbook/models/account.dart';
 import 'package:badbook/models/comment.dart';
+import 'package:badbook/models/post.dart';
+
+// Widgets
 import 'package:badbook/widgets/comment_preview.dart';
 import 'package:badbook/widgets/post_preview.dart';
-import 'package:badbook/pages/settings.dart';
-import 'package:badbook/models/post.dart';
+
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
 
 // Providers
 import 'package:provider/provider.dart';
@@ -23,10 +33,6 @@ class Profile extends StatefulWidget {
 }
 
 class ProfileState extends State<Profile> {
-  List<Post> posts = [];
-  List<Comment> comments = [];
-  List<Post> liked = [];
-  int friends = 0;
   late Account account;
   bool loading = true;
   int displayType = 1;
@@ -45,49 +51,25 @@ class ProfileState extends State<Profile> {
       account = dataService.user!;
     }
 
-    _fetchPosts(account);
+    _loadDetails();
     loading = false;
   }
 
-  Future<void> _fetchPosts(Account account) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/post/get'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'account': account.getEmail}),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        var jsonResponse = json.decode(response.body);
-        posts = List<Post>.from(
-          jsonResponse['posts'].map((post) => Post.fromJson(post))
-        );
-        comments = List<Comment>.from(
-          jsonResponse['comments'].map((comment) => Comment.fromJson(comment))
-        );
-        liked = List<Post>.from(
-            jsonResponse['liked'].map((post) => Post.fromJson(post))
-        );
-        friends = jsonResponse['friends'];
-      });
-    } else {
-      setState(() {
-        posts = [];
-        comments = [];
-      });
-    }
+  Future<void> _loadDetails() async {
+    final dataService = Provider.of<DataService>(context, listen: false);
+    await dataService.getProfile(account.getEmail);
   }
 
   @override
   Widget build(BuildContext context) {
+    final dataService = Provider.of<DataService>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile"),
+        title: const Text("Profile"),
         actions: [
           if (account.getEmail == _auth.currentUser?.email)
-            IconButton(onPressed: displaySettings, icon: Icon(Icons.settings))
+            IconButton(onPressed: _displaySettings, icon: Icon(Icons.settings))
         ],
       ),
       body: loading ? Center(child: CircularProgressIndicator()) : Padding(
@@ -102,28 +84,28 @@ class ProfileState extends State<Profile> {
                     ? NetworkImage("$apiUrl${account.getImageUrl!}")
                     : null,
                   child: account.getImageUrl == null
-                    ? Icon(Icons.person)
+                    ? const Icon(Icons.person)
                     : null,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Column(
                   children: [
                     Text(
                       account.getName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       account.getUsername,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                       ),
                     ),
                   ],
                 ),
-                Expanded(
+                const Expanded(
                   child: SizedBox()
                 ),
                 if (account.getRelationship == 'friend')
@@ -133,16 +115,16 @@ class ProfileState extends State<Profile> {
                   ),
                 if (account.getRelationship == 'incoming')
                   Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: acceptFriendRequest,
-                          child: const Text("Accept"),
-                        ),
-                        ElevatedButton(
-                          onPressed: rejectFriendRequest,
-                          child: const Text("Reject"),
-                        ),
-                      ]
+                    children: [
+                      ElevatedButton(
+                        onPressed: acceptFriendRequest,
+                        child: const Text("Accept"),
+                      ),
+                      ElevatedButton(
+                        onPressed: rejectFriendRequest,
+                        child: const Text("Reject"),
+                      ),
+                    ]
                   ),
                 if (account.getRelationship == 'outgoing')
                   ElevatedButton(
@@ -156,112 +138,113 @@ class ProfileState extends State<Profile> {
                   )
               ],
             ),
-            SizedBox(height: 10),
-            Text("Joined ${account.getTimeSinceJoined}"),
-            SizedBox(height: 10),
-            Text("${posts.length} Post${posts.length != 1 ? 's' : ''}"),
-            SizedBox(height: 10),
-            Text("$friends Friend${friends != 1 ? 's' : ''}"),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(labels.length, (index) {
-                    final int type = index + 1;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            displayType = type;
-                          });
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              labels[index],
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+            if (dataService.profiles[account.getEmail] != null) ...[
+              const SizedBox(height: 10),
+              Text("Joined ${account.getTimeSinceJoined}"),
+              const SizedBox(height: 10),
+              Text("${dataService.profiles[account.getEmail]!['posts']!.length} Post${dataService.profiles[account.getEmail]!['posts']!.length != 1 ? 's' : ''}"),
+              const SizedBox(height: 10),
+              Text("${dataService.profiles[account.getEmail]!['friends']!.length} Friend${dataService.profiles[account.getEmail]!['friends']!.length != 1 ? 's' : ''}"),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(labels.length, (index) {
+                      final int type = index + 1;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              displayType = type;
+                            });
+                          },
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                labels[index],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 4),
-                            AnimatedContainer(
-                              duration: Duration(milliseconds: 250),
-                              height: 2,
-                              width: displayType == type ? 24 : 0,
-                            )
-                          ],
+                              const SizedBox(height: 4),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                height: 2,
+                                width: displayType == type ? 24 : 0,
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  }),
-                ),
-                SizedBox(height: 10),
-              ],
-            ),
-            SizedBox(height: 10),
-            if (displayType == 1)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    return PostPreview(
-                      post: posts[index],
-                      onDelete: () {
-                        setState(() {
-                          posts.removeAt(index);
-                        });
-                      },
-                      account: account
-                    );
-                  }
-                ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 10),
+                ],
               ),
-            if (displayType == 2)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: comments.length,
-                  itemBuilder: (context, index) {
-                    return CommentPreview(
-                      comment: comments[index],
-                      onDelete: () {
-                        setState(() {
-                          comments.removeAt(index);
-                        });
-                      },
-                      displayTop: true,
-                      account: account
-                    );
-                  }
+              const SizedBox(height: 10),
+              if (displayType == 1)
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadDetails,
+                    child: ListView.builder(
+                      itemCount: dataService.profiles[account.getEmail]!['posts']!.length,
+                      itemBuilder: (context, index) {
+                        return PostPreview(
+                          post: dataService.profiles[account.getEmail]!['posts']!.cast<Post>()[index],
+                          account: account
+                        );
+                      }
+                    ),
+                  )
                 ),
-              ),
-            if (displayType == 3)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: liked.length,
-                  itemBuilder: (context, index) {
-                    return PostPreview(
-                      post: liked[index],
-                      onDelete: () {
-                        setState(() {
-                          liked.removeAt(index);
-                        });
-                      },
-                      account: account
-                    );
-                  }
+              if (displayType == 2)
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadDetails,
+                    child: ListView.builder(
+                      itemCount: dataService.profiles[account.getEmail]!['comments']!.length,
+                      itemBuilder: (context, index) {
+                        return CommentPreview(
+                          comment: dataService.profiles[account.getEmail]!['comments']!.cast<Comment>()[index],
+                          onDelete: () {
+                            setState(() {
+                              dataService.profiles[account.getEmail]!['comments']!.cast<Comment>().removeAt(index);
+                            });
+                          },
+                          displayTop: true,
+                          account: account
+                        );
+                      }
+                    ),
+                  )
                 ),
-              )
+              if (displayType == 3)
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadDetails,
+                    child: ListView.builder(
+                      itemCount: dataService.profiles[account.getEmail]!['liked']!.length,
+                      itemBuilder: (context, index) {
+                        return PostPreview(
+                          post: dataService.profiles[account.getEmail]!['liked']!.cast<Post>()[index],
+                          account: account
+                        );
+                      }
+                    ),
+                  )
+                )
+            ]
           ],
         ),
       )
     );
   }
 
-  void displaySettings() {
+  void _displaySettings() {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => const Settings(),

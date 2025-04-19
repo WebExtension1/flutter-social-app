@@ -104,11 +104,6 @@ class HomeState extends State<Home> {
                   itemBuilder: (context, index) {
                     return PostPreview(
                       post: dataService.feed[index],
-                      onDelete: () {
-                        setState(() {
-                          dataService.feed.removeAt(index);
-                        });
-                      },
                       account: dataService.user!
                     );
                   }

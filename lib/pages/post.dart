@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:badbook/pages/profile.dart';
 
 // Models
-import 'package:badbook/models/account.dart';
 import 'package:badbook/models/post.dart';
-import 'package:badbook/models/comment.dart';
 
 // Widgets
 import 'package:badbook/widgets/comment_preview.dart';
@@ -23,107 +21,89 @@ import 'package:provider/provider.dart';
 import 'package:badbook/providers/shared_data.dart';
 
 class PostPage extends StatefulWidget {
-  const PostPage({super.key, required this.post, required this.comment, required this.account});
+  const PostPage({super.key, required this.post, required this.comment});
   final Post post;
   final bool comment;
-  final Account account;
 
   @override
   State<PostPage> createState() => _PostState();
 }
 
 class _PostState extends State<PostPage> {
-  List<Comment> comments = [];
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  int? liked = 0;
-  int? likes = 0;
-  int? dislikes = 0;
-  int? commentCount = 0;
+  int liked = 0;
+  int likes = 0;
+  int dislikes = 0;
+  int commentCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _fetchComments();
+    _loadComments();
     if (widget.comment) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        displayNewComment();
+        _displayNewComment();
       });
     }
     likes = widget.post.getLikes;
     dislikes = widget.post.getDislikes;
     liked = widget.post.getLiked;
     if (liked == 1) {
-      likes = likes! - 1;
+      likes = likes - 1;
     } else if (liked == 2) {
-      dislikes = dislikes! - 1;
+      dislikes = dislikes - 1;
     }
   }
 
-  Future<void> _fetchComments() async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/comment/get'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'postID': widget.post.getPostID , 'email': _auth.currentUser?.email}),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        var jsonResponse = json.decode(response.body);
-        comments = List<Comment>.from(
-            jsonResponse.map((comment) => Comment.fromJson(comment))
-        );
-        commentCount = comments.length;
-      });
-    } else {
-      setState(() {
-        comments = [];
-      });
-    }
+  Future<void> _loadComments() async {
+    final dataService = Provider.of<DataService>(context, listen: false);
+    await dataService.getComments(widget.post.getPostID);
+    commentCount = dataService.comments[widget.post.getPostID]!.length;
   }
 
   @override
   Widget build(BuildContext context) {
+    final dataService = Provider.of<DataService>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Post"),
+        title: const Text("Post"),
       ),
       body: Padding(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         child: SingleChildScrollView(
           child: Column(
             children: [
               Row(
                 children: [
                   GestureDetector(
-                    onTap: openProfile,
+                    onTap: _openProfile,
                     child: Row(
                       children: [
                         CircleAvatar(
                           radius: 30,
                           backgroundImage: widget.post.getAccount.getImageUrl != null
-                              ? NetworkImage("$apiUrl${widget.post.getAccount.getImageUrl!}")
-                              : null,
+                            ? NetworkImage("$apiUrl${widget.post.getAccount.getImageUrl!}")
+                            : null,
                           child: widget.post.getAccount.getImageUrl == null
-                              ? Icon(Icons.person)
-                              : null,
+                            ? const Icon(Icons.person)
+                            : null,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Column(
                           children: [
                             Text(
                               widget.post.getAccount.getName,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
                               widget.post.getAccount.getUsername,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
                               ),
@@ -133,41 +113,41 @@ class _PostState extends State<PostPage> {
                       ],
                     ),
                   ),
-                  Expanded(
+                  const Expanded(
                     child: SizedBox()
                   ),
                   Text(widget.post.getTimeSinceSent),
-                  SizedBox(width: 10),
-                  if (_auth.currentUser?.email == widget.post.getAccount.getEmail)
+                  const SizedBox(width: 10),
+                  if (dataService.user!.getEmail == widget.post.getAccount.getEmail)
                     PopupMenuButton<String>(
                       onSelected: (value) {
-                        deletePost();
+                        _deletePost();
                       },
                       itemBuilder: (context) => [
-                        PopupMenuItem(
+                        const PopupMenuItem(
                           value: 'delete',
                           child: Text('Delete Post'),
                         )
                       ],
-                      icon: Icon(Icons.more_vert),
+                      icon: const Icon(Icons.more_vert),
                     ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               if (widget.post.getLocation != null)
                 Padding(
-                  padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
+                  padding: const EdgeInsets.fromLTRB(51, 5, 5, 5),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "📍 ${widget.post.getLocation!}",
-                      style: TextStyle(color: Colors.blue),
+                      style: const TextStyle(color: Colors.blue),
                     ),
                   ),
                 ),
               Padding(
-                padding: EdgeInsets.fromLTRB(51, 5, 5, 5),
+                padding: const EdgeInsets.fromLTRB(51, 5, 5, 5),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -176,12 +156,12 @@ class _PostState extends State<PostPage> {
                 ),
               ),
               if (widget.post.getImageUrl != null) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
-                      "$apiUrl${widget.post.getImageUrl!}",
-                      fit: BoxFit.cover
+                    "$apiUrl${widget.post.getImageUrl!}",
+                    fit: BoxFit.cover
                   ),
                 ),
               ],
@@ -195,7 +175,6 @@ class _PostState extends State<PostPage> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            resetInteraction();
                             if (liked == 1) {
                               resetInteraction();
                               setState(() {
@@ -212,7 +191,7 @@ class _PostState extends State<PostPage> {
                             liked == 1 ? Icons.thumb_up : Icons.thumb_up_outlined,
                           ),
                         ),
-                        Text((likes! + isLiked).toString())
+                        Text((likes + _isLiked).toString())
                       ],
                     ),
                   ),
@@ -239,15 +218,15 @@ class _PostState extends State<PostPage> {
                             liked == 2 ? Icons.thumb_down : Icons.thumb_down_outlined,
                           ),
                         ),
-                        Text((dislikes! + isDisliked).toString())
+                        Text((dislikes + _isDisliked).toString())
                       ],
                     ),
                   ),
                   GestureDetector(
                     child: Row(
                       children: [
-                        Icon(Icons.comment),
-                        SizedBox(width: 10),
+                        const Icon(Icons.comment),
+                        const SizedBox(width: 10),
                         Text(commentCount.toString())
                       ],
                     ),
@@ -256,7 +235,7 @@ class _PostState extends State<PostPage> {
               ),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
+                child: const Text(
                   "Comments",
                   style: TextStyle(
                     fontSize: 20,
@@ -269,29 +248,27 @@ class _PostState extends State<PostPage> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundImage: widget.account.getImageUrl != null
-                          ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
-                          : null,
-                      child: widget.account.getImageUrl == null
-                          ? Icon(Icons.person)
-                          : null,
+                      backgroundImage: dataService.user!.getImageUrl != null
+                        ? NetworkImage("$apiUrl${dataService.user!.getImageUrl!}")
+                        : null,
+                      child: dataService.user!.getImageUrl == null
+                        ? const Icon(Icons.person)
+                        : null,
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: GestureDetector(
-                        onTap: displayNewComment,
+                        onTap: _displayNewComment,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                              vertical: 15,
-                              horizontal: 10
+                            vertical: 15,
+                            horizontal: 10
                           ),
                           decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(20)
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(20)
                           ),
-                          child: Text(
+                          child: const Text(
                             "Reply",
                             style: TextStyle(color: Colors.grey),
                           ),
@@ -301,21 +278,24 @@ class _PostState extends State<PostPage> {
                   ],
                 )
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: comments.length,
-                itemBuilder: (context, index) {
-                  return CommentPreview(
-                    comment: comments[index],
-                    onDelete: () {
-                      setState(() {
-                        comments.removeAt(index);
-                      });
+              dataService.comments[widget.post.getPostID] != null
+                ? (dataService.comments[widget.post.getPostID]!.isNotEmpty
+                  ? ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: dataService.comments[widget.post.getPostID]!.length,
+                    itemBuilder: (context, index) {
+                      return CommentPreview(
+                        comment: dataService.comments[widget.post.getPostID]![index],
+                        onDelete: () {
+                          setState(() {
+                            dataService.comments[widget.post.getPostID]!.removeAt(index);
+                          });
+                        },
+                        account: dataService.user!,
+                      );
                     },
-                    account: widget.account
-                  );
-                },
-              )
+                  ) : const Center(child: Text("Be the first to comment!")))
+                : const Center(child: CircularProgressIndicator())
             ],
           )
         )
@@ -323,7 +303,7 @@ class _PostState extends State<PostPage> {
     );
   }
 
-  void deletePost() async {
+  void _deletePost() async {
     final response = await http.post(
       Uri.parse('$apiUrl/post/delete'),
       headers: {
@@ -334,21 +314,22 @@ class _PostState extends State<PostPage> {
 
     if (response.statusCode == 200) {
       if (!mounted) return;
-      Navigator.pop(context, 'popped');
+      final dataService = Provider.of<DataService>(context, listen: false);
+      await dataService.getFeed();
+
+      if (!mounted) return;
+      Navigator.pop(context);
     }
   }
 
-  void displayNewComment() async {
-    final result = await showModalBottomSheet(
+  void _displayNewComment() async {
+    showModalBottomSheet(
       context: context,
       builder: (ctx) => CommentForm(postID: widget.post.getPostID)
     );
-    if (result == 'popped') {
-      _fetchComments();
-    }
   }
 
-  void openProfile() async {
+  void _openProfile() async {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -360,14 +341,14 @@ class _PostState extends State<PostPage> {
     );
   }
 
-  int get isLiked {
+  int get _isLiked {
     if (liked == 1) {
       return 1;
     }
     return 0;
   }
 
-  int get isDisliked {
+  int get _isDisliked {
     if (liked == 2) {
       return 1;
     }

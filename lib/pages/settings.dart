@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+
+// Pages
 import 'package:badbook/pages/settings/account_settings.dart';
 import 'package:badbook/pages/settings/notification_settings.dart';
 import 'package:badbook/pages/settings/profile_settings.dart';
 import 'package:badbook/pages/settings/theme_settings.dart';
 import 'package:badbook/pages/login.dart';
+
+// Models
+import 'package:badbook/models/settings_page.dart';
+
+// Firebase
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Settings extends StatefulWidget {
@@ -14,93 +21,90 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  late List<SettingsPage> pages;
+  
+  @override
+  void initState() {
+    super.initState();
+    pages = [
+      SettingsPage(
+        icon: Icon(Icons.person),
+        title: 'Profile',
+        description: 'Customise your profile.',
+        page: ProfileSettings(),
+      ),
+      SettingsPage(
+        icon: Icon(Icons.lock),
+        title: 'Account',
+        description: 'Update your account details.',
+        page: AccountSettings(),
+      ),
+      SettingsPage(
+        icon: Icon(Icons.notifications),
+        title: 'Notifications',
+        description: 'Get live updates.',
+        page: NotificationSettings(),
+      ),
+      SettingsPage(
+        icon: Icon(Icons.palette),
+        title: 'App Theme',
+        description: 'Personalise your experience.',
+        page: ThemeSettings(),
+      )
+    ];
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings"),
+        title: const Text("Settings"),
       ),
       body: ListView(
         children: [
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.person),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Profile", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "Change your profile.",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            ),
-            onTap: () => displayPage(ProfileSettings()),
-            trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          ListView.builder(
+            itemCount: pages.length,
+            itemBuilder: (context, index) {
+              SettingsPage page = pages[index];
+              return Column(
+                children: [
+                  ListTile(
+                    leading: page.icon,
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          page.title,
+                          style: TextStyle(fontWeight: FontWeight.bold)
+                        ),
+                        Text(
+                          page.description,
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    onTap: () => _displayPage(page.page),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  ),
+                  Divider()
+                ],
+              );
+            },
           ),
-          Divider(),
           ListTile(
-            leading: Icon(Icons.lock),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Account", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "Update your details.",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            ),
-            onTap: () => displayPage(AccountSettings()),
-            trailing: Icon(Icons.arrow_forward_ios, size: 16),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Notifications", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "Configure Notifications.",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            ),
-            onTap: () => displayPage(NotificationSettings()),
-            trailing: Icon(Icons.arrow_forward_ios, size: 16),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("App Theme", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "Change your theme.",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            ),
-            onTap: () => displayPage(ThemeSettings()),
-            trailing: Icon(Icons.arrow_forward_ios, size: 16),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.exit_to_app, color: Colors.red),
-            title: Text(
+            leading: const Icon(Icons.exit_to_app, color: Colors.red),
+            title: const Text(
               "Log out",
               style: TextStyle(color: Colors.red),
             ),
-            onTap: signout,
+            onTap: _signout,
           ),
         ],
       ),
     );
   }
 
-  void displayPage(Widget page) {
+  void _displayPage(Widget page) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => page
@@ -108,7 +112,7 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  void signout() async {
+  void _signout() async {
     await FirebaseAuth.instance.signOut();
 
     if (!mounted) return;

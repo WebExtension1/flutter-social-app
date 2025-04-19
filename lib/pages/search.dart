@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Models
 import 'package:badbook/models/post.dart';
-import 'package:badbook/widgets/account_preview.dart';
 import 'package:badbook/models/account.dart' as account_model;
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:badbook/services/socket_service.dart';
+
+// Widgets
+import 'package:badbook/widgets/account_preview.dart';
 import 'package:badbook/widgets/post_preview.dart';
+
+// Services
+import 'package:badbook/services/socket_service.dart';
 
 // Providers
 import 'package:provider/provider.dart';
 import 'package:badbook/providers/shared_data.dart';
 
 class Search extends StatefulWidget {
-  const Search({super.key, required this.account});
-  final account_model.Account? account;
+  const Search({super.key});
 
   @override
   State<Search> createState() => SearchState();
@@ -21,8 +24,6 @@ class Search extends StatefulWidget {
 
 class SearchState extends State<Search> {
   final TextEditingController _searchController = TextEditingController();
-  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final SocketService socketService = SocketService();
   List<Post> posts = [];
   List<account_model.Account> accounts = [];
@@ -45,7 +46,7 @@ class SearchState extends State<Search> {
 
   void _onSearchChanged() {
     setState(() {
-      socketService.search(_auth.currentUser!.email!);
+      socketService.search(_searchController.text);
     });
   }
 
@@ -80,7 +81,7 @@ class SearchState extends State<Search> {
                       padding: EdgeInsets.all(10),
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: const Text(
                           "Contacts",
                           style: TextStyle(
                             fontWeight: FontWeight.bold
@@ -122,17 +123,17 @@ class SearchState extends State<Search> {
                               padding: EdgeInsets.all(10),
                               child: Align(
                                 alignment: Alignment.centerLeft,
-                                child: Text(
+                                child: const Text(
                                   "Accounts",
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold
+                                    fontWeight: FontWeight.bold
                                   )
                                 ),
                               ),
                             ),
                             accounts.isEmpty
-                                ? Text("No accounts found.")
-                                : SingleChildScrollView(
+                              ? const Text("No accounts found.")
+                              : SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 children: accounts.map((account) {
@@ -149,7 +150,7 @@ class SearchState extends State<Search> {
                         ),
                       ),
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Posts'),
                     ),
@@ -160,12 +161,7 @@ class SearchState extends State<Search> {
                       itemBuilder: (context, index) {
                         return PostPreview(
                           post: posts[index],
-                          onDelete: () {
-                            setState(() {
-                              posts.removeAt(index);
-                            });
-                          },
-                          account: widget.account!
+                          account: dataService.user!
                         );
                       },
                     ),

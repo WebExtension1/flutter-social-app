@@ -46,7 +46,7 @@ class _MainAppScaffoldState extends State<MainAppScaffold> {
 
   List<Widget> get pages => [
     Home(),
-    Search(account: widget.account),
+    Search(),
     Messages(),
     Friends(),
     Profile(),

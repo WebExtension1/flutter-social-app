@@ -1,3 +1,4 @@
+import 'package:badbook/models/comment.dart';
 import 'package:flutter/material.dart';
 import 'package:badbook/models/account.dart' as account_model;
 import 'package:badbook/models/message.dart';
@@ -30,13 +31,70 @@ class DataService extends ChangeNotifier {
   List<Post> feed = [];
   account_model.Account? user;
   Map<String, List<Message>> messages = <String, List<Message>>{};
+  Map<int, List<Comment>> comments = <int, List<Comment>>{};
+  Map<String, Map<String, List<Object>>> profiles = <String, Map<String, List<Object>>>{};
 
-  Future<void> loadUser() async {
-    _getUser();
-    notifyListeners;
+  // Profiles
+
+  Future<void> getProfile(String email) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/get'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'account': email}),
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      _updateProfileFromJson(email, jsonResponse);
+      notifyListeners();
+    }
   }
 
-  Future<List<Message>> getMessageHistory(String email) async {
+  void _updateProfileFromJson(String email, Map<String, dynamic> jsonResponse) {
+    profiles[email] = <String, List<Object>>{};
+    profiles[email]!['posts'] = _parsePosts(jsonResponse['posts']);
+    profiles[email]!['comments'] = _parseComments(jsonResponse['comments']);
+    profiles[email]!['liked'] = _parsePosts(jsonResponse['liked']);
+    profiles[email]!['friends'] = _parseAccounts(jsonResponse['friends']);
+  }
+
+  // Comments
+
+  Future<void> getComments(int postID) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/comment/get'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'postID': postID,
+        'email': _auth.currentUser?.email
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      _updateCommentsFromJson(postID, jsonResponse);
+      notifyListeners();
+    }
+  }
+
+  void _updateCommentsFromJson(int postID, List<dynamic> jsonResponse) {
+    comments[postID] = _parseComments(jsonResponse);
+  }
+
+  List<Comment> _parseComments(dynamic list) {
+    if (list == null) return [];
+    return List<Comment>.from(
+      list.map((comment) => Comment.fromJson(comment)),
+    );
+  }
+
+  // Messages
+
+  Future<void> getMessageHistory(String email) async {
     if (messages[email] == null) {
       final response = await http.post(
         Uri.parse('$apiUrl/account/getMessageHistory'),
@@ -54,9 +112,6 @@ class DataService extends ChangeNotifier {
         _updateMessagesFromJson(email, jsonResponse);
         notifyListeners();
       }
-      return messages[email]!;
-    } else {
-      return messages[email]!;
     }
   }
 
@@ -69,6 +124,13 @@ class DataService extends ChangeNotifier {
     return List<Message>.from(
       list.map((message) => Message.fromJson(message)),
     );
+  }
+
+  // User
+
+  Future<void> loadUser() async {
+    _getUser();
+    notifyListeners;
   }
 
   void _getUser() async {
@@ -106,6 +168,8 @@ class DataService extends ChangeNotifier {
   void _updateUserFromJson(Map<String, dynamic> jsonResponse) {
     user = account_model.Account.fromJson(jsonResponse);
   }
+
+  // Feed
 
   Future<void> loadFeed() async {
     _getFeed();
@@ -162,6 +226,8 @@ class DataService extends ChangeNotifier {
       list.map((post) => Post.fromJson(post)),
     );
   }
+
+  // Friends
 
   Future<void> loadFriends() async {
     _getAccounts();

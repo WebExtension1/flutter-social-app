@@ -39,7 +39,7 @@ class _MessagePageState extends State<MessagePage> {
   final ScrollController _scrollController = ScrollController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
 
-  Future<void> loadMessages() async {
+  Future<void> _loadMessages() async {
     final dataService = Provider.of<DataService>(context, listen: false);
     await dataService.getMessageHistory(widget.account.getEmail);
     scrollToBottom();
@@ -47,18 +47,18 @@ class _MessagePageState extends State<MessagePage> {
 
   void scrollToBottom() {
     Future.delayed(Duration(milliseconds: 100), () {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     });
   }
 
   @override
   void initState() {
     super.initState();
-    loadMessages();
+    _loadMessages();
 
     final dataService = Provider.of<DataService>(context, listen: false);
 

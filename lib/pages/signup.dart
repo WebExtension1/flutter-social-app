@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:badbook/home_build.dart';
+
+// Pages
 import 'package:badbook/pages/login.dart';
+import 'package:badbook/home_build.dart';
+
+// Models
+import 'package:badbook/models/feedback_message.dart';
+
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+// Services
 import 'package:badbook/services/fcm_service.dart';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -25,8 +36,7 @@ class _SignupPageState extends State<SignupPage> {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String? _errorMessage;
-  String? _successMessage;
+  FeedbackMessage? message;
 
   @override
   Widget build(BuildContext context) {
@@ -77,32 +87,24 @@ class _SignupPageState extends State<SignupPage> {
               controller: _lnameController,
               decoration: InputDecoration(labelText: 'Last Name'),
             ),
-            if (_successMessage != null)
+            if (message != null)
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _successMessage!,
-                  style: TextStyle(color: Colors.green),
-                ),
-              ),
-            if (_errorMessage != null)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  _errorMessage!,
-                  style: TextStyle(color: Colors.red),
+                  message!.message,
+                  style: TextStyle(color: message!.getColour),
                 ),
               ),
             SizedBox(height: 10),
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: signup,
+                  onPressed: _signup,
                   child: Text('Sign up'),
                 ),
                 SizedBox(width: 10),
                 TextButton(
-                  onPressed: login,
+                  onPressed: _login,
                   child: Text('Already a member?'),
                 ),
               ],
@@ -113,7 +115,7 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  void signup() async {
+  void _signup() async {
     if (_emailController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty && _passwordController.text.trim() == _passwordConfirmController.text.trim()) {
       try {
         final exists = await http.post(
@@ -125,8 +127,7 @@ class _SignupPageState extends State<SignupPage> {
         );
         if (exists.statusCode != 200) {
           setState(() {
-            _errorMessage = 'Account already exists';
-            _successMessage = null;
+            message = FeedbackMessage(message: 'Account already exists.', type: MessageType.error);
           });
         } else {
           await _auth.createUserWithEmailAndPassword(
@@ -150,26 +151,23 @@ class _SignupPageState extends State<SignupPage> {
             );
           } else {
             setState(() {
-              _errorMessage = 'Invalid credentials';
-              _successMessage = null;
+              message = FeedbackMessage(message: 'Invalid credentials.', type: MessageType.error);
             });
           }
         }
       } catch (e) {
         setState(() {
-          _errorMessage = 'Invalid credentials';
-          _successMessage = null;
+          message = FeedbackMessage(message: 'Invalid credentials.', type: MessageType.error);
         });
       }
     } else {
       setState(() {
-        _errorMessage = 'Invalid credentials';
-        _successMessage = null;
+        message = FeedbackMessage(message: 'Invalid credentials.', type: MessageType.error);
       });
     }
   }
 
-  void login() {
+  void _login() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),

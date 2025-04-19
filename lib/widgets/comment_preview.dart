@@ -253,7 +253,7 @@ class _CommentPreviewState extends State<CommentPreview> {
   void displayPost() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.comment.getPost!, comment: false, account: widget.account)),
+      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.comment.getPost!, comment: false)),
     );
     if (result == 'popped') {
       widget.onDelete();

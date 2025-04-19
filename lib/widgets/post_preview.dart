@@ -7,9 +7,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+// Providers
+import 'package:provider/provider.dart';
+import 'package:badbook/providers/shared_data.dart';
+
 class PostPreview extends StatefulWidget {
-  final VoidCallback onDelete;
-  const PostPreview({required this.post, required this.onDelete, required this.account, super.key});
+  const PostPreview({required this.post, required this.account, super.key});
   final Post post;
   final Account account;
 
@@ -212,18 +215,17 @@ class _PostState extends State<PostPreview> {
     );
 
     if (response.statusCode == 200) {
-      widget.onDelete();
+      if (!mounted) return;
+      final dataService = Provider.of<DataService>(context, listen: false);
+      await dataService.getFeed();
     }
   }
 
   void displayPost(bool commentToSend) async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
-      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.post, comment: commentToSend, account: widget.account))
+      MaterialPageRoute(builder: (ctx) => PostPage(post: widget.post, comment: commentToSend))
     );
-    if (result == 'popped') {
-      widget.onDelete();
-    }
   }
 
   int get isLiked {
