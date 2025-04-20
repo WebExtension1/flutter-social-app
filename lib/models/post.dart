@@ -1,14 +1,24 @@
 import 'package:badbook/models/account.dart';
 
+// APIs
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
+
 class Post {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final int _postID;
   final String _content;
   final Account _account;
   final DateTime _postDate;
-  final int _likes;
-  final int _dislikes;
+  int _likes;
+  int _dislikes;
   final int _commentCount;
-  final int _liked;
+  int _liked;
   final String? _imageUrl;
   final String? _location;
 
@@ -66,8 +76,69 @@ class Post {
   int get getDislikes => _dislikes;
   int get getCommentCount => _commentCount;
   int get getLiked => _liked;
+  set setLiked(int value) {
+    _liked = value;
+  }
   String? get getImageUrl => _imageUrl;
   String? get getLocation => _location;
+
+  Future<void> likePost() async {
+    await http.post(
+      Uri.parse('$apiUrl/post/like'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'postID': _postID}),
+    );
+    _likes++;
+    if (_liked == 2) {
+      _dislikes--;
+    }
+  }
+
+  Future<void> dislikePost() async {
+    await http.post(
+      Uri.parse('$apiUrl/post/dislike'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'postID': _postID}),
+    );
+    _dislikes++;
+    if (_liked == 1) {
+      _likes--;
+    }
+  }
+
+  Future<void> resetInteraction(String origin) async {
+    await http.post(
+      Uri.parse('$apiUrl/post/resetInteraction'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'postID': _postID}),
+    );
+
+    if (origin == 'like') {
+      _likes--;
+    } else {
+      _dislikes--;
+    }
+  }
+
+  int get isLiked {
+    if (_liked == 1) {
+      return 1;
+    }
+    return 0;
+  }
+
+  int get isDisliked {
+    if (_liked == 2) {
+      return 1;
+    }
+    return 0;
+  }
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(

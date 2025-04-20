@@ -35,23 +35,9 @@ class _PostState extends State<PostPreview> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
 
-  int? liked = 0;
-  int? likes = 0;
-  int? dislikes = 0;
-  int? comments = 0;
-
   @override
   void initState() {
     super.initState();
-    likes = widget.post.getLikes;
-    dislikes = widget.post.getDislikes;
-    comments = widget.post.getCommentCount;
-    liked = widget.post.getLiked;
-    if (liked == 1) {
-      likes = likes! - 1;
-    } else if (liked == 2) {
-      dislikes = dislikes! - 1;
-    }
   }
 
   @override
@@ -105,7 +91,9 @@ class _PostState extends State<PostPreview> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    widget.post.getContent
+                    widget.post.getContent,
+                    maxLines: 10,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -122,43 +110,43 @@ class _PostState extends State<PostPreview> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () {
-                      if (liked == 1) {
-                        resetInteraction();
+                    onPressed: () async {
+                      if (widget.post.getLiked == 1) {
+                        await widget.post.resetInteraction('like');
                         setState(() {
-                          liked = 0;
+                          widget.post.setLiked = 0;
                         });
                       } else {
-                        likePost();
+                        await widget.post.likePost();
                         setState(() {
-                          liked = 1;
+                          widget.post.setLiked = 1;
                         });
                       }
                     },
                     icon: Icon(
-                      liked == 1 ? Icons.thumb_up : Icons.thumb_up_outlined,
+                      widget.post.getLiked == 1 ? Icons.thumb_up : Icons.thumb_up_outlined,
                     ),
                   ),
-                  Text((likes! + isLiked).toString()),
+                  Text((widget.post.getLikes).toString()),
                   IconButton(
-                    onPressed: () {
-                      if (liked == 2) {
-                        resetInteraction();
+                    onPressed: () async {
+                      if (widget.post.getLiked == 2) {
+                        await widget.post.resetInteraction('dislike');
                         setState(() {
-                          liked = 0;
+                          widget.post.setLiked = 0;
                         });
                       } else {
-                        dislikePost();
+                        await widget.post.dislikePost();
                         setState(() {
-                          liked = 2;
+                          widget.post.setLiked = 2;
                         });
                       }
                     },
                     icon: Icon(
-                      liked == 2 ? Icons.thumb_down : Icons.thumb_down_outlined,
+                      widget.post.getLiked == 2 ? Icons.thumb_down : Icons.thumb_down_outlined,
                     ),
                   ),
-                  Text((dislikes! + isDisliked).toString()),
+                  Text((widget.post.getDislikes).toString()),
                   Expanded(
                     child: Card(
                       elevation: 0,
@@ -166,7 +154,7 @@ class _PostState extends State<PostPreview> {
                         children: [
                           const Icon(Icons.comment),
                           const SizedBox(width: 8),
-                          Text(comments.toString()),
+                          Text(widget.post.getCommentCount.toString()),
                           const SizedBox(width: 8),
                           Expanded(
                             child: GestureDetector(
@@ -223,49 +211,9 @@ class _PostState extends State<PostPreview> {
       context,
       MaterialPageRoute(builder: (ctx) => PostPage(post: widget.post, comment: commentToSend))
     );
-  }
 
-  int get isLiked {
-    if (liked == 1) {
-      return 1;
-    }
-    return 0;
-  }
-
-  int get isDisliked {
-    if (liked == 2) {
-      return 1;
-    }
-    return 0;
-  }
-
-  void likePost() async {
-    await http.post(
-      Uri.parse('$apiUrl/post/like'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'postID': widget.post.getPostID}),
-    );
-  }
-
-  void dislikePost() async {
-    await http.post(
-      Uri.parse('$apiUrl/post/dislike'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'postID': widget.post.getPostID}),
-    );
-  }
-
-  void resetInteraction() async {
-    await http.post(
-      Uri.parse('$apiUrl/post/resetInteraction'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'postID': widget.post.getPostID}),
-    );
+    if (!mounted) return;
+    final dataService = Provider.of<DataService>(context, listen: false);
+    dataService.getFeed();
   }
 }
