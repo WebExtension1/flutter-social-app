@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
+// Services
 import 'package:shared_preferences/shared_preferences.dart';
+
+// Providers
 import 'package:provider/provider.dart';
 import 'package:badbook/providers/theme_notifier.dart';
 
@@ -37,21 +41,24 @@ class _ThemeSettingsState extends State<ThemeSettings> {
     Provider.of<ThemeNotifier>(context, listen: false).setTheme(theme);
   }
 
+  // https://docs.flutter.dev/cookbook/design/themes
   @override
   Widget build(BuildContext context) {
     final themes = ["light", "red - light", "dark", "red - dark"];
 
     return Scaffold(
-      appBar: AppBar(title: Text("Settings")),
+      appBar: AppBar(
+        title: const Text("Theme Settings")
+      ),
       body: ListView(
         children: themes.map((theme) {
           return ListTile(
             title: Text("${theme[0].toUpperCase()}${theme.substring(1)} Theme"),
             trailing: _selectedTheme == theme
-                ? Icon(Icons.check, color: Theme.of(context).primaryColor)
-                : null,
+              ? Icon(Icons.check, color: Theme.of(context).primaryColor)
+              : null,
             onTap: () {
-              _saveTheme(theme); // Save and apply the selected theme
+              _saveTheme(theme);
             },
           );
         }).toList(),

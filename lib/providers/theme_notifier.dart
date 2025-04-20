@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+// Themes
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:badbook/themes/light_theme.dart';
 import 'package:badbook/themes/dark_theme.dart';
@@ -11,9 +13,13 @@ class ThemeNotifier extends ChangeNotifier {
 
   ThemeNotifier(this._themeData);
 
-  ThemeData getTheme() => _themeData;
+  ThemeData getTheme() {
+    return _themeData;
+  }
 
-  String getThemeKey() => _themeKey;
+  String getThemeKey() {
+    return _themeKey;
+  }
 
   Future<void> setTheme(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

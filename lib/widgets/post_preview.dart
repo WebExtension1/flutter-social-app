@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
+
+// Pages
+import 'package:badbook/pages/post.dart';
+
+// Models
 import 'package:badbook/models/account.dart';
 import 'package:badbook/models/post.dart';
-import 'package:badbook/pages/post.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Widgets
+import 'package:badbook/widgets/account_bar.dart';
+
+// APIs
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Providers
 import 'package:provider/provider.dart';
 import 'package:badbook/providers/shared_data.dart';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PostPreview extends StatefulWidget {
   const PostPreview({required this.post, required this.account, super.key});
@@ -56,22 +67,12 @@ class _PostState extends State<PostPreview> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundImage: widget.post.getAccount.getImageUrl != null
-                        ? NetworkImage("$apiUrl${widget.post.getAccount.getImageUrl!}")
-                        : null,
-                    child: widget.post.getAccount.getImageUrl == null
-                        ? Icon(Icons.person)
-                        : null,
-                  ),
-                  SizedBox(width: 10),
-                  Text(widget.post.getAccount.getUsername),
-                  Expanded(
+                  AccountBar(account: widget.post.getAccount, clickable: true),
+                  const Expanded(
                     child: SizedBox()
                   ),
                   Text(widget.post.getTimeSinceSent),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   if (_auth.currentUser?.email == widget.post.getAccount.getEmail)
                     PopupMenuButton<String>(
                       onSelected: (value) {
@@ -80,12 +81,12 @@ class _PostState extends State<PostPreview> {
                       itemBuilder: (context) => [
                         PopupMenuItem(
                           value: 'delete',
-                          child: Text('Delete Post'),
+                          child: const Text('Delete Post'),
                         )
                       ],
-                      icon: Icon(Icons.more_vert),
+                      icon: const Icon(Icons.more_vert),
                     ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                 ],
               ),
               if (widget.post.getLocation != null)
@@ -104,12 +105,12 @@ class _PostState extends State<PostPreview> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                      widget.post.getContent
+                    widget.post.getContent
                   ),
                 ),
               ),
               if (widget.post.getImageUrl != null) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
@@ -161,38 +162,34 @@ class _PostState extends State<PostPreview> {
                   Expanded(
                     child: Card(
                       elevation: 0,
-                      child: GestureDetector(
-                        onTap: () {
-                        },
-                        child: Row(
-                          children: [
-                            Icon(Icons.comment),
-                            SizedBox(width: 8),
-                            Text(comments.toString()),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  displayPost(true);
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 15,
-                                    horizontal: 10
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(20)
-                                  ),
-                                  child: Text(
-                                    "Reply",
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.comment),
+                          const SizedBox(width: 8),
+                          Text(comments.toString()),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                displayPost(true);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 10
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(20)
+                                ),
+                                child: const Text(
+                                  "Reply",
+                                  style: TextStyle(color: Colors.grey),
                                 ),
                               ),
-                            )
-                          ],
-                        ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
                   )

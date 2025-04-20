@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+
+// Pages
+import 'package:badbook/pages/post.dart';
+
+// Models
 import 'package:badbook/models/account.dart';
 import 'package:badbook/models/comment.dart';
-import 'package:badbook/pages/post.dart';
-import 'package:badbook/pages/profile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Widgets
+import 'package:badbook/widgets/account_bar.dart';
+
+// APIs
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CommentPreview extends StatefulWidget {
   final VoidCallback onDelete;
@@ -49,56 +59,22 @@ class _CommentPreviewState extends State<CommentPreview> {
           children: [
             if (widget.displayTop == true) ...[
               if (widget.comment.getPost!.getPostID == 1)
-                Text("Post has been deleted")
+                const Text("Post has been deleted")
               else
                 GestureDetector(
                   onTap: displayPost,
-                  child: Text("Go to Post"),
+                  child: const Text("Go to Post"),
                 ),
-              Divider(),
+              const Divider(),
             ],
             Row(
               children: [
-                GestureDetector(
-                  onTap: openProfile,
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: widget.comment.getAccount.getImageUrl != null
-                            ? NetworkImage("$apiUrl${widget.comment.getAccount.getImageUrl!}")
-                            : null,
-                        child: widget.comment.getAccount.getImageUrl == null
-                            ? Icon(Icons.person)
-                            : null,
-                      ),
-                      SizedBox(width: 10),
-                      Column(
-                        children: [
-                          Text(
-                            widget.comment.getAccount.getName,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            widget.comment.getAccount.getUsername,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
+                AccountBar(account: widget.comment.getAccount, clickable: true),
+                const Expanded(
                   child: SizedBox()
                 ),
                 Text(widget.comment.getTimeSinceSent),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 if (_auth.currentUser?.email == widget.comment.getAccount.getEmail)
                   PopupMenuButton<String>(
                     onSelected: (value) {
@@ -107,14 +83,14 @@ class _CommentPreviewState extends State<CommentPreview> {
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 'delete',
-                        child: Text('Delete Comment'),
+                        child: const Text('Delete Comment'),
                       )
                     ],
-                    icon: Icon(Icons.more_vert),
+                    icon: const Icon(Icons.more_vert),
                   ),
-                SizedBox(width: 10),
               ],
             ),
+            const SizedBox(height: 10),
             Text(widget.comment.getContent),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -193,17 +169,6 @@ class _CommentPreviewState extends State<CommentPreview> {
     if (response.statusCode == 200) {
       widget.onDelete();
     }
-  }
-
-  void followUser() {
-
-  }
-
-  void openProfile() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Profile(account: widget.comment.getAccount)),
-    );
   }
 
   int get isLiked {

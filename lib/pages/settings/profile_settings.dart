@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Models
+import 'package:badbook/models/feedback_message.dart';
+
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
+
+// Images
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -22,107 +31,89 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  String? _errorMessageUsername;
-  String? _successMessageUsername;
-  String? _errorMessageName;
-  String? _successMessageName;
-  String? _errorMessagePFP;
-  String? _successMessagePFP;
+  FeedbackMessage? usernameMessage;
+  FeedbackMessage? nameMessage;
+  FeedbackMessage? profilePictureMessage;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile Settings"),
+        title: const Text("Profile Settings"),
       ),
       body: Padding(
         padding: EdgeInsets.all(5),
         child: Column(
           children: [
-            Divider(),
-            Text(
+            const Divider(),
+            const Text(
               "Change Profile Picture",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             TextButton.icon(
               onPressed: _pickImage,
-              icon: Icon(Icons.image),
-              label: Text("Upload"),
+              icon: const Icon(Icons.image),
+              label: const Text("Upload"),
             ),
-            if (_errorMessageUsername != null || _successMessageUsername != null ) ...[
-              SizedBox(height: 10),
+            if (profilePictureMessage != null) ...[
+              const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _errorMessageUsername != null  ? _errorMessageUsername! : _successMessageUsername!,
-                  style: TextStyle(
-                    color: _errorMessageUsername != null ? Colors.red : Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+                  profilePictureMessage!.message,
+                  style: TextStyle(color: profilePictureMessage!.getColour),
                 ),
               ),
             ],
-            Divider(),
-            Text(
+            const Divider(),
+            const Text(
               "Update Username",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             TextField(
               controller: _newUsernameController,
-              decoration: InputDecoration(labelText: 'New Username'),
+              decoration: const InputDecoration(labelText: 'New Username'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: updateUsername,
-              child: Text('Update'),
+              onPressed: _updateUsername,
+              child: const Text('Update'),
             ),
-            if (_errorMessageUsername != null || _successMessageUsername != null ) ...[
-              SizedBox(height: 10),
+            if (usernameMessage != null) ...[
+              const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _errorMessageUsername != null  ? _errorMessageUsername! : _successMessageUsername!,
-                  style: TextStyle(
-                    color: _errorMessageUsername != null ? Colors.red : Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+                  usernameMessage!.message,
+                  style: TextStyle(color: usernameMessage!.getColour),
                 ),
               ),
             ],
-            Divider(),
-            Text(
+            const Divider(),
+            const Text(
               "Update Name",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             TextField(
               controller: _newFNameController,
-              decoration: InputDecoration(labelText: 'First Name'),
+              decoration: const InputDecoration(labelText: 'First Name'),
             ),
             TextField(
               controller: _newLNameController,
-              decoration: InputDecoration(labelText: 'Last Name'),
+              decoration: const InputDecoration(labelText: 'Last Name'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: updateName,
-              child: Text('Update'),
+              onPressed: _updateName,
+              child: const Text('Update'),
             ),
-            if (_errorMessageName != null || _successMessageName != null ) ...[
-              SizedBox(height: 10),
+            if (nameMessage != null) ...[
+              const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _errorMessageName != null  ? _errorMessageName! : _successMessageName!,
-                  style: TextStyle(
-                    color: _errorMessageName != null ? Colors.red : Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+                  nameMessage!.message,
+                  style: TextStyle(color: nameMessage!.getColour),
                 ),
               ),
             ],
@@ -149,25 +140,22 @@ class _ProfileSettingsState extends State<ProfileSettings> {
 
       if (response.statusCode == 200) {
         setState(() {
-          _successMessagePFP = "Profile Picture updated";
-          _errorMessagePFP = "";
+          profilePictureMessage = FeedbackMessage(message: 'Profile Picture updated!', type: MessageType.success);
         });
       } else {
         setState(() {
-          _errorMessagePFP = "Profile picture couldn't be updated";
-          _successMessagePFP = "";
+          profilePictureMessage = FeedbackMessage(message: "Profile picture couldn't be updated.", type: MessageType.error);
         });
       }
     }
   }
 
-  void updateUsername() async {
+  void _updateUsername() async {
     String newUsername = _newUsernameController.text.trim();
 
     if (newUsername.isEmpty) {
       setState(() {
-        _errorMessageUsername = "Username field cannot be empty.";
-        _successMessageUsername = "";
+        usernameMessage = FeedbackMessage(message: 'Username field cannot be empty.', type: MessageType.error);
       });
       return;
     }
@@ -181,25 +169,22 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     );
     if (response.statusCode == 200) {
       setState(() {
-        _successMessageUsername = "Username updated!";
-        _errorMessageUsername = "";
+        usernameMessage = FeedbackMessage(message: 'Username updated!', type: MessageType.success);
       });
     } else {
       setState(() {
-        _errorMessageUsername = "Unable to update account details.";
-        _successMessageUsername = "";
+        usernameMessage = FeedbackMessage(message: 'Unable to update account details.', type: MessageType.error);
       });
     }
   }
 
-  void updateName() async {
+  void _updateName() async {
     String newFName = _newFNameController.text.trim();
     String newLName = _newLNameController.text.trim();
 
     if (newFName.isEmpty  || newLName.isEmpty) {
       setState(() {
-        _errorMessageName = "Name fields cannot be empty.";
-        _successMessageName = "";
+        nameMessage = FeedbackMessage(message: 'Name fields cannot be empty.', type: MessageType.error);
       });
       return;
     }
@@ -213,13 +198,11 @@ class _ProfileSettingsState extends State<ProfileSettings> {
     );
     if (response.statusCode == 200) {
       setState(() {
-        _successMessageName = "Name updated!";
-        _errorMessageName = "";
+        nameMessage = FeedbackMessage(message: 'Name updated!', type: MessageType.success);
       });
     } else {
       setState(() {
-        _errorMessageName = "Unable to update account details.";
-        _successMessageName = "";
+        nameMessage = FeedbackMessage(message: 'Unable to update account details.', type: MessageType.error);
       });
     }
   }

@@ -51,41 +51,41 @@ class _SignupPageState extends State<SignupPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _phoneNumberController,
-              decoration: InputDecoration(labelText: 'Phone Number'),
+              decoration: const InputDecoration(labelText: 'Phone Number'),
               keyboardType: TextInputType.phone,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _passwordConfirmController,
-              decoration: InputDecoration(labelText: 'Confirm Password'),
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
               obscureText: true,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(labelText: 'Username'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _fnameController,
-              decoration: InputDecoration(labelText: 'First Name'),
+              decoration: const InputDecoration(labelText: 'First Name'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TextField(
               controller: _lnameController,
-              decoration: InputDecoration(labelText: 'Last Name'),
+              decoration: const InputDecoration(labelText: 'Last Name'),
             ),
             if (message != null)
               Padding(
@@ -95,17 +95,17 @@ class _SignupPageState extends State<SignupPage> {
                   style: TextStyle(color: message!.getColour),
                 ),
               ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 ElevatedButton(
                   onPressed: _signup,
-                  child: Text('Sign up'),
+                  child: const Text('Sign up'),
                 ),
                 SizedBox(width: 10),
                 TextButton(
                   onPressed: _login,
-                  child: Text('Already a member?'),
+                  child: const Text('Already a member?'),
                 ),
               ],
             )

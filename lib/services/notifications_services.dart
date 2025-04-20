@@ -1,5 +1,7 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+
+// Notifications
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class NotificationServices {
   static Future<void> initialiseNotification() async {
@@ -53,16 +55,16 @@ class NotificationServices {
       ],
       channelGroups: [
         NotificationChannelGroup(
-          channelGroupKey: "messages_group",
-          channelGroupName: "Messages"
+        channelGroupKey: "messages_group",
+        channelGroupName: "Messages"
         ),
         NotificationChannelGroup(
-            channelGroupKey: "posts_group",
-            channelGroupName: "Posts"
+          channelGroupKey: "posts_group",
+          channelGroupName: "Posts"
         ),
         NotificationChannelGroup(
-            channelGroupKey: "memories_group",
-            channelGroupName: "Memories"
+          channelGroupKey: "memories_group",
+          channelGroupName: "Memories"
         )
       ],
       debug: true,

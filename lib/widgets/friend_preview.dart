@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:badbook/models/account.dart';
+
+// Pages
 import 'package:badbook/pages/profile.dart';
+
+// Models
+import 'package:badbook/models/account.dart';
+
+// Widgets
+import 'package:badbook/widgets/account_bar.dart';
+
+// APIs
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Firebase
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FriendPreview extends StatefulWidget {
@@ -28,22 +39,7 @@ class _FriendPreviewState extends State<FriendPreview> {
           padding: EdgeInsets.all(15),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundImage: widget.account.getImageUrl != null
-                    ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
-                    : null,
-                child: widget.account.getImageUrl == null
-                    ? Icon(Icons.person)
-                    : null,
-              ),
-              SizedBox(width: 10),
-              Column(
-                children: [
-                  Text(widget.account.getName),
-                  Text(widget.account.getUsername),
-                ],
-              ),
+              AccountBar(account: widget.account, clickable: false),
               Expanded(
                 child: SizedBox()
               ),

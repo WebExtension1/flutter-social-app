@@ -31,11 +31,14 @@ class MessagesState extends State<Messages> {
         children: [
           const SizedBox(height: 10),
           Expanded(
-            child: ListView.builder(
-              itemCount: dataService.friends.length,
-              itemBuilder: (context, index) {
-                return MessagePreview(account: dataService.friends[index]);
-              },
+            child: RefreshIndicator(
+              onRefresh: dataService.getFriends,
+                child: ListView.builder(
+                itemCount: dataService.friends.length,
+                itemBuilder: (context, index) {
+                  return MessagePreview(account: dataService.friends[index]);
+                },
+              )
             )
           )
         ],

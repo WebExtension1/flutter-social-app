@@ -38,9 +38,7 @@ void main() async {
   await dotenv.load();
 
   // Load data from local store and update it from network while the rest of the app loads
-  DataService().loadFriends();
-  DataService().loadFeed();
-  DataService().loadUser();
+  DataService().loadFromLocalDB();
 
   // Start app wrapped in a provider to dynamically update the theme
   runApp(

@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+
+// Pages
 import 'package:badbook/pages/login.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Models
+import 'package:badbook/models/feedback_message.dart';
+
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -18,19 +27,16 @@ class _AccountSettingsState extends State<AccountSettings> {
   final TextEditingController _newPhoneNumberController = TextEditingController();
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
 
-  String? _errorMessagePassword;
-  String? _successMessagePassword;
-  String? _errorMessageEmail;
-  String? _successMessageEmail;
-  String? _errorMessagePhoneNumber;
-  String? _successMessagePhoneNumber;
-  String? _errorMessageAccount;
+  FeedbackMessage? passwordMessage;
+  FeedbackMessage? emailMessage;
+  FeedbackMessage? phoneNumberMessage;
+  FeedbackMessage? accountMessage;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Account Settings"),
+        title: const Text("Account Settings"),
       ),
       body: Padding(
         padding: EdgeInsets.all(5),
@@ -38,12 +44,12 @@ class _AccountSettingsState extends State<AccountSettings> {
           children: [
             Divider(),
             GestureDetector(
-              onTap: resetPassword,
+              onTap: _resetPassword,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(width: 15),
-                  Column(
+                  const SizedBox(width: 15),
+                  const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -60,95 +66,90 @@ class _AccountSettingsState extends State<AccountSettings> {
                 ],
               ),
             ),
-            if (_errorMessagePassword != null || _successMessagePassword != null ) ...[
-              SizedBox(height: 10),
+            if (passwordMessage != null) ...[
+              const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _errorMessagePassword != null  ? _errorMessagePassword! : _successMessagePassword!,
-                  style: TextStyle(
-                    color: _errorMessagePassword != null ? Colors.red : Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+                  passwordMessage!.message,
+                  style: TextStyle(color: passwordMessage!.getColour),
                 ),
               ),
             ],
-            Divider(),
-            Text(
+            const Divider(),
+            const Text(
               "Update Email",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             TextField(
               controller: _newEmailController,
-              decoration: InputDecoration(labelText: 'New Email'),
+              decoration: const InputDecoration(labelText: 'New Email'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: updateEmail,
-              child: Text('Update'),
+              onPressed: _updateEmail,
+              child: const Text('Update'),
             ),
-            if (_errorMessageEmail != null || _successMessageEmail != null ) ...[
-              SizedBox(height: 10),
+            if (emailMessage != null) ...[
+              const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _errorMessageEmail != null  ? _errorMessageEmail! : _successMessageEmail!,
-                  style: TextStyle(
-                    color: _errorMessageEmail != null ? Colors.red : Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+                  emailMessage!.message,
+                  style: TextStyle(color: emailMessage!.getColour),
                 ),
               ),
             ],
-            Divider(),
-            Text(
+            const Divider(),
+            const Text(
               "Update Phone Number",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             TextField(
               controller: _newPhoneNumberController,
-              decoration: InputDecoration(labelText: 'New Phone Number'),
+              decoration: const InputDecoration(labelText: 'New Phone Number'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: updatePhoneNumber,
-              child: Text('Update'),
+              onPressed: _updatePhoneNumber,
+              child: const Text('Update'),
             ),
-            if (_errorMessagePhoneNumber != null || _successMessagePhoneNumber != null ) ...[
-              SizedBox(height: 10),
+            if (phoneNumberMessage != null) ...[
+              const  SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  _errorMessagePhoneNumber != null  ? _errorMessagePhoneNumber! : _successMessagePhoneNumber!,
-                  style: TextStyle(
-                    color: _errorMessagePhoneNumber != null ? Colors.red : Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+                  phoneNumberMessage!.message,
+                  style: TextStyle(color: phoneNumberMessage!.getColour),
                 ),
               ),
             ],
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.delete, color: Colors.red),
-              title: Text(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text(
                 "Delete Account",
                 style: TextStyle(color: Colors.red),
               ),
-              onTap: deleteAccount,
+              onTap: _deleteAccount,
             ),
+            if (accountMessage != null) ...[
+              const SizedBox(height: 10),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  accountMessage!.message,
+                  style: TextStyle(color: accountMessage!.getColour),
+                ),
+              ),
+            ],
           ],
         )
       )
     );
   }
 
-  void deleteAccount() async {
+  void _deleteAccount() async {
     User? user = FirebaseAuth.instance.currentUser;
     final email = user?.email;
 
@@ -160,17 +161,17 @@ class _AccountSettingsState extends State<AccountSettings> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Deletion"),
-          content: Text("Are you sure you want to delete your account? This action can't be undone."),
+          title: const Text("Confirm Deletion"),
+          content: const Text("Are you sure you want to delete your account? This action can't be undone."),
           actions: <Widget>[
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: Text("Delete"),
+              child: const Text("Delete"),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
@@ -203,24 +204,23 @@ class _AccountSettingsState extends State<AccountSettings> {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         setState(() {
-          _errorMessageAccount = "Please reauthenticate before deleting your account.";
+          accountMessage = FeedbackMessage(message: 'Please re-authenticate before deleting your account.', type: MessageType.error);
         });
       } else {
         setState(() {
-          _errorMessageAccount = e.message ?? "An error occurred.";
+          accountMessage = FeedbackMessage(message: 'An error occurred.', type: MessageType.error);
         });
       }
     }
   }
 
-  void updateEmail() async {
+  void _updateEmail() async {
     String newEmail = _newEmailController.text.trim();
     User? user = FirebaseAuth.instance.currentUser;
 
     if (newEmail.isEmpty) {
       setState(() {
-        _errorMessageEmail = "Email field cannot be empty.";
-        _successMessageEmail = "";
+        emailMessage = FeedbackMessage(message: 'Email field cannot be empty.', type: MessageType.error);
       });
       return;
     }
@@ -237,31 +237,27 @@ class _AccountSettingsState extends State<AccountSettings> {
         if (response.statusCode == 200) {
           await user.verifyBeforeUpdateEmail(newEmail);
           setState(() {
-            _successMessageEmail = "A confirmation email has been sent to $newEmail. Your app may not work as intended until you confirm this action!";
-            _errorMessageEmail = "";
+            emailMessage = FeedbackMessage(message: 'A confirmation email has been sent to $newEmail. Your app may not work as intended until you confirm this action!', type: MessageType.success);
           });
         } else {
           setState(() {
-            _errorMessageEmail = "Unable to update account details, likely due to this email already being in use.";
-            _successMessageEmail = "";
+            emailMessage = FeedbackMessage(message: 'Unable to update account details, likely due to this email already being in use.', type: MessageType.error);
           });
         }
       }
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (_) {
       setState(() {
-        _errorMessageEmail = e.message ?? "An error occurred.";
-        _successMessageEmail = "";
+        emailMessage = FeedbackMessage(message: 'An error occurred.', type: MessageType.error);
       });
     }
   }
 
-  void updatePhoneNumber() async {
+  void _updatePhoneNumber() async {
     String newPhoneNumber = _newPhoneNumberController.text.trim();
 
     if (newPhoneNumber.isEmpty) {
       setState(() {
-        _errorMessagePhoneNumber = "Phone Number field cannot be empty.";
-        _successMessagePhoneNumber = "";
+        phoneNumberMessage = FeedbackMessage(message: 'Phone Number field cannot be empty.', type: MessageType.error);
       });
       return;
     }
@@ -275,18 +271,16 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
     if (response.statusCode == 200) {
       setState(() {
-        _successMessagePhoneNumber = "Phone number updated!";
-        _errorMessagePhoneNumber = "";
+        phoneNumberMessage = FeedbackMessage(message: 'Phone number updated!', type: MessageType.success);
       });
     } else {
       setState(() {
-        _errorMessagePhoneNumber = "Unable to update account details.";
-        _successMessagePhoneNumber = "";
+        phoneNumberMessage = FeedbackMessage(message: 'Unable to update account details.', type: MessageType.error);
       });
     }
   }
 
-  void resetPassword() async {
+  void _resetPassword() async {
     try {
       if (_auth.currentUser?.email != null) {
         await FirebaseAuth.instance.sendPasswordResetEmail(
@@ -294,13 +288,11 @@ class _AccountSettingsState extends State<AccountSettings> {
         );
       }
       setState(() {
-        _successMessagePassword = 'Password reset email sent. Please check your inbox.';
-        _errorMessagePassword = null;
+        passwordMessage = FeedbackMessage(message: 'Password reset email sent. Please check your inbox.', type: MessageType.success);
       });
     } catch (e) {
       setState(() {
-        _errorMessagePassword = 'Account not found.';
-        _successMessagePassword = null;
+        passwordMessage = FeedbackMessage(message: 'Account not found.', type: MessageType.error);
       });
     }
   }

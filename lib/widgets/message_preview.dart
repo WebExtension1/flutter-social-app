@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:badbook/models/account.dart';
+
+// Pages
 import 'package:badbook/pages/message.dart';
+
+// Models
+import 'package:badbook/models/account.dart';
+
+// Widgets
+import 'package:badbook/widgets/account_bar.dart';
+
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MessagePreview extends StatefulWidget {
@@ -23,25 +32,7 @@ class _MessagePreviewState extends State<MessagePreview> {
       child: Card(
         child: Padding(
           padding: EdgeInsets.all(15),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundImage: widget.account.getImageUrl != null
-                    ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
-                    : null,
-                child: widget.account.getImageUrl == null
-                    ? Icon(Icons.person)
-                    : null,
-              ),
-              SizedBox(width: 10),
-              Column(
-                children: [
-                  Text(widget.account.getName),
-                ],
-              ),
-            ],
-          ),
+          child: AccountBar(account: widget.account, clickable: false),
         )
       )
     );

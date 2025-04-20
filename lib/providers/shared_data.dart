@@ -1,17 +1,27 @@
-import 'package:badbook/models/comment.dart';
 import 'package:flutter/material.dart';
+
+// Models
+import 'package:badbook/models/comment.dart';
 import 'package:badbook/models/account.dart' as account_model;
 import 'package:badbook/models/message.dart';
 import 'package:badbook/models/post.dart';
-import 'package:badbook/services/databases/friend_database.dart';
-import 'package:badbook/services/databases/post_database.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
+
+// APIs
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Services
+import 'package:badbook/services/databases/friend_database.dart';
+import 'package:badbook/services/databases/post_database.dart';
 import 'package:badbook/services/databases/user_database.dart';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
+
+// Contacts
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 
 class DataService extends ChangeNotifier {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
@@ -33,6 +43,21 @@ class DataService extends ChangeNotifier {
   Map<String, List<Message>> messages = <String, List<Message>>{};
   Map<int, List<Comment>> comments = <int, List<Comment>>{};
   Map<String, Map<String, List<Object>>> profiles = <String, Map<String, List<Object>>>{};
+
+  // Profiles
+  // Comments
+  // Messages
+  // User
+  // Feed
+  // Friends
+
+  // Load
+
+  Future<void> loadFromLocalDB() async {
+    _loadUser();
+    _loadFeed();
+    _loadFriends();
+  }
 
   // Profiles
 
@@ -128,7 +153,7 @@ class DataService extends ChangeNotifier {
 
   // User
 
-  Future<void> loadUser() async {
+  Future<void> _loadUser() async {
     _getUser();
     notifyListeners;
   }
@@ -171,7 +196,7 @@ class DataService extends ChangeNotifier {
 
   // Feed
 
-  Future<void> loadFeed() async {
+  Future<void> _loadFeed() async {
     _getFeed();
     notifyListeners();
   }
@@ -229,7 +254,7 @@ class DataService extends ChangeNotifier {
 
   // Friends
 
-  Future<void> loadFriends() async {
+  Future<void> _loadFriends() async {
     _getAccounts();
     notifyListeners();
   }

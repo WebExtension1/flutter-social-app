@@ -1,5 +1,8 @@
-import 'package:socket_io_client/socket_io_client.dart' as io;
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+//Services
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 // Firebase
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,13 +16,14 @@ class SocketService {
     return _instance;
   }
 
+  // https://pub.dev/packages/socket_io_client/example
   SocketService._internal() {
     String socketUrl = dotenv.env['SOCKET_URL'] ?? 'http://localhost:3006';
 
     socket = io.io(socketUrl, io.OptionBuilder()
-        .setTransports(['websocket'])
-        .disableAutoConnect()
-        .build());
+      .setTransports(['websocket'])
+      .disableAutoConnect()
+      .build());
 
     socket.connect();
   }

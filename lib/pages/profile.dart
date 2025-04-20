@@ -11,6 +11,8 @@ import 'package:badbook/models/post.dart';
 // Widgets
 import 'package:badbook/widgets/comment_preview.dart';
 import 'package:badbook/widgets/post_preview.dart';
+import 'package:badbook/widgets/account_bar.dart';
+import 'package:badbook/widgets/tab_bar.dart';
 
 // APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -78,33 +80,7 @@ class ProfileState extends State<Profile> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: account.getImageUrl != null
-                    ? NetworkImage("$apiUrl${account.getImageUrl!}")
-                    : null,
-                  child: account.getImageUrl == null
-                    ? const Icon(Icons.person)
-                    : null,
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  children: [
-                    Text(
-                      account.getName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      account.getUsername,
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
+                AccountBar(account: account, clickable: true),
                 const Expanded(
                   child: SizedBox()
                 ),
@@ -146,44 +122,14 @@ class ProfileState extends State<Profile> {
               const SizedBox(height: 10),
               Text("${dataService.profiles[account.getEmail]!['friends']!.length} Friend${dataService.profiles[account.getEmail]!['friends']!.length != 1 ? 's' : ''}"),
               const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(labels.length, (index) {
-                      final int type = index + 1;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              displayType = type;
-                            });
-                          },
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                labels[index],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 250),
-                                height: 2,
-                                width: displayType == type ? 24 : 0,
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 10),
-                ],
+              TabBarWidget(
+                labels: labels,
+                displayType: displayType,
+                onTabSelected: (int type) {
+                  setState(() {
+                    displayType = type;
+                  });
+                },
               ),
               const SizedBox(height: 10),
               if (displayType == 1)

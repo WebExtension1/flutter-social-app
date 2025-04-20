@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:badbook/models/account.dart';
+
+// Pages
 import 'package:badbook/pages/profile.dart';
+
+// Models
+import 'package:badbook/models/account.dart';
+
+// APIs
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AccountPreview extends StatefulWidget {
@@ -25,14 +31,22 @@ class _AccountPreviewState extends State<AccountPreview> {
           CircleAvatar(
             radius: 30,
             backgroundImage: widget.account.getImageUrl != null
-            ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
+              ? NetworkImage("$apiUrl${widget.account.getImageUrl!}")
               : null,
             child: widget.account.getImageUrl == null
-              ? Icon(Icons.person)
+              ? const Icon(Icons.person)
               : null,
           ),
-          SizedBox(height: 8),
-          Text(widget.account.getUsername),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 100,
+            child: Text(
+              widget.account.getUsername,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
         ],
       )
     );
