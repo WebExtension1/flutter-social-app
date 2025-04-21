@@ -34,7 +34,7 @@ class _FriendsState extends State<Friends> {
         child: ListView.builder(
           itemCount: group.length,
           itemBuilder: (context, index) {
-            return FriendPreview(account: group[index], type: type);
+            return FriendPreview(account: group[index]);
           },
         ),
       )

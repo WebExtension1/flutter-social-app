@@ -1,3 +1,14 @@
+// APIs
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+// Providers
+import 'package:badbook/providers/shared_data.dart';
+
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
+
 class Account {
   final int _accountID;
   final String _email;
@@ -8,6 +19,8 @@ class Account {
   final int _phoneNumber;
   final String _relationship;
   final String? _imageUrl;
+  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Account({
     required int accountID,
@@ -63,6 +76,66 @@ class Account {
 
   String? get getImageUrl => _imageUrl;
   String get getRelationship => _relationship;
+
+  void removeFriend(DataService dataService) async {
+    await http.post(
+      Uri.parse('$apiUrl/account/removeFriend'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': _email}),
+    );
+    refreshStatus(dataService);
+  }
+
+  void acceptFriendRequest(DataService dataService) async {
+    await http.post(
+      Uri.parse('$apiUrl/account/acceptFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': _email}),
+    );
+    refreshStatus(dataService);
+  }
+
+  void rejectFriendRequest(DataService dataService) async {
+    await http.post(
+      Uri.parse('$apiUrl/account/rejectFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': _email}),
+    );
+    refreshStatus(dataService);
+  }
+
+  void cancelFriendRequest(DataService dataService) async {
+    await http.post(
+      Uri.parse('$apiUrl/account/cancelFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': _email}),
+    );
+    refreshStatus(dataService);
+  }
+
+  void sendFriendRequest(DataService dataService) async {
+    await http.post(
+      Uri.parse('$apiUrl/account/sendFriendRequest'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': _email}),
+    );
+    refreshStatus(dataService);
+  }
+
+  void refreshStatus(DataService dataService) async {
+    await dataService.getFeed();
+    await dataService.getFriends();
+  }
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(

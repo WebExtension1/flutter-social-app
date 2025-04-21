@@ -9,8 +9,6 @@ import 'package:badbook/widgets/comment_form.dart';
 import 'package:badbook/widgets/account_bar.dart';
 
 // APIs
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Providers
@@ -260,15 +258,9 @@ class _PostState extends State<PostPage> {
   }
 
   void _deletePost() async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/post/delete'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'postID': widget.post.getPostID}),
-    );
+    bool success = await widget.post.deletePost();
 
-    if (response.statusCode == 200) {
+    if (success) {
       if (!mounted) return;
       final dataService = Provider.of<DataService>(context, listen: false);
       await dataService.getFeed();

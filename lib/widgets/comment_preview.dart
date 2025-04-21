@@ -159,11 +159,11 @@ class _CommentPreviewState extends State<CommentPreview> {
 
   void deleteComment() async {
     final response = await http.post(
-      Uri.parse('$apiUrl/post/delete'),
+      Uri.parse('$apiUrl/comment/delete'),
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({'postID': widget.comment.getCommentID}),
+      body: json.encode({'commentID': widget.comment.getCommentID}),
     );
 
     if (response.statusCode == 200) {

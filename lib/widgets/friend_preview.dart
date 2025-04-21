@@ -9,27 +9,15 @@ import 'package:badbook/models/account.dart';
 // Widgets
 import 'package:badbook/widgets/account_bar.dart';
 
-// APIs
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-// Firebase
-import 'package:firebase_auth/firebase_auth.dart';
-
 class FriendPreview extends StatefulWidget {
-  const FriendPreview({super.key, required this.account, required this.type});
+  const FriendPreview({super.key, required this.account});
   final Account account;
-  final String type;
 
   @override
   State<FriendPreview> createState() => _FriendPreviewState();
 }
 
 class _FriendPreviewState extends State<FriendPreview> {
-  String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -43,88 +31,38 @@ class _FriendPreviewState extends State<FriendPreview> {
               Expanded(
                 child: SizedBox()
               ),
-              if (widget.type == 'Friends')
+              if (widget.account.getRelationship == 'friend')
                 ElevatedButton(
-                  onPressed: removeFriend,
+                  onPressed: () => {widget.account.removeFriend},
                   child: const Text("Remove"),
                 ),
-              if (widget.type == 'Incoming')
+              if (widget.account.getRelationship == 'incoming')
                 Row(
                   children: [
                     ElevatedButton(
-                      onPressed: acceptFriendRequest,
+                      onPressed: () => {widget.account.acceptFriendRequest},
                       child: const Text("Accept"),
                     ),
                     ElevatedButton(
-                      onPressed: rejectFriendRequest,
+                      onPressed: () => {widget.account.rejectFriendRequest},
                       child: const Text("Reject"),
                     ),
                   ]
                 ),
-              if (widget.type == 'Outgoing')
+              if (widget.account.getRelationship == 'outgoing')
                 ElevatedButton(
-                  onPressed: cancelFriendRequest,
+                  onPressed: () => {widget.account.cancelFriendRequest},
                   child: const Text("Cancel"),
                 ),
-              if (widget.type == 'Other')
+              if (widget.account.getRelationship == 'other')
                 ElevatedButton(
-                  onPressed: sendFriendRequest,
+                  onPressed: () => {widget.account.sendFriendRequest},
                   child: const Text("Send Request"),
                 )
             ],
           ),
         )
       )
-    );
-  }
-
-  void removeFriend() async {
-    await http.post(
-      Uri.parse('$apiUrl/account/removeFriend'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account.getEmail}),
-    );
-  }
-
-  void acceptFriendRequest() async {
-    await http.post(
-      Uri.parse('$apiUrl/account/acceptFriendRequest'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account.getEmail}),
-    );
-  }
-
-  void rejectFriendRequest() async {
-    await http.post(
-      Uri.parse('$apiUrl/account/rejectFriendRequest'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account.getEmail}),
-    );
-  }
-
-  void cancelFriendRequest() async {
-     await http.post(
-      Uri.parse('$apiUrl/account/cancelFriendRequest'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account.getEmail}),
-    );
-  }
-
-  void sendFriendRequest() async {
-    await http.post(
-      Uri.parse('$apiUrl/account/sendFriendRequest'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'email': _auth.currentUser?.email, 'otherEmail': widget.account.getEmail}),
     );
   }
 

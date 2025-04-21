@@ -140,6 +140,21 @@ class Post {
     return 0;
   }
 
+  Future<bool> deletePost() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/delete'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'postID': _postID}),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return true;
+  }
+
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       postID: json['postID'],
