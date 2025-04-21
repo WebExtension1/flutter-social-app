@@ -72,26 +72,11 @@ class NotificationServices {
 
     await AwesomeNotifications().setListeners(
       onActionReceivedMethod: onActionReceivedMethod,
-      onNotificationCreatedMethod: onNotificationCreatedMethod,
-      onNotificationDisplayedMethod: onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod: onDismissActionReceivedMethod
     );
   }
 
   static Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {
     debugPrint("User Action Received");
-  }
-
-  static Future<void> onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {
-    debugPrint("Notification Created");
-  }
-
-  static Future<void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
-    debugPrint("Notification Displayed");
-  }
-
-  static Future<void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
-    debugPrint("User Dismiss Action Received");
   }
 
   static Future<void> displayNotification({
@@ -105,12 +90,12 @@ class NotificationServices {
     final bool notificationScheduled = false,
     final Duration? notificationDuration
   }) async {
-    assert(!notificationScheduled || (notificationScheduled && notificationDuration == null));
+    assert(!notificationScheduled || (notificationScheduled && notificationDuration != null));
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 1,
-        channelKey: "messages_channel",
+        channelKey: "memories_channel",
         title: notificationTitle,
         body: notificationBody,
         summary: notificationSummary,

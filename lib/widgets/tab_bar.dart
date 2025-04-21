@@ -13,6 +13,7 @@ class TabBarWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(labels.length, (index) {
         final int type = index + 1;
+        final bool isSelected = displayType == type;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: GestureDetector(
@@ -29,6 +30,7 @@ class TabBarWidget extends StatelessWidget {
                   duration: Duration(milliseconds: 250),
                   height: 2,
                   width: displayType == type ? 24 : 0,
+                  color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
                 ),
               ],
             ),

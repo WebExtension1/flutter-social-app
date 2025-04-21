@@ -23,6 +23,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
+// Notifications
+import 'package:badbook/services/notifications_services.dart';
+
 class DataService extends ChangeNotifier {
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -43,6 +46,7 @@ class DataService extends ChangeNotifier {
   Map<String, List<Message>> messages = <String, List<Message>>{};
   Map<int, List<Comment>> comments = <int, List<Comment>>{};
   Map<String, Map<String, List<Object>>> profiles = <String, Map<String, List<Object>>>{};
+  List<Post> memories = [];
 
   // Profiles
   // Comments
@@ -57,6 +61,70 @@ class DataService extends ChangeNotifier {
     _loadUser();
     _loadFeed();
     _loadFriends();
+    _loadMemories();
+  }
+
+  // Memories
+
+  Future<void> _loadMemories() async {
+    getMemories();
+    notifyListeners;
+  }
+
+  Future<void> getMemories() async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/post/memories'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'email': _auth.currentUser?.email
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      _updateMemoriesFromJson(jsonResponse);
+
+      if (jsonResponse['nextMemories'] != null &&
+        jsonResponse['nextMemories'].isNotEmpty) {
+        await _scheduleMemoryNotification(jsonResponse['nextMemories']);
+      }
+
+      notifyListeners();
+    }
+  }
+
+  void _updateMemoriesFromJson(Map<String, dynamic> jsonResponse) {
+    memories = _parsePosts(jsonResponse['memories']);
+  }
+
+  Future<void> _scheduleMemoryNotification(List<dynamic> nextMemories) async {
+    final nextMemory = nextMemories[0];
+
+    DateTime postDate = DateTime.parse(nextMemory['postDate']);
+    DateTime today = DateTime.now();
+
+    int targetDay = postDate.day;
+    int targetMonth = postDate.month;
+
+    int yearForNotification = today.year;
+    if (targetMonth < today.month || (targetMonth == today.month && targetDay < today.day)) {
+      yearForNotification = today.year + 1;
+    }
+
+    DateTime nextNotificationDate = DateTime(yearForNotification, targetMonth, targetDay, 18, 0, 0, 0, 0);
+
+    Duration durationUntilNextNotification = nextNotificationDate.isBefore(DateTime.now())
+      ? nextNotificationDate.add(Duration(days: 365)).difference(DateTime.now())
+      : nextNotificationDate.difference(DateTime.now());
+
+    await NotificationServices.displayNotification(
+      notificationTitle: 'See your notifications for today!',
+      notificationBody: 'You’ve got ${nextMemories.length} ${nextMemories.length == 1 ? 'memory' : 'memories'} to view today!',
+      notificationScheduled: true,
+      notificationDuration: durationUntilNextNotification,
+    );
   }
 
   // Profiles

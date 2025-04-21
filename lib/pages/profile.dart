@@ -34,7 +34,7 @@ class ProfileState extends State<Profile> {
   bool loading = true;
   int displayType = 1;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final List<String> labels = ['Posts', 'Comments', 'Liked'];
+  List<String> labels = ['Posts', 'Comments', 'Liked'];
 
   @override
   void initState() {
@@ -45,6 +45,10 @@ class ProfileState extends State<Profile> {
       account = widget.account!;
     } else {
       account = dataService.user!;
+    }
+
+    if (_auth.currentUser!.email == account.getEmail) {
+      labels.add('Memories');
     }
 
     _loadDetails();
@@ -78,12 +82,12 @@ class ProfileState extends State<Profile> {
                 const Expanded(
                   child: SizedBox()
                 ),
-                if (account.getRelationship == 'friend' && widget.account!.getEmail != _auth.currentUser!.email)
+                if (account.getRelationship == 'friend' && account.getEmail != _auth.currentUser!.email)
                   ElevatedButton(
                     onPressed: () => {account.removeFriend(dataService)},
                     child: const Text("Remove"),
                   ),
-                if (account.getRelationship == 'incoming' && widget.account!.getEmail != _auth.currentUser!.email)
+                if (account.getRelationship == 'incoming' && account.getEmail != _auth.currentUser!.email)
                   Row(
                     children: [
                       ElevatedButton(
@@ -96,12 +100,12 @@ class ProfileState extends State<Profile> {
                       ),
                     ]
                   ),
-                if (account.getRelationship == 'outgoing' && widget.account!.getEmail != _auth.currentUser!.email)
+                if (account.getRelationship == 'outgoing' && account.getEmail != _auth.currentUser!.email)
                   ElevatedButton(
                     onPressed: () => {account.cancelFriendRequest},
                     child: const Text("Cancel"),
                   ),
-                if (account.getRelationship == 'other' && widget.account!.getEmail != _auth.currentUser!.email)
+                if (account.getRelationship == 'other' && account.getEmail != _auth.currentUser!.email)
                   ElevatedButton(
                     onPressed: () => {account.sendFriendRequest},
                     child: const Text("Send Request"),
@@ -171,6 +175,21 @@ class ProfileState extends State<Profile> {
                       itemBuilder: (context, index) {
                         return PostPreview(
                           post: dataService.profiles[account.getEmail]!['liked']!.cast<Post>()[index],
+                          account: account
+                        );
+                      }
+                    ),
+                  )
+                ),
+              if (displayType == 4)
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadDetails,
+                    child: ListView.builder(
+                      itemCount: dataService.memories.length,
+                      itemBuilder: (context, index) {
+                        return PostPreview(
+                          post: dataService.memories[index],
                           account: account
                         );
                       }
