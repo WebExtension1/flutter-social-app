@@ -15,6 +15,10 @@ import 'package:badbook/services/socket_service.dart';
 import 'package:provider/provider.dart';
 import 'package:badbook/providers/shared_data.dart';
 
+// Speech
+import 'package:speech_to_text/speech_to_text.dart' as speech_to_text;
+import 'package:permission_handler/permission_handler.dart';
+
 class Search extends StatefulWidget {
   const Search({super.key});
 
@@ -27,10 +31,14 @@ class SearchState extends State<Search> {
   final SocketService socketService = SocketService();
   List<Post> posts = [];
   List<account_model.Account> accounts = [];
+  late speech_to_text.SpeechToText speech;
+  bool _isListening = false;
 
   @override
   void initState() {
     super.initState();
+    speech = speech_to_text.SpeechToText();
+    Permission.microphone.request();
     _searchController.addListener(_onSearchChanged);
     socketService.socket.on("search", (data) {
       setState(() {
@@ -50,6 +58,28 @@ class SearchState extends State<Search> {
     });
   }
 
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await speech.initialize();
+
+      if (available) {
+        setState(() => _isListening = true);
+        speech.listen(
+          onResult: (query) {
+            setState(() {
+              _searchController.text = query.recognizedWords;
+              _isListening = false;
+            });
+            _onSearchChanged();
+          },
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      speech.stop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dataService = Provider.of<DataService>(context);
@@ -64,12 +94,16 @@ class SearchState extends State<Search> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Search',
                 border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
+                  onPressed: _listen,
+                ),
               ),
-            ),
+            )
           ),
           if (_searchController.text.trim().isEmpty)
             Padding(
@@ -178,6 +212,7 @@ class SearchState extends State<Search> {
   void dispose() {
     _searchController.dispose();
     socketService.socket.off("search");
+    speech.stop();
     super.dispose();
   }
 }
