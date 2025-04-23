@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+// Widgets
 import 'package:badbook/widgets/message_preview.dart';
 
 // Providers

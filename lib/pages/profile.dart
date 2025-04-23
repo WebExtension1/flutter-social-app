@@ -22,8 +22,9 @@ import 'package:badbook/providers/shared_data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key, this.account});
+  const Profile({super.key, this.account, this.memories});
   final Account? account;
+  final bool? memories;
 
   @override
   State<Profile> createState() => ProfileState();
@@ -49,6 +50,11 @@ class ProfileState extends State<Profile> {
 
     if (_auth.currentUser!.email == account.getEmail) {
       labels.add('Memories');
+      if (widget.memories == true) {
+        setState(() {
+          displayType = 4;
+        });
+      }
     }
 
     _loadDetails();

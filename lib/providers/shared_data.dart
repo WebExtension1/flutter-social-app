@@ -120,10 +120,11 @@ class DataService extends ChangeNotifier {
       : nextNotificationDate.difference(DateTime.now());
 
     await NotificationServices.displayNotification(
-      notificationTitle: 'See your notifications for today!',
+      notificationTitle: 'See your memories for today!',
       notificationBody: 'You’ve got ${nextMemories.length} ${nextMemories.length == 1 ? 'memory' : 'memories'} to view today!',
       notificationScheduled: true,
       notificationDuration: durationUntilNextNotification,
+      // notificationDuration: Duration(minutes: 1),
     );
   }
 
