@@ -81,7 +81,7 @@ void main() {
     expect(actualName, expectedName);
   });
 
-  test('Username formatting', () {
+  test('Local and retrieved formatting matches', () {
     // Arrange
     final Account account = Account.fromJson({
       'accountID': 1,
