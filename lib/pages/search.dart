@@ -42,11 +42,11 @@ class SearchState extends State<Search> {
     _searchController.addListener(_onSearchChanged);
     socketService.socket.on("search", (data) {
       setState(() {
-        posts = List<Post>.from(
-          data['posts'].map((post) => Post.fromJson(post))
-        );
         accounts = List<account_model.Account>.from(
           data['accounts'].map((account) => account_model.Account.fromJson(account))
+        );
+        posts = List<Post>.from(
+          data['posts'].map((post) => Post.fromJson(post))
         );
       });
     });

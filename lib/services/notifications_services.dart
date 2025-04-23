@@ -20,28 +20,6 @@ class NotificationServices {
           criticalAlerts: false,
         ),
         NotificationChannel(
-          channelKey: "posts_channel",
-          channelName: "Posts",
-          channelGroupKey: "posts_group",
-          channelDescription: "Receive occasional notifications when someone posts",
-          defaultColor: Color(0xFF007788),
-          importance: NotificationImportance.Default,
-          onlyAlertOnce: true,
-          playSound: true,
-          criticalAlerts: false,
-        ),
-        NotificationChannel(
-          channelKey: "comments_channel",
-          channelName: "Comments",
-          channelGroupKey: "posts_group",
-          channelDescription: "Receive occasional notifications when someone comments on your post",
-          defaultColor: Color(0xFF007788),
-          importance: NotificationImportance.Default,
-          onlyAlertOnce: true,
-          playSound: true,
-          criticalAlerts: false,
-        ),
-        NotificationChannel(
           channelKey: "memories_channel",
           channelName: "Memories",
           channelGroupKey: "memories_group",
@@ -57,10 +35,6 @@ class NotificationServices {
         NotificationChannelGroup(
         channelGroupKey: "messages_group",
         channelGroupName: "Messages"
-        ),
-        NotificationChannelGroup(
-          channelGroupKey: "posts_group",
-          channelGroupName: "Posts"
         ),
         NotificationChannelGroup(
           channelGroupKey: "memories_group",

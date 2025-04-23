@@ -14,13 +14,10 @@ import 'package:badbook/models/account.dart';
 // Notifications
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 
 // Providers
 import 'package:provider/provider.dart';
 import 'package:badbook/providers/shared_data.dart';
-
-final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 class MainAppScaffold extends StatefulWidget {
   final Account? account;

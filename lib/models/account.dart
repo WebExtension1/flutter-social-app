@@ -20,7 +20,7 @@ class Account {
   final String _relationship;
   final String? _imageUrl;
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth;
 
   Account({
     required int accountID,
@@ -32,6 +32,7 @@ class Account {
     required int phoneNumber,
     required String relationship,
     String? imageUrl,
+    FirebaseAuth? auth,
   })  : _accountID = accountID,
         _email = email,
         _username = username,
@@ -40,7 +41,8 @@ class Account {
         _dateJoined = dateJoined,
         _phoneNumber = phoneNumber,
         _relationship = relationship,
-        _imageUrl = imageUrl;
+        _imageUrl = imageUrl,
+        _auth = auth ?? FirebaseAuth.instance;
 
   int get getAccountID => _accountID;
   String get getEmail => _email;
@@ -137,7 +139,7 @@ class Account {
     await dataService.getFriends();
   }
 
-  factory Account.fromJson(Map<String, dynamic> json) {
+  factory Account.fromJson(Map<String, dynamic> json, {FirebaseAuth? auth}) {
     return Account(
       accountID: json['accountID'],
       email: json['email'],
@@ -148,6 +150,7 @@ class Account {
       dateJoined: DateTime.parse(json['dateJoined']),
       relationship: json['relationship'],
       imageUrl: json.containsKey('accountImageUrl') ? json['accountImageUrl'] as String? : json.containsKey('imageUrl') ? json['imageUrl'] as String? : null,
+      auth: auth,
     );
   }
 }
