@@ -1,6 +1,9 @@
 import 'package:badbook/models/account.dart';
 import 'package:badbook/models/post.dart';
 
+// Firebase
+import 'package:firebase_auth/firebase_auth.dart';
+
 class Comment {
   final int _commentID;
   final String _content;
@@ -62,13 +65,13 @@ class Comment {
   int get getDislikes => _dislikes;
   int get getLiked => _liked;
 
-  factory Comment.fromJson(Map<String, dynamic> json) {
+  factory Comment.fromJson(Map<String, dynamic> json, {FirebaseAuth? auth}) {
     return Comment(
       commentID: json['commentID'],
       content: json['commentContent'],
       sentDate: DateTime.parse(json['sentDate']),
-      account: Account.fromJson(json),
-      post: json['postID'] != null ? Post.fromJson(json) : null,
+      account: Account.fromJson(json, auth: auth),
+      post: json['postID'] != null ? Post.fromJson(json, auth: auth) : null,
       likes: json['likes'],
       dislikes: json['dislikes'],
       liked: json['liked'],

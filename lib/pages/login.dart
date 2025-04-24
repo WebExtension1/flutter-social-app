@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  message!.message,
+                  message!.getMessage,
                   style: TextStyle(color: message!.getColour),
                 ),
               ),

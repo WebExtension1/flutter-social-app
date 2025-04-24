@@ -91,7 +91,7 @@ class _SignupPageState extends State<SignupPage> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  message!.message,
+                  message!.getMessage,
                   style: TextStyle(color: message!.getColour),
                 ),
               ),

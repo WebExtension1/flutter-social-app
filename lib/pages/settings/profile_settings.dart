@@ -60,7 +60,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  profilePictureMessage!.message,
+                  profilePictureMessage!.getMessage,
                   style: TextStyle(color: profilePictureMessage!.getColour),
                 ),
               ),
@@ -84,7 +84,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  usernameMessage!.message,
+                  usernameMessage!.getMessage,
                   style: TextStyle(color: usernameMessage!.getColour),
                 ),
               ),
@@ -112,7 +112,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  nameMessage!.message,
+                  nameMessage!.getMessage,
                   style: TextStyle(color: nameMessage!.getColour),
                 ),
               ),

@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Post {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   String apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3001';
   final int _postID;
   final String _content;
@@ -21,6 +20,7 @@ class Post {
   int _liked;
   final String? _imageUrl;
   final String? _location;
+  final FirebaseAuth _auth;
 
   Post({
     required int postID,
@@ -33,6 +33,7 @@ class Post {
     required int liked,
     String? imageUrl,
     String? location,
+    FirebaseAuth? auth,
   })  : _postID = postID,
         _content = content,
         _account = account,
@@ -42,7 +43,8 @@ class Post {
         _commentCount = commentCount,
         _liked = liked,
         _imageUrl = imageUrl,
-        _location = location;
+        _location = location,
+        _auth = auth ?? FirebaseAuth.instance;
 
   int get getPostID => _postID;
   String get getContent => _content;
@@ -155,18 +157,19 @@ class Post {
     return true;
   }
 
-  factory Post.fromJson(Map<String, dynamic> json) {
+  factory Post.fromJson(Map<String, dynamic> json, {FirebaseAuth? auth}) {
     return Post(
       postID: json['postID'],
       content: json.containsKey('postContent') ? json['postContent'] : json['content'],
-      account: Account.fromJson(json),
+      account: Account.fromJson(json, auth: auth),
       postDate: DateTime.parse(json['postDate']),
-      likes: json['likes'],
-      dislikes: json['dislikes'],
+      likes: json.containsKey('postLikes') ? json['postLikes'] : json['likes'],
+      dislikes: json.containsKey('postDislikes') ? json['postDislikes'] : json['dislikes'],
       commentCount: json['commentCount'],
-      liked: json['liked'],
+      liked: json.containsKey('postLiked') ? json['postLiked'] : json['liked'],
       imageUrl: json.containsKey('imageUrl') ? json['imageUrl'] as String? : null,
       location: json.containsKey('location') ? json['location'] as String? : null,
+      auth: auth,
     );
   }
 }

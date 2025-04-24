@@ -71,7 +71,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  passwordMessage!.message,
+                  passwordMessage!.getMessage,
                   style: TextStyle(color: passwordMessage!.getColour),
                 ),
               ),
@@ -95,7 +95,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  emailMessage!.message,
+                  emailMessage!.getMessage,
                   style: TextStyle(color: emailMessage!.getColour),
                 ),
               ),
@@ -119,7 +119,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  phoneNumberMessage!.message,
+                  phoneNumberMessage!.getMessage,
                   style: TextStyle(color: phoneNumberMessage!.getColour),
                 ),
               ),
@@ -138,7 +138,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  accountMessage!.message,
+                  accountMessage!.getMessage,
                   style: TextStyle(color: accountMessage!.getColour),
                 ),
               ),
