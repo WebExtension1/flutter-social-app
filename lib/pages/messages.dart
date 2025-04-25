@@ -32,17 +32,18 @@ class MessagesState extends State<Messages> {
       body: Column(
         children: [
           const SizedBox(height: 10),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: dataService.getFriends,
-                child: ListView.builder(
-                itemCount: dataService.friends.length,
-                itemBuilder: (context, index) {
-                  return MessagePreview(account: dataService.friends[index]);
-                },
+          dataService.friends.isNotEmpty ?
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: dataService.getFriends,
+                  child: ListView.builder(
+                  itemCount: dataService.friends.length,
+                  itemBuilder: (context, index) {
+                    return MessagePreview(account: dataService.friends[index]);
+                  },
+                )
               )
-            )
-          )
+            ) : const Center(child: Text("Add some friends to start messaging!"))
         ],
       )
     );

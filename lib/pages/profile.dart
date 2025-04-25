@@ -137,71 +137,75 @@ class ProfileState extends State<Profile> {
               ),
               const SizedBox(height: 10),
               if (displayType == 1)
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _loadDetails,
-                    child: ListView.builder(
-                      itemCount: dataService.profiles[account.getEmail]!['posts']!.length,
-                      itemBuilder: (context, index) {
-                        return PostPreview(
-                          post: dataService.profiles[account.getEmail]!['posts']!.cast<Post>()[index],
-                          account: account
-                        );
-                      }
-                    ),
-                  )
-                ),
+                dataService.profiles[account.getEmail]!['posts']!.isNotEmpty ?
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: _loadDetails,
+                      child: ListView.builder(
+                        itemCount: dataService.profiles[account.getEmail]!['posts']!.length,
+                        itemBuilder: (context, index) {
+                          return PostPreview(
+                            post: dataService.profiles[account.getEmail]!['posts']!.cast<Post>()[index],
+                            account: account
+                          );
+                        }
+                      ),
+                    )
+                  ) : const Center(child: Text("No posts to display.")),
               if (displayType == 2)
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _loadDetails,
-                    child: ListView.builder(
-                      itemCount: dataService.profiles[account.getEmail]!['comments']!.length,
-                      itemBuilder: (context, index) {
-                        return CommentPreview(
-                          comment: dataService.profiles[account.getEmail]!['comments']!.cast<Comment>()[index],
-                          onDelete: () {
-                            setState(() {
-                              dataService.profiles[account.getEmail]!['comments']!.cast<Comment>().removeAt(index);
-                            });
-                          },
-                          displayTop: true,
-                          account: account
-                        );
-                      }
-                    ),
-                  )
-                ),
+                dataService.profiles[account.getEmail]!['comments']!.isNotEmpty ?
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: _loadDetails,
+                      child: ListView.builder(
+                        itemCount: dataService.profiles[account.getEmail]!['comments']!.length,
+                        itemBuilder: (context, index) {
+                          return CommentPreview(
+                            comment: dataService.profiles[account.getEmail]!['comments']!.cast<Comment>()[index],
+                            onDelete: () {
+                              setState(() {
+                                dataService.profiles[account.getEmail]!['comments']!.cast<Comment>().removeAt(index);
+                              });
+                            },
+                            displayTop: true,
+                            account: account
+                          );
+                        }
+                      ),
+                    )
+                  ) : const Center(child: Text("No comments to display.")),
               if (displayType == 3)
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _loadDetails,
-                    child: ListView.builder(
-                      itemCount: dataService.profiles[account.getEmail]!['liked']!.length,
-                      itemBuilder: (context, index) {
-                        return PostPreview(
-                          post: dataService.profiles[account.getEmail]!['liked']!.cast<Post>()[index],
-                          account: account
-                        );
-                      }
-                    ),
-                  )
-                ),
+                dataService.profiles[account.getEmail]!['liked']!.isNotEmpty ?
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: _loadDetails,
+                      child: ListView.builder(
+                        itemCount: dataService.profiles[account.getEmail]!['liked']!.length,
+                        itemBuilder: (context, index) {
+                          return PostPreview(
+                            post: dataService.profiles[account.getEmail]!['liked']!.cast<Post>()[index],
+                            account: account
+                          );
+                        }
+                      ),
+                    )
+                  ) : const Center(child: Text("No liked posts to display.")),
               if (displayType == 4)
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _loadDetails,
-                    child: ListView.builder(
-                      itemCount: dataService.memories.length,
-                      itemBuilder: (context, index) {
-                        return PostPreview(
-                          post: dataService.memories[index],
-                          account: account
-                        );
-                      }
-                    ),
-                  )
-                )
+                dataService.memories.isNotEmpty ?
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: _loadDetails,
+                      child: ListView.builder(
+                        itemCount: dataService.memories.length,
+                        itemBuilder: (context, index) {
+                          return PostPreview(
+                            post: dataService.memories[index],
+                            account: account
+                          );
+                        }
+                      ),
+                    )
+                  ) : const Center(child: Text("You don't have any memories today."))
             ]
           ],
         ),

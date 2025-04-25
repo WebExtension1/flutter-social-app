@@ -105,7 +105,7 @@ class SearchState extends State<Search> {
               ),
             )
           ),
-          if (_searchController.text.trim().isEmpty)
+          if (_searchController.text.trim().isEmpty && dataService.contacts.isNotEmpty)
             Padding(
               padding: EdgeInsets.all(8),
               child: Card(
@@ -123,9 +123,7 @@ class SearchState extends State<Search> {
                         ),
                       ),
                     ),
-                    dataService.contacts.isEmpty
-                        ? Text("You're friends with all registered contacts!")
-                        : SingleChildScrollView(
+                    SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: dataService.contacts.map((account) {
@@ -142,6 +140,8 @@ class SearchState extends State<Search> {
                 ),
               ),
             )
+          else if (_searchController.text.trim().isEmpty && dataService.contacts.isEmpty)
+            const Center(child: Text("Enter something to begin searching!"))
           else
             Expanded(
               child: SingleChildScrollView(
@@ -188,17 +188,18 @@ class SearchState extends State<Search> {
                       padding: EdgeInsets.all(8.0),
                       child: Text('Posts'),
                     ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: posts.length,
-                      itemBuilder: (context, index) {
-                        return PostPreview(
-                          post: posts[index],
-                          account: dataService.user!
-                        );
-                      },
-                    ),
+                    posts.isNotEmpty ?
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: posts.length,
+                        itemBuilder: (context, index) {
+                          return PostPreview(
+                            post: posts[index],
+                            account: dataService.user!
+                          );
+                        },
+                      ) : const Center(child: Text("No posts found."))
                   ],
                 ),
               ),

@@ -300,7 +300,7 @@ class DataService extends ChangeNotifier {
       // Cache up to 15 posts
       if (jsonResponse != null) {
         cachedPosts = List<Post>.from(
-          jsonResponse.map((post) => Post.fromJson(post)),
+          jsonResponse.take(15).map((post) => Post.fromJson(post)),
         );
       }
 
@@ -379,7 +379,7 @@ class DataService extends ChangeNotifier {
           // Cache up to 15 friends
           if (jsonResponse['friends'] != null) {
             cachedAccounts = List<account_model.Account>.from(
-              jsonResponse['friends'].map((a) => account_model.Account.fromJson(a)),
+              jsonResponse['friends'].take(15).map((a) => account_model.Account.fromJson(a)),
             );
           }
 

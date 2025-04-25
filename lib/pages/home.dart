@@ -95,21 +95,22 @@ class HomeState extends State<Home> {
                 )
               )
             ),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: dataService.getFeed,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: dataService.feed.length,
-                  itemBuilder: (context, index) {
-                    return PostPreview(
-                      post: dataService.feed[index],
-                      account: dataService.user!
-                    );
-                  }
-                )
-              ),
-            )
+            dataService.feed.isNotEmpty ?
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: dataService.getFeed,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: dataService.feed.length,
+                    itemBuilder: (context, index) {
+                      return PostPreview(
+                        post: dataService.feed[index],
+                        account: dataService.user!
+                      );
+                    }
+                  )
+                ),
+              ) : const Center(child: Text("Be the first to post!"))
           ]
         )
       ),
