@@ -21,10 +21,12 @@ class Friends extends StatefulWidget {
 class _FriendsState extends State<Friends> {
   int displayType = 1;
   final List<String> labels = ['Friends', 'Contacts', 'Mutual', 'Incoming', 'Outgoing'];
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: displayType - 1);
   }
 
   static Widget _listViewGroup(List<account_model.Account> group, Future<void> Function() onRefresh) {
@@ -48,23 +50,6 @@ class _FriendsState extends State<Friends> {
   Widget build(BuildContext context) {
     final dataService = Provider.of<DataService>(context);
 
-    Widget buildTabContent(int type) {
-      switch (type) {
-        case 1:
-          return _listViewGroup(dataService.friends, dataService.getFriends);
-        case 2:
-          return _listViewGroup(dataService.contacts, dataService.getFriends);
-        case 3:
-          return _listViewGroup(dataService.mutual, dataService.getFriends);
-        case 4:
-          return _listViewGroup(dataService.incoming, dataService.getFriends);
-        case 5:
-          return _listViewGroup(dataService.outgoing, dataService.getFriends);
-        default:
-          return const SizedBox.shrink();
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Friends")
@@ -78,13 +63,40 @@ class _FriendsState extends State<Friends> {
             onTabSelected: (int type) {
               setState(() {
                 displayType = type;
+                _pageController.animateToPage(
+                  type - 1,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               });
             },
           ),
           const SizedBox(height: 10),
-          buildTabContent(displayType),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  displayType = index + 1;
+                });
+              },
+              children: [
+                _listViewGroup(dataService.friends, dataService.getFriends),
+                _listViewGroup(dataService.contacts, dataService.getFriends),
+                _listViewGroup(dataService.mutual, dataService.getFriends),
+                _listViewGroup(dataService.incoming, dataService.getFriends),
+                _listViewGroup(dataService.outgoing, dataService.getFriends),
+              ],
+            ),
+          ),
         ],
       )
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
   }
 }

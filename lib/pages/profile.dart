@@ -36,6 +36,7 @@ class ProfileState extends State<Profile> {
   int displayType = 1;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<String> labels = ['Posts', 'Comments', 'Liked'];
+  late PageController _pageController;
 
   @override
   void initState() {
@@ -56,6 +57,8 @@ class ProfileState extends State<Profile> {
         });
       }
     }
+
+    _pageController = PageController(initialPage: displayType - 1);
 
     _loadDetails();
     loading = false;
@@ -132,80 +135,88 @@ class ProfileState extends State<Profile> {
                 onTabSelected: (int type) {
                   setState(() {
                     displayType = type;
+                    _pageController.animateToPage(
+                      type - 1,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   });
                 },
               ),
               const SizedBox(height: 10),
-              if (displayType == 1)
-                dataService.profiles[account.getEmail]!['posts']!.isNotEmpty ?
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _loadDetails,
-                      child: ListView.builder(
-                        itemCount: dataService.profiles[account.getEmail]!['posts']!.length,
-                        itemBuilder: (context, index) {
-                          return PostPreview(
-                            post: dataService.profiles[account.getEmail]!['posts']!.cast<Post>()[index],
-                            account: account
-                          );
-                        }
-                      ),
-                    )
-                  ) : const Center(child: Text("No posts to display.")),
-              if (displayType == 2)
-                dataService.profiles[account.getEmail]!['comments']!.isNotEmpty ?
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _loadDetails,
-                      child: ListView.builder(
-                        itemCount: dataService.profiles[account.getEmail]!['comments']!.length,
-                        itemBuilder: (context, index) {
-                          return CommentPreview(
-                            comment: dataService.profiles[account.getEmail]!['comments']!.cast<Comment>()[index],
-                            onDelete: () {
-                              setState(() {
-                                dataService.profiles[account.getEmail]!['comments']!.cast<Comment>().removeAt(index);
-                              });
-                            },
-                            displayTop: true,
-                            account: account
-                          );
-                        }
-                      ),
-                    )
-                  ) : const Center(child: Text("No comments to display.")),
-              if (displayType == 3)
-                dataService.profiles[account.getEmail]!['liked']!.isNotEmpty ?
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _loadDetails,
-                      child: ListView.builder(
-                        itemCount: dataService.profiles[account.getEmail]!['liked']!.length,
-                        itemBuilder: (context, index) {
-                          return PostPreview(
-                            post: dataService.profiles[account.getEmail]!['liked']!.cast<Post>()[index],
-                            account: account
-                          );
-                        }
-                      ),
-                    )
-                  ) : const Center(child: Text("No liked posts to display.")),
-              if (displayType == 4)
-                dataService.memories.isNotEmpty ?
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _loadDetails,
-                      child: ListView.builder(
-                        itemCount: dataService.memories.length,
-                        itemBuilder: (context, index) {
-                          return PostPreview(
-                            post: dataService.memories[index],
-                            account: account
-                          );
-                        }
-                      ),
-                    )
-                  ) : const Center(child: Text("You don't have any memories today."))
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      displayType = index + 1;
+                    });
+                  },
+                  children: [
+                    dataService.profiles[account.getEmail]!['posts']!.isNotEmpty ?
+                      RefreshIndicator(
+                        onRefresh: _loadDetails,
+                        child: ListView.builder(
+                          itemCount: dataService.profiles[account.getEmail]!['posts']!.length,
+                          itemBuilder: (context, index) {
+                            return PostPreview(
+                              post: dataService.profiles[account.getEmail]!['posts']!.cast<Post>()[index],
+                              account: account
+                            );
+                          }
+                        )
+                      ) : const Center(child: Text("No posts to display.")),
+
+                    dataService.profiles[account.getEmail]!['comments']!.isNotEmpty ?
+                      RefreshIndicator(
+                        onRefresh: _loadDetails,
+                        child: ListView.builder(
+                          itemCount: dataService.profiles[account.getEmail]!['comments']!.length,
+                          itemBuilder: (context, index) {
+                            return CommentPreview(
+                              comment: dataService.profiles[account.getEmail]!['comments']!.cast<Comment>()[index],
+                              onDelete: () {
+                                setState(() {
+                                  dataService.profiles[account.getEmail]!['comments']!.cast<Comment>().removeAt(index);
+                                });
+                              },
+                              displayTop: true,
+                              account: account
+                            );
+                          }
+                        ),
+                      ) : const Center(child: Text("No comments to display.")),
+
+                    dataService.profiles[account.getEmail]!['liked']!.isNotEmpty ?
+                      RefreshIndicator(
+                        onRefresh: _loadDetails,
+                        child: ListView.builder(
+                          itemCount: dataService.profiles[account.getEmail]!['liked']!.length,
+                          itemBuilder: (context, index) {
+                            return PostPreview(
+                              post: dataService.profiles[account.getEmail]!['liked']!.cast<Post>()[index],
+                              account: account
+                            );
+                          }
+                        ),
+                      ) : const Center(child: Text("No liked posts to display.")),
+
+                    dataService.memories.isNotEmpty ?
+                      RefreshIndicator(
+                        onRefresh: _loadDetails,
+                        child: ListView.builder(
+                          itemCount: dataService.memories.length,
+                          itemBuilder: (context, index) {
+                            return PostPreview(
+                              post: dataService.memories[index],
+                              account: account
+                            );
+                          }
+                        )
+                      ) : const Center(child: Text("You don't have any memories today."))
+                  ],
+                ),
+              )
             ]
           ],
         ),
@@ -219,5 +230,11 @@ class ProfileState extends State<Profile> {
         builder: (ctx) => const Settings(),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
   }
 }
