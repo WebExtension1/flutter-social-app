@@ -54,7 +54,7 @@ class _CommentPreviewState extends State<CommentPreview> {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.all(10),
         child: Column(
           children: [
             if (widget.displayTop == true) ...[

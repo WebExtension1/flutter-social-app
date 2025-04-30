@@ -46,7 +46,7 @@ class _PostState extends State<PostPreview> {
       },
       child: Card(
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.all(10),
           child: Column(
             children: [
               Row(

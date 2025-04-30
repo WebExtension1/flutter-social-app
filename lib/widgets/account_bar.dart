@@ -48,7 +48,7 @@ class _AccountBarState extends State<AccountBar> {
               LayoutBuilder(
                 builder: (context, constraints) {
                   double screenWidth = MediaQuery.of(context).size.width;
-                  double maxTextWidth = screenWidth - 270;
+                  double maxTextWidth = screenWidth - 280;
 
                   return ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: maxTextWidth),

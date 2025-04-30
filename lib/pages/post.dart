@@ -233,24 +233,27 @@ class _PostState extends State<PostPage> {
             ),
             dataService.comments[widget.post.getPostID] != null
               ? (dataService.comments[widget.post.getPostID]!.isNotEmpty
-                ? Expanded (
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: dataService.comments[widget.post.getPostID]!.length,
-                    itemBuilder: (context, index) {
-                      return CommentPreview(
-                        comment: dataService.comments[widget.post.getPostID]![index],
-                        onDelete: () {
-                          setState(() {
-                            dataService.comments[widget.post.getPostID]!.removeAt(index);
-                          });
-                        },
-                        account: dataService.user!,
-                      );
-                    },
-                  )
-                ) : const Center(child: Text("Be the first to comment!")))
-              : const Center(child: CircularProgressIndicator())
+                ? Padding (
+                  padding: EdgeInsets.all(5),
+                  child: Expanded (
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: dataService.comments[widget.post.getPostID]!.length,
+                      itemBuilder: (context, index) {
+                        return CommentPreview(
+                          comment: dataService.comments[widget.post.getPostID]![index],
+                          onDelete: () {
+                            setState(() {
+                              dataService.comments[widget.post.getPostID]!.removeAt(index);
+                            });
+                          },
+                          account: dataService.user!,
+                        );
+                      },
+                    )
+                )
+              ) : const Center(child: Text("Be the first to comment!"))
+            ) : const Center(child: CircularProgressIndicator())
           ]
         )
       )

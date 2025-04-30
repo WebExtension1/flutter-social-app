@@ -37,9 +37,10 @@ class MessagesState extends State<Messages> {
               child: RefreshIndicator(
                 onRefresh: dataService.getFriends,
                   child: ListView.builder(
-                  itemCount: dataService.friends.length,
-                  itemBuilder: (context, index) {
-                    return MessagePreview(account: dataService.friends[index]);
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: dataService.friends.length,
+                    itemBuilder: (context, index) {
+                      return MessagePreview(account: dataService.friends[index]);
                   },
                 )
               )

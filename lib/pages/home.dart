@@ -100,6 +100,7 @@ class HomeState extends State<Home> {
                 child: RefreshIndicator(
                   onRefresh: dataService.getFeed,
                   child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     controller: _scrollController,
                     itemCount: dataService.feed.length,
                     itemBuilder: (context, index) {

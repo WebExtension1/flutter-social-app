@@ -36,6 +36,7 @@ class _FriendsState extends State<Friends> {
         child: RefreshIndicator(
           onRefresh: onRefresh,
           child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
             itemCount: group.length,
             itemBuilder: (context, index) {
               return FriendPreview(account: group[index]);

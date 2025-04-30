@@ -82,7 +82,7 @@ class ProfileState extends State<Profile> {
         ],
       ),
       body: loading ? Center(child: CircularProgressIndicator()) : Padding(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.all(5),
         child: Column(
           children: [
             Row(
@@ -157,6 +157,7 @@ class ProfileState extends State<Profile> {
                       RefreshIndicator(
                         onRefresh: _loadDetails,
                         child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: dataService.profiles[account.getEmail]!['posts']!.length,
                           itemBuilder: (context, index) {
                             return PostPreview(
@@ -171,6 +172,7 @@ class ProfileState extends State<Profile> {
                       RefreshIndicator(
                         onRefresh: _loadDetails,
                         child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: dataService.profiles[account.getEmail]!['comments']!.length,
                           itemBuilder: (context, index) {
                             return CommentPreview(
@@ -191,6 +193,7 @@ class ProfileState extends State<Profile> {
                       RefreshIndicator(
                         onRefresh: _loadDetails,
                         child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: dataService.profiles[account.getEmail]!['liked']!.length,
                           itemBuilder: (context, index) {
                             return PostPreview(
@@ -205,6 +208,7 @@ class ProfileState extends State<Profile> {
                       RefreshIndicator(
                         onRefresh: _loadDetails,
                         child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: dataService.memories.length,
                           itemBuilder: (context, index) {
                             return PostPreview(
